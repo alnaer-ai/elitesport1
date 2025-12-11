@@ -1,15 +1,51 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@400;600&display=swap");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  color: #0f172a;
-  background-color: #f8fafc;
+  color: #f8f6f1;
+  background-color: #050609;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
 }
 
-body {
-  min-height: 100vh;
-  font-family: var(--font-sans, ui-sans-serif), system-ui, -apple-system,
-    BlinkMacSystemFont, "Segoe UI", sans-serif;
-  background-color: #f8fafc;
+@layer base {
+  * {
+    @apply border-brand-deepBlue/30;
+  }
+
+  html {
+    @apply bg-brand-black text-brand-ivory scroll-smooth;
+  }
+
+  body {
+    @apply min-h-screen bg-brand-black text-brand-gray font-sans antialiased;
+    background-image: radial-gradient(circle at top, rgba(197, 163, 91, 0.1), transparent 55%),
+      radial-gradient(circle at 20% 20%, rgba(111, 175, 206, 0.15), transparent 40%);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-display text-brand-ivory tracking-tight;
+  }
+
+  a {
+    @apply text-brand-gold transition-colors duration-200;
+  }
+
+  a:hover {
+    @apply text-brand-lightBlue;
+  }
+
+  ::selection {
+    background: rgba(197, 163, 91, 0.35);
+    color: #050609;
+  }
 }
