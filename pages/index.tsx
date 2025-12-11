@@ -1,10 +1,18 @@
+import Head from "next/head";
 import Image from "next/image";
+import { GetStaticProps, InferGetStaticPropsType } from "next";
 import { ReactNode } from "react";
 import { motion } from "framer-motion";
+import type { SanityImageSource } from "@sanity/image-url/lib/types/types";
 
 import { Button } from "@/components/Button";
 import { Container } from "@/components/Container";
 import { cn } from "@/lib/cn";
+import {
+  isSanityConfigured,
+  sanityClient,
+  urlForImage,
+} from "@/lib/sanity.client";
 
 const heroHighlights = [
   { label: "Destinations", value: "45+" },
@@ -12,113 +20,26 @@ const heroHighlights = [
   { label: "Private Members", value: "3.5k" },
 ];
 
-const popularPlaces = [
-  {
-    name: "Aurora Performance Club",
-    location: "Dubai • United Arab Emirates",
-    description:
-      "Skyline conditioning suites with ocean-view recovery lounges and curated training blocks.",
-    image:
-      "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=1600&q=80",
-  },
-  {
-    name: "Elysian Wellness Retreat",
-    location: "St. Moritz • Switzerland",
-    description:
-      "Altitude spa circuits paired with Nordic hydrotherapy and bespoke strength coaching.",
-    image:
-      "https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?auto=format&fit=crop&w=1600&q=80",
-  },
-  {
-    name: "Harborfront Athletic Loft",
-    location: "Singapore",
-    description:
-      "Members-only rooftop laps, infrared saunas, and guided movement diagnostics.",
-    image:
-      "https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=1600&q=80",
-  },
-  {
-    name: "Solstice Recovery Pavilion",
-    location: "Malibu • California",
-    description:
-      "Sunset reformer studios, cryotherapy domes, and chef-crafted restoration menus.",
-    image:
-      "https://images.unsplash.com/photo-1483721310020-03333e577078?auto=format&fit=crop&w=1600&q=80",
-  },
-];
+const PLACE_CATEGORY_LABELS: Record<string, string> = {
+  hotel: "Hotel",
+  gym: "Gym",
+  female: "Female Club",
+  kids: "Kids Club",
+  spa: "Spa",
+  tennisSquash: "Tennis & Squash",
+};
 
-const nearbyPlaces = [
-  {
-    name: "Marina Strength Loft",
-    distance: "2.1 km away",
-    description: "24/7 concierge coaching pods with heated lap pool access.",
-    image:
-      "https://images.unsplash.com/photo-1554344728-77cf90d9ed26?auto=format&fit=crop&w=900&q=80",
-  },
-  {
-    name: "Harborline Recovery Suites",
-    distance: "3.4 km away",
-    description: "Private physiotherapy cabins overlooking the city marina.",
-    image:
-      "https://images.unsplash.com/photo-1484287482475-e09c8a9f8d5c?auto=format&fit=crop&w=900&q=80",
-  },
-  {
-    name: "Skyline Tempo Studio",
-    distance: "4.0 km away",
-    description: "Altitude-inspired tread circuits and AI-powered training insights.",
-    image:
-      "https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=900&q=80",
-  },
-  {
-    name: "Lumen Balance Atelier",
-    distance: "5.8 km away",
-    description: "Mind-body residencies with candlelit reformer sessions and tea bar.",
-    image:
-      "https://images.unsplash.com/photo-1500916434205-0c77489c6cf7?auto=format&fit=crop&w=900&q=80",
-  },
-];
-
-const promotions = [
-  {
-    title: "20% Off Spa Immersions",
-    description: "Reserve a three-hour thermal journey with cryo-facial finale.",
-    code: "REVIVE20",
-    image:
-      "https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=1200&q=80",
-  },
-  {
-    title: "Complimentary Coach Session",
-    description: "Enjoy a personalized Lab Assessment with any new membership tier.",
-    code: "LABCOACH",
-    image:
-      "https://images.unsplash.com/photo-1445384763658-0400939829cd?auto=format&fit=crop&w=1200&q=80",
-  },
-  {
-    title: "Weekday Lounge Access",
-    description: "Bring a guest to the Horizon Recovery Lounge Monday through Friday.",
-    code: "DUOPASS",
-    image:
-      "https://images.unsplash.com/photo-1483721310020-03333e577078?auto=format&fit=crop&w=1200&q=80",
-  },
-];
-
-const clients = [
-  "Momentum Capital",
-  "Nova Athletics",
-  "Celestia Resorts",
-  "Luxe Medical",
-  "Arclight Group",
-  "Horizon Hotels",
-];
-
-const partners = [
-  "Aether Labs",
-  "Pulse Nutrition",
-  "Goldleaf Travel",
-  "Orion Aviation",
-  "Vitali Tech",
-  "Summit Coaching",
-];
+const FALLBACK_PLACE_IMAGE =
+  "https://images.unsplash.com/photo-1483721310020-03333e577078?auto=format&fit=crop&w=1600&q=80";
+const FALLBACK_PROMO_IMAGE =
+  "https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=1200&q=80";
+const HOME_SEO = {
+  title: "EliteSport | Luxury Performance Destinations Worldwide",
+  description:
+    "Discover EliteSport’s curated network of gyms, spas, and private clubs worldwide. Explore memberships, exclusive promotions, and CMS-driven places.",
+  url: "https://elitesport.com",
+  image: FALLBACK_PROMO_IMAGE,
+};
 
 const sectionVariants = {
   hidden: { opacity: 0, y: 60 },
@@ -138,52 +59,198 @@ const cardVariants = {
   },
 };
 
-export default function Home() {
+type PlaceCategory = keyof typeof PLACE_CATEGORY_LABELS;
+
+type Place = {
+  _id: string;
+  name?: string;
+  description?: string;
+  location?: string;
+  category?: PlaceCategory;
+  distanceLabel?: string;
+  image?: SanityImageSource;
+  imageAlt?: string;
+};
+
+type Promotion = {
+  _id: string;
+  title?: string;
+  description?: string;
+  promoCode?: string;
+  image?: SanityImageSource;
+  imageAlt?: string;
+  ctaLabel?: string;
+  ctaUrl?: string;
+};
+
+type ClientPartner = {
+  _id: string;
+  name?: string;
+  category?: "client" | "partner" | "sponsor";
+  logo?: SanityImageSource;
+  logoAlt?: string;
+  website?: string;
+};
+
+type HomePageProps = {
+  popularPlaces: Place[];
+  nearbyPlaces: Place[];
+  promotions: Promotion[];
+  clientPartners: ClientPartner[];
+};
+
+const HOME_PAGE_QUERY = `
+{
+  "popularPlaces": *[_type == "place" && isMostPopular == true] | order(coalesce(priority, 1000) asc, name asc)[0...6] {
+    _id,
+    name,
+    description,
+    location,
+    category,
+    image,
+    imageAlt
+  },
+  "nearbyPlaces": *[_type == "place" && isNearby == true] | order(coalesce(priority, 1000) asc, name asc)[0...4] {
+    _id,
+    name,
+    description,
+    location,
+    distanceLabel,
+    image,
+    imageAlt
+  },
+  "promotions": *[_type == "promotion"] | order(isFeatured desc, coalesce(validFrom, _createdAt) desc)[0...6] {
+    _id,
+    title,
+    description,
+    promoCode,
+    image,
+    imageAlt,
+    ctaLabel,
+    ctaUrl
+  },
+  "clientPartners": *[_type == "clientPartner"] | order(coalesce(priority, 1000) asc, name asc) {
+    _id,
+    name,
+    category,
+    logo,
+    logoAlt,
+    website
+  }
+}
+`;
+
+const getImageUrl = (
+  source?: SanityImageSource,
+  width = 1600,
+  height?: number
+) => {
+  if (!source || !isSanityConfigured) {
+    return undefined;
+  }
+
+  try {
+    let builder = urlForImage(source).width(width).auto("format");
+    if (height) {
+      builder = builder.height(height).fit("crop");
+    }
+
+    return builder.url();
+  } catch {
+    return undefined;
+  }
+};
+
+const getCategoryLabel = (category?: PlaceCategory) => {
+  if (!category) return "EliteSport";
+  return PLACE_CATEGORY_LABELS[category] ?? "EliteSport";
+};
+
+export default function Home(
+  props: InferGetStaticPropsType<typeof getStaticProps>
+) {
+  const { popularPlaces, nearbyPlaces, promotions, clientPartners } = props;
+
+  const clientLogos = clientPartners.filter(
+    (entry) => entry.category === "client"
+  );
+  const partnerLogos = clientPartners.filter(
+    (entry) => entry.category && entry.category !== "client"
+  );
+
   return (
-    <div className="space-y-20 pb-24">
-      <Hero />
+    <>
+      <Head>
+        <title>{HOME_SEO.title}</title>
+        <meta name="description" content={HOME_SEO.description} />
+        <meta property="og:title" content={HOME_SEO.title} />
+        <meta property="og:description" content={HOME_SEO.description} />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={HOME_SEO.url} />
+        <meta property="og:image" content={HOME_SEO.image} />
+      </Head>
+
+      <div className="space-y-20 pb-24">
+        <Hero />
+
       <Section
         eyebrow="Elite Destinations"
         title="Most Popular Places"
         description="Curated residences and training spaces where performance, hospitality, and wellness are seamlessly woven together."
       >
-        <motion.div
-          className="grid gap-8 md:grid-cols-2 xl:grid-cols-3"
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.2 }}
-          variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.12 } } }}
-        >
-          {popularPlaces.map((place) => (
-            <motion.article
-              key={place.name}
-              variants={cardVariants}
-              className="group overflow-hidden rounded-3xl border border-brand-deepBlue/40 bg-brand-black/60 shadow-lg shadow-brand-black/40"
-            >
-              <div className="relative h-56 w-full overflow-hidden">
-                <Image
-                  src={place.image}
-                  alt={place.name}
-                  fill
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  className="object-cover transition-transform duration-700 group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-                <div className="absolute inset-x-0 bottom-0 p-5">
-                  <p className="text-xs uppercase tracking-[0.4em] text-brand-lightBlue">
-                    {place.location}
+        {popularPlaces.length > 0 ? (
+          <motion.div
+            className="grid gap-8 md:grid-cols-2 xl:grid-cols-3"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+            variants={{
+              hidden: {},
+              visible: { transition: { staggerChildren: 0.12 } },
+            }}
+          >
+            {popularPlaces.map((place) => {
+              const imageUrl =
+                getImageUrl(place.image, 1600, 900) ?? FALLBACK_PLACE_IMAGE;
+              const locationLabel = place.location ?? getCategoryLabel(place.category);
+
+              return (
+                <motion.article
+                  key={place._id}
+                  variants={cardVariants}
+                  className="group overflow-hidden rounded-3xl border border-brand-deepBlue/40 bg-brand-black/60 shadow-lg shadow-brand-black/40"
+                >
+                  <div className="relative h-56 w-full overflow-hidden">
+                    <Image
+                      src={imageUrl}
+                      alt={place.imageAlt ?? place.name ?? "EliteSport place"}
+                      fill
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      className="object-cover transition-transform duration-700 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                    <div className="absolute inset-x-0 bottom-0 p-5">
+                      <p className="text-xs uppercase tracking-[0.4em] text-brand-lightBlue">
+                        {locationLabel}
+                      </p>
+                      <p className="mt-2 font-display text-2xl text-brand-ivory">
+                        {place.name ?? "EliteSport Place"}
+                      </p>
+                    </div>
+                  </div>
+                  <p className="px-5 py-6 text-sm text-brand-gray/90">
+                    {place.description ??
+                      "Destination curated by EliteSport with white-glove service and member-only access."}
                   </p>
-                  <p className="mt-2 font-display text-2xl text-brand-ivory">
-                    {place.name}
-                  </p>
-                </div>
-              </div>
-              <p className="px-5 py-6 text-sm text-brand-gray/90">
-                {place.description}
-              </p>
-            </motion.article>
-          ))}
-        </motion.div>
+                </motion.article>
+              );
+            })}
+          </motion.div>
+        ) : (
+          <p className="rounded-3xl border border-dashed border-brand-deepBlue/50 bg-brand-black/50 px-6 py-8 text-center text-sm text-brand-gray">
+            Add a few “Most Popular” places inside Sanity to populate this section.
+          </p>
+        )}
       </Section>
 
       <Section
@@ -192,43 +259,56 @@ export default function Home() {
         description="Stay spontaneous. Explore impeccably serviced places curated for members within a short drive."
         className="bg-brand-deepBlue/30"
       >
-        <div className="grid gap-6 md:grid-cols-2">
-          {nearbyPlaces.map((place) => (
-            <motion.article
-              key={place.name}
-              variants={cardVariants}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, amount: 0.3 }}
-              className="flex gap-4 rounded-3xl border border-brand-deepBlue/60 bg-brand-black/70 p-4 shadow-lg shadow-brand-black/30"
-              whileHover={{ y: -6 }}
-            >
-              <div className="relative h-32 w-32 overflow-hidden rounded-2xl">
-                <Image
-                  src={place.image}
-                  alt={place.name}
-                  fill
-                  sizes="128px"
-                  className="object-cover"
-                />
-              </div>
-              <div className="flex flex-1 flex-col justify-between">
-                <div>
-                  <p className="text-xs uppercase tracking-[0.3em] text-brand-lightBlue">
-                    {place.distance}
-                  </p>
-                  <h3 className="mt-2 text-lg text-brand-ivory">{place.name}</h3>
-                  <p className="mt-2 text-sm text-brand-gray/90">
-                    {place.description}
-                  </p>
-                </div>
-                <span className="text-xs font-semibold uppercase tracking-[0.3em] text-brand-gold">
-                  View Details
-                </span>
-              </div>
-            </motion.article>
-          ))}
-        </div>
+        {nearbyPlaces.length > 0 ? (
+          <div className="grid gap-6 md:grid-cols-2">
+            {nearbyPlaces.map((place) => {
+              const imageUrl = getImageUrl(place.image, 800, 800) ?? FALLBACK_PLACE_IMAGE;
+              const distanceLabel = place.distanceLabel ?? place.location ?? "Featured";
+
+              return (
+                <motion.article
+                  key={place._id}
+                  variants={cardVariants}
+                  initial="hidden"
+                  whileInView="visible"
+                  viewport={{ once: true, amount: 0.3 }}
+                  className="flex gap-4 rounded-3xl border border-brand-deepBlue/60 bg-brand-black/70 p-4 shadow-lg shadow-brand-black/30"
+                  whileHover={{ y: -6 }}
+                >
+                  <div className="relative h-32 w-32 overflow-hidden rounded-2xl">
+                    <Image
+                      src={imageUrl}
+                      alt={place.imageAlt ?? place.name ?? "EliteSport place"}
+                      fill
+                      sizes="128px"
+                      className="object-cover"
+                    />
+                  </div>
+                  <div className="flex flex-1 flex-col justify-between">
+                    <div>
+                      <p className="text-xs uppercase tracking-[0.3em] text-brand-lightBlue">
+                        {distanceLabel}
+                      </p>
+                      <h3 className="mt-2 text-lg text-brand-ivory">
+                        {place.name ?? "EliteSport Place"}
+                      </h3>
+                      <p className="mt-2 text-sm text-brand-gray/90">
+                        {place.description ?? "Boutique destination curated nearby."}
+                      </p>
+                    </div>
+                    <span className="text-xs font-semibold uppercase tracking-[0.3em] text-brand-gold">
+                      View Details
+                    </span>
+                  </div>
+                </motion.article>
+              );
+            })}
+          </div>
+        ) : (
+          <p className="rounded-3xl border border-dashed border-brand-deepBlue/50 bg-brand-black/50 px-6 py-8 text-center text-sm text-brand-gray">
+            Flag a few places as “Nearby Highlights” in the CMS to showcase quick escapes.
+          </p>
+        )}
       </Section>
 
       <Section
@@ -236,43 +316,58 @@ export default function Home() {
         title="Recent Promotions"
         description="Seasonal benefits for members, refreshed weekly with bespoke privileges."
       >
-        <motion.div
-          className="flex gap-6 overflow-x-auto pb-4"
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.3 }}
-          variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.15 } } }}
-        >
-          {promotions.map((promo) => (
-            <motion.article
-              key={promo.title}
-              variants={cardVariants}
-              className="relative min-w-[260px] flex-1 overflow-hidden rounded-3xl border border-brand-deepBlue/60 bg-brand-black/70 shadow-glow sm:min-w-[320px]"
-              whileHover={{ scale: 1.02 }}
-            >
-              <div className="relative h-48">
-                <Image
-                  src={promo.image}
-                  alt={promo.title}
-                  fill
-                  sizes="(max-width: 768px) 80vw, 33vw"
-                  className="object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20" />
-                <div className="absolute bottom-4 left-4 rounded-full bg-brand-black/70 px-4 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-brand-ivory/80">
-                  Limited
-                </div>
-              </div>
-              <div className="space-y-3 px-6 py-6">
-                <h3 className="text-xl text-brand-ivory">{promo.title}</h3>
-                <p className="text-sm text-brand-gray/80">{promo.description}</p>
-                <div className="inline-flex items-center gap-3 rounded-full border border-brand-lightBlue/20 bg-brand-lightBlue/10 px-5 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-brand-lightBlue">
-                  Code: {promo.code}
-                </div>
-              </div>
-            </motion.article>
-          ))}
-        </motion.div>
+        {promotions.length > 0 ? (
+          <motion.div
+            className="flex gap-6 overflow-x-auto pb-4"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.3 }}
+            variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.15 } } }}
+          >
+            {promotions.map((promo) => {
+              const imageUrl = getImageUrl(promo.image, 1400, 900) ?? FALLBACK_PROMO_IMAGE;
+              const promoLabel = promo.promoCode ?? promo.ctaLabel ?? "Limited";
+
+              return (
+                <motion.article
+                  key={promo._id}
+                  variants={cardVariants}
+                  className="relative min-w-[260px] flex-1 overflow-hidden rounded-3xl border border-brand-deepBlue/60 bg-brand-black/70 shadow-glow sm:min-w-[320px]"
+                  whileHover={{ scale: 1.02 }}
+                >
+                  <div className="relative h-48">
+                    <Image
+                      src={imageUrl}
+                      alt={promo.imageAlt ?? promo.title ?? "EliteSport promotion"}
+                      fill
+                      sizes="(max-width: 768px) 80vw, 33vw"
+                      className="object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20" />
+                    <div className="absolute bottom-4 left-4 rounded-full bg-brand-black/70 px-4 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-brand-ivory/80">
+                      Limited
+                    </div>
+                  </div>
+                  <div className="space-y-3 px-6 py-6">
+                    <h3 className="text-xl text-brand-ivory">
+                      {promo.title ?? "EliteSport Promotion"}
+                    </h3>
+                    <p className="text-sm text-brand-gray/80">
+                      {promo.description ?? "Exclusive member perk curated via the CMS."}
+                    </p>
+                    <div className="inline-flex items-center gap-3 rounded-full border border-brand-lightBlue/20 bg-brand-lightBlue/10 px-5 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-brand-lightBlue">
+                      Code: {promoLabel}
+                    </div>
+                  </div>
+                </motion.article>
+              );
+            })}
+          </motion.div>
+        ) : (
+          <p className="rounded-3xl border border-dashed border-brand-deepBlue/50 bg-brand-black/50 px-6 py-8 text-center text-sm text-brand-gray">
+            Publish a promotion in Sanity to activate this carousel.
+          </p>
+        )}
       </Section>
 
       <Section
@@ -282,49 +377,20 @@ export default function Home() {
         className="bg-brand-deepBlue/20"
       >
         <div className="grid gap-10 lg:grid-cols-2">
-          <div>
-            <p className="text-xs uppercase tracking-[0.4em] text-brand-lightBlue">
-              Our Clients
-            </p>
-            <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3">
-              {clients.map((client) => (
-                <motion.div
-                  key={client}
-                  variants={cardVariants}
-                  initial="hidden"
-                  whileInView="visible"
-                  viewport={{ once: true, amount: 0.2 }}
-                  className="flex h-24 items-center justify-center rounded-2xl border border-brand-deepBlue/50 bg-brand-black/60 text-center text-sm font-semibold text-brand-ivory/80"
-                  whileHover={{ scale: 1.03 }}
-                >
-                  {client}
-                </motion.div>
-              ))}
-            </div>
-          </div>
-          <div>
-            <p className="text-xs uppercase tracking-[0.4em] text-brand-lightBlue">
-              Our Partners
-            </p>
-            <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3">
-              {partners.map((partner) => (
-                <motion.div
-                  key={partner}
-                  variants={cardVariants}
-                  initial="hidden"
-                  whileInView="visible"
-                  viewport={{ once: true, amount: 0.2 }}
-                  className="flex h-24 items-center justify-center rounded-2xl border border-brand-lightBlue/20 bg-brand-lightBlue/5 text-center text-sm font-semibold text-brand-ivory/90"
-                  whileHover={{ scale: 1.03 }}
-                >
-                  {partner}
-                </motion.div>
-              ))}
-            </div>
-          </div>
+          <LogoGrid
+            title="Our Clients"
+            items={clientLogos}
+            cardClassName="border-brand-deepBlue/50 bg-brand-black/60 text-brand-ivory/80"
+          />
+          <LogoGrid
+            title="Our Partners"
+            items={partnerLogos.length > 0 ? partnerLogos : clientPartners}
+            cardClassName="border-brand-lightBlue/20 bg-brand-lightBlue/5 text-brand-ivory/90"
+          />
         </div>
       </Section>
     </div>
+    </>
   );
 }
 
@@ -372,9 +438,7 @@ const Hero = () => {
           <div className="mt-8 grid gap-6 sm:grid-cols-3">
             {heroHighlights.map((highlight) => (
               <div key={highlight.label}>
-                <p className="text-3xl font-semibold text-brand-gold">
-                  {highlight.value}
-                </p>
+                <p className="text-3xl font-semibold text-brand-gold">{highlight.value}</p>
                 <p className="mt-2 text-xs uppercase tracking-[0.3em] text-brand-gray/80">
                   {highlight.label}
                 </p>
@@ -417,18 +481,101 @@ const Section = ({
     >
       <Container className="space-y-10 py-0">
         <div className="space-y-4 text-center md:text-left">
-          <p className="text-xs uppercase tracking-[0.4em] text-brand-lightBlue">
-            {eyebrow}
-          </p>
+          <p className="text-xs uppercase tracking-[0.4em] text-brand-lightBlue">{eyebrow}</p>
           <h2 className="text-3xl text-brand-ivory sm:text-4xl">{title}</h2>
           {description && (
-            <p className="text-base text-brand-gray/90 sm:max-w-3xl">
-              {description}
-            </p>
+            <p className="text-base text-brand-gray/90 sm:max-w-3xl">{description}</p>
           )}
         </div>
         {children}
       </Container>
     </motion.section>
   );
+};
+
+const LogoGrid = ({
+  title,
+  items,
+  cardClassName,
+}: {
+  title: string;
+  items: ClientPartner[];
+  cardClassName: string;
+}) => {
+  return (
+    <div>
+      <p className="text-xs uppercase tracking-[0.4em] text-brand-lightBlue">{title}</p>
+      {items.length > 0 ? (
+        <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3">
+          {items.map((item) => {
+            const logoUrl = getImageUrl(item.logo, 600, 300);
+
+            return (
+              <motion.a
+                key={item._id}
+                href={item.website ?? undefined}
+                target={item.website ? "_blank" : undefined}
+                rel={item.website ? "noreferrer" : undefined}
+                variants={cardVariants}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, amount: 0.2 }}
+                className={cn(
+                  "flex h-24 items-center justify-center rounded-2xl border text-center text-sm font-semibold",
+                  cardClassName,
+                  item.website ? "transition hover:-translate-y-1" : ""
+                )}
+                whileHover={{ scale: item.website ? 1.03 : 1 }}
+              >
+                {logoUrl ? (
+                  <div className="relative h-12 w-full">
+                    <Image
+                      src={logoUrl}
+                      alt={item.logoAlt ?? item.name ?? "Brand logo"}
+                      fill
+                      sizes="(max-width: 768px) 40vw, 20vw"
+                      className="object-contain"
+                    />
+                  </div>
+                ) : (
+                  item.name ?? "Featured Brand"
+                )}
+              </motion.a>
+            );
+          })}
+        </div>
+      ) : (
+        <p className="mt-4 rounded-2xl border border-dashed border-brand-deepBlue/40 bg-brand-black/40 p-4 text-center text-xs text-brand-gray">
+          Add {title.toLowerCase()} inside the CMS to showcase their logos here.
+        </p>
+      )}
+    </div>
+  );
+};
+
+export const getStaticProps: GetStaticProps<HomePageProps> = async () => {
+  const client = sanityClient;
+  if (!client) {
+    return {
+      props: {
+        popularPlaces: [],
+        nearbyPlaces: [],
+        promotions: [],
+        clientPartners: [],
+      },
+      revalidate: 60,
+    };
+  }
+
+  const data = await client.fetch<HomePageProps>(HOME_PAGE_QUERY);
+
+  return {
+    props: {
+      popularPlaces: data.popularPlaces ?? [],
+      nearbyPlaces: data.nearbyPlaces ?? [],
+      promotions: data.promotions ?? [],
+      clientPartners: data.clientPartners ?? [],
+    },
+    revalidate: 60,
+  };
 };

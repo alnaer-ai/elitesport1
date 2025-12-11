@@ -18,10 +18,14 @@ const variantClasses: Record<ButtonVariant, string> = {
 };
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ variant = "primary", fullWidth, className, ...props }, ref) => {
+  (
+    { variant = "primary", fullWidth, className, type = "button", ...props },
+    ref
+  ) => {
     return (
       <button
         ref={ref}
+        type={type}
         className={cn(
           "inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-semibold uppercase tracking-[0.2em] transition duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-lightBlue focus-visible:ring-offset-2 focus-visible:ring-offset-brand-black",
           fullWidth && "w-full",

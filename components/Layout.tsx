@@ -1,4 +1,4 @@
-import { ReactNode, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { cn } from "@/lib/cn";
@@ -24,8 +24,16 @@ const SOCIAL_LINKS = [
 export const Layout = ({ children }: LayoutProps) => {
   return (
     <div className="flex min-h-screen flex-col bg-brand-black text-brand-ivory">
+      <a
+        href="#main-content"
+        className="sr-only absolute left-4 top-4 z-50 inline-flex items-center rounded-full bg-brand-gold px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-brand-black focus-visible:not-sr-only focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-lightBlue"
+      >
+        Skip to content
+      </a>
       <SiteHeader />
-      <main className="flex-1">{children}</main>
+      <main id="main-content" className="flex-1">
+        {children}
+      </main>
       <SiteFooter />
     </div>
   );
@@ -34,9 +42,19 @@ export const Layout = ({ children }: LayoutProps) => {
 const SiteHeader = () => {
   const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const mobileMenuId = "primary-navigation";
 
   const toggleMenu = () => setIsMenuOpen((prev) => !prev);
   const closeMenu = () => setIsMenuOpen(false);
+
+  useEffect(() => {
+    const handleRouteChange = () => setIsMenuOpen(false);
+
+    router.events.on("routeChangeStart", handleRouteChange);
+    return () => {
+      router.events.off("routeChangeStart", handleRouteChange);
+    };
+  }, [router.events]);
 
   return (
     <header className="border-b border-brand-deepBlue/60 bg-brand-black/95 text-brand-ivory shadow-lg backdrop-blur">
@@ -47,7 +65,10 @@ const SiteHeader = () => {
         >
           EliteSport
         </Link>
-        <nav className="hidden items-center gap-8 md:flex">
+        <nav
+          className="hidden items-center gap-8 md:flex"
+          aria-label="Primary navigation"
+        >
           {NAV_LINKS.map((link) => {
             const isActive = router.pathname === link.href;
 
@@ -70,8 +91,9 @@ const SiteHeader = () => {
           type="button"
           className="inline-flex items-center justify-center rounded-md border border-brand-deepBlue/70 px-3 py-2 text-brand-ivory transition hover:border-brand-gold hover:text-brand-gold md:hidden"
           onClick={toggleMenu}
-          aria-label="Toggle navigation menu"
+          aria-label={isMenuOpen ? "Close navigation menu" : "Open navigation menu"}
           aria-expanded={isMenuOpen}
+          aria-controls={mobileMenuId}
         >
           <span className="sr-only">Toggle navigation</span>
           <div className="space-y-1">
@@ -97,7 +119,11 @@ const SiteHeader = () => {
         </button>
       </div>
       {isMenuOpen && (
-        <div className="border-t border-brand-deepBlue/60 bg-brand-black md:hidden">
+        <nav
+          id={mobileMenuId}
+          className="border-t border-brand-deepBlue/60 bg-brand-black md:hidden"
+          aria-label="Mobile primary navigation"
+        >
           <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-6 sm:px-6 lg:px-8">
             {NAV_LINKS.map((link) => (
               <Link
@@ -110,7 +136,7 @@ const SiteHeader = () => {
               </Link>
             ))}
           </div>
-        </div>
+        </nav>
       )}
     </header>
   );

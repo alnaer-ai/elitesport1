@@ -1,58 +1,89 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/pages/api-reference/create-next-app).
+## Overview
 
-## Getting Started
+EliteSport is a modern marketing site built with **Next.js 16**, **React 19**, **TypeScript**, **Tailwind CSS**, **Framer Motion**, and a headless CMS (Sanity). Pages are statically generated from CMS content so new hero copy, places, promotions, or memberships can be published without redeploying the site.
 
-First, run the development server:
+Key pages:
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- Home, Memberships, About, Contact, and Places (all CMS powered)
+- Shared layout with accessible navigation, skip link, and footer
+- Components live in `components/` to keep sections reusable and ready for future expansion
+
+## Requirements
+
+- Node.js 18+
+- npm 10+ (or another package manager)
+- Sanity project credentials exposed via the environment variables listed below
+
+Copy `.env.local.example` (if available) into `.env.local` and provide at least:
+
+```
+NEXT_PUBLIC_SANITY_PROJECT_ID=xxxx
+NEXT_PUBLIC_SANITY_DATASET=production
+NEXT_PUBLIC_SANITY_API_VERSION=2023-10-01
+SANITY_API_READ_TOKEN=xxxxxxxx
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
-
-[API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
-
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) instead of React pages.
-
-This project uses [`next/font`](https://nextjs.org/docs/pages/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Headless CMS (Sanity Studio)
-
-A Sanity Studio lives in the `cms` directory. Make sure the environment variables listed in `.env.local.example` are copied into `.env.local` (root) before running either app.
+## Running the app
 
 ```bash
-# install dependencies once
-cd cms && npm install
+# install dependencies
+npm install
 
-# start the studio locally
+# start the Next.js dev server
+npm run dev
+
+# lint the project
+npm run lint
+```
+
+The site runs at [http://localhost:3000](http://localhost:3000). All pages are statically generated and revalidated every 60 seconds when hitting Sanity.
+
+## Sanity Studio
+
+The CMS lives inside the `cms/` directory.
+
+```bash
+cd cms
+npm install
 npm run dev
 ```
 
-Schemas are defined for Places, Promotions, Membership Info, About Us, Contact Info, and Clients/Partners and include fields for highlighting “most popular” or “nearby” locations. Adjust or extend any schema in `cms/schemas/` as new content sections are required.
+Schemas exist for:
 
-## Using CMS data in Next.js
+- `place` – used on Home (popular/nearby) and Places page
+- `promotion` – drives the promotions carousel on Home
+- `membershipInfo` – hero, tiers, and FAQs on Memberships page
+- `aboutInfo` – hero, mission, values, team content
+- `contactInfo` – address, contact details, office hours, and map coordinates
+- `clientPartner` – logos for the “Clients & Partners” section
 
-The helper in `lib/sanity.client.ts` wires up the shared Sanity credentials. Any page or route can import `sanityClient` to query data (e.g. `sanityClient.fetch(query)`), but no components consume CMS data yet. Configure your `NEXT_PUBLIC_SANITY_*` and `SANITY_API_READ_TOKEN` variables and the client will be ready once you need to render CMS-driven content.
+Whenever relevant data is missing the UI renders helpful placeholder copy, so editors can ship incremental content safely.
 
-## Learn More
+## Structure and conventions
 
-To learn more about Next.js, take a look at the following resources:
+- `components/` holds UI atoms (Button, Container, Layout, Typography)
+- `pages/` contains route-level components that call the CMS
+- `lib/sanity.client.ts` exposes a configured Sanity client plus helper utilities
+- Tailwind custom theme tokens are defined in `tailwind.config.js`; global styles live in `styles/globals.css`
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn-pages-router) - an interactive Next.js tutorial.
+To add new sections/pages:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. Create or update a schema in `cms/schemas`.
+2. Publish the document so it is queryable.
+3. Consume that data inside a page via `sanityClient.fetch`.
+4. If a section will be reused, place it in `components/` and import it wherever needed.
 
-## Deploy on Vercel
+This keeps presentation concerns decoupled from content, so future pages (e.g., a new “Events” tab or an additional Places category) are mostly CMS work plus a light template update.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Deployment
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/pages/building-your-application/deploying) for more details.
+Deploy the Next.js site (e.g., to Vercel) as usual. Set the same environment variables on the hosting provider and enable the Sanity webhook if you need on-demand revalidation.
+
+## QA & Maintenance notes
+
+- Navigation is fully responsive with keyboard-accessible skip links and ARIA labels.
+- All imagery uses `next/image` and remote domains are whitelisted in `next.config.ts`.
+- Framer Motion animations respect `prefers-reduced-motion` via browser defaults, so keep motion subtle when adding new sections.
+- Before opening a PR, run `npm run lint`.
+
+For support or onboarding, point teammates to this README plus the schema definitions inside `cms/schemas/`. Most additions boil down to Sanity document updates.
