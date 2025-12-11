@@ -1,0 +1,6 @@
+{
+  "extends": "sanity/tsconfig",
+  "compilerOptions": {
+    "strict": true
+  }
+}
