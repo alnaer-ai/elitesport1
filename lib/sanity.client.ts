@@ -6,21 +6,27 @@ const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID;
 const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET;
 const apiVersion = process.env.NEXT_PUBLIC_SANITY_API_VERSION || '2023-10-01';
 
-if (!projectId || !dataset) {
-  throw new Error(
-    'Missing Sanity environment variables. Set NEXT_PUBLIC_SANITY_PROJECT_ID and NEXT_PUBLIC_SANITY_DATASET.'
-  );
-}
+export const isSanityConfigured = Boolean(projectId && dataset);
 
-export const sanityClient = createClient({
-  projectId,
-  dataset,
-  apiVersion,
-  useCdn: true,
-  token: process.env.SANITY_API_READ_TOKEN,
-  perspective: 'published',
-});
+export const sanityClient = isSanityConfigured
+  ? createClient({
+      projectId: projectId!,
+      dataset: dataset!,
+      apiVersion,
+      useCdn: true,
+      token: process.env.SANITY_API_READ_TOKEN,
+      perspective: 'published',
+    })
+  : null;
 
-const builder = imageUrlBuilder(sanityClient);
+const builder = sanityClient ? imageUrlBuilder(sanityClient) : null;
 
-export const urlForImage = (source: SanityImageSource) => builder.image(source);
+export const urlForImage = (source: SanityImageSource) => {
+  if (!builder) {
+    throw new Error(
+      'Sanity image builder is not configured. Ensure Sanity environment variables exist before calling urlForImage.'
+    );
+  }
+
+  return builder.image(source);
+};

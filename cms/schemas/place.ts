@@ -44,10 +44,24 @@ export default defineType({
       group: 'details',
     }),
     defineField({
+      name: 'location',
+      title: 'Location',
+      type: 'string',
+      description: 'Visible subtitle describing the city or region.',
+      group: 'details',
+    }),
+    defineField({
       name: 'image',
       title: 'Image',
       type: 'image',
       options: {hotspot: true},
+      group: 'details',
+    }),
+    defineField({
+      name: 'imageAlt',
+      title: 'Image Alt Text',
+      type: 'string',
+      description: 'Optional override for accessibility text on cards.',
       group: 'details',
     }),
     defineField({
@@ -64,6 +78,14 @@ export default defineType({
       type: 'boolean',
       description: 'Mark to include in the “Most Popular” home page section.',
       initialValue: false,
+      group: 'flags',
+    }),
+    defineField({
+      name: 'distanceLabel',
+      title: 'Distance Label',
+      type: 'string',
+      description:
+        'Optional distance/availability label (e.g., “2 km away”) for the Nearby section.',
       group: 'flags',
     }),
     defineField({
@@ -90,7 +112,7 @@ export default defineType({
       isMostPopular: 'isMostPopular',
     },
     prepare(selection) {
-      const {title, subtitle, isMostPopular} = selection;
+      const {subtitle, isMostPopular} = selection;
       return {
         ...selection,
         subtitle: [subtitle, isMostPopular ? 'Most Popular' : null]

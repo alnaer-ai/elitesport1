@@ -22,6 +22,13 @@ export default defineType({
       type: 'string',
     }),
     defineField({
+      name: 'introText',
+      title: 'Intro Text',
+      type: 'text',
+      rows: 3,
+      description: 'Short welcome message for the contact page.',
+    }),
+    defineField({
       name: 'mapLocation',
       title: 'Map Coordinates',
       type: 'geopoint',

@@ -18,6 +18,13 @@ export default defineType({
       options: {hotspot: true},
     }),
     defineField({
+      name: 'logoAlt',
+      title: 'Logo Alt Text',
+      type: 'string',
+      description:
+        'Optional accessibility text describing the logo; falls back to the name when empty.',
+    }),
+    defineField({
       name: 'website',
       title: 'Website',
       type: 'url',

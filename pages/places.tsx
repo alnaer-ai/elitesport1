@@ -6,7 +6,11 @@ import { motion } from "framer-motion";
 import type { SanityImageSource } from "@sanity/image-url/lib/types/types";
 
 import { Container } from "@/components/Container";
-import { sanityClient, urlForImage } from "@/lib/sanity.client";
+import {
+  isSanityConfigured,
+  sanityClient,
+  urlForImage,
+} from "@/lib/sanity.client";
 
 type PlaceCategory =
   | "hotel"
@@ -99,7 +103,7 @@ const cardMotionProps = {
 };
 
 const getImageUrl = (source?: SanityImageSource) => {
-  if (!source) {
+  if (!source || !isSanityConfigured) {
     return undefined;
   }
 
@@ -301,7 +305,17 @@ const PlaceCard = ({
 };
 
 export const getStaticProps: GetStaticProps<PlacesPageProps> = async () => {
-  const places = await sanityClient.fetch<Place[]>(PLACE_QUERY);
+  const client = sanityClient;
+  if (!client) {
+    return {
+      props: {
+        places: [],
+      },
+      revalidate: 60,
+    };
+  }
+
+  const places = await client.fetch<Place[]>(PLACE_QUERY);
 
   return {
     props: {

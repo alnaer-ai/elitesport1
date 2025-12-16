@@ -1,140 +1,53 @@
 import Head from "next/head";
-import Image from "next/image";
 import Link from "next/link";
 import { GetStaticProps, InferGetStaticPropsType } from "next";
-import { ReactNode } from "react";
 import { motion } from "framer-motion";
 
-import { Button } from "@/components/Button";
+import { ButtonLink, secondaryButtonClasses } from "@/components/ButtonLink";
 import { Container } from "@/components/Container";
+import { Hero } from "@/components/Hero";
 import { cn } from "@/lib/cn";
+import {
+  fetchPageHero,
+  type HeroPayload,
+} from "@/lib/hero";
+import {
+  collectMembershipFaqs,
+  collectMembershipTiers,
+  getTierCardBackground,
+  getTierHref,
+  getTierSlug,
+  MEMBERSHIP_QUERY,
+  type MembershipInfo,
+} from "@/lib/membership";
 import { sanityClient } from "@/lib/sanity.client";
 
-type MembershipTier = {
-  name?: string;
-  price?: string;
-  benefits?: string[];
-  isPopular?: boolean;
-};
-
-type MembershipFaq = {
-  question?: string;
-  answer?: string;
-};
-
-type MembershipInfo = {
-  title?: string;
-  heroDescription?: string;
-  ctaLabel?: string;
-  ctaUrl?: string;
-  tiers?: MembershipTier[];
-  faq?: MembershipFaq[];
-};
-
 type MembershipsPageProps = {
-  membership: MembershipInfo | null;
+  memberships: MembershipInfo[];
+  hero: HeroPayload | null;
 };
 
-const MEMBERSHIP_QUERY = `
-  *[_type == "membershipInfo"][0]{
-    title,
-    heroDescription,
-    ctaLabel,
-    ctaUrl,
-    tiers[]{
-      name,
-      price,
-      benefits,
-      isPopular
-    },
-    faq[]{
-      question,
-      answer
-    }
-  }
-`;
-
-const heroImage =
-  "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=2400&q=80";
+const MEMBERSHIPS_PAGE_SLUG = "memberships";
 
 const motionItem = {
   hidden: { opacity: 0, y: 24 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } },
 };
 
-const secondaryButtonClasses =
-  "inline-flex items-center justify-center gap-2 rounded-full border border-brand-lightBlue/30 px-6 py-3 text-xs font-semibold uppercase tracking-[0.25em] text-brand-ivory transition duration-200 hover:border-brand-gold/60 hover:text-brand-gold";
-
-const checkIconPath = "M20 6L9 17L4 12";
-
-const anchorButtonBase =
-  "inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 text-xs font-semibold uppercase tracking-[0.25em] transition duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-lightBlue focus-visible:ring-offset-2 focus-visible:ring-offset-brand-black";
-
-const anchorButtonVariants = {
-  primary:
-    "bg-brand-gold text-brand-black hover:bg-brand-lightBlue hover:text-brand-deepBlue shadow-glow",
-  secondary:
-    "bg-brand-deepBlue text-brand-ivory hover:bg-brand-lightBlue/20 border border-brand-lightBlue/30",
-};
-
-const getButtonClasses = (variant: keyof typeof anchorButtonVariants) =>
-  cn(anchorButtonBase, anchorButtonVariants[variant]);
-
-type ButtonLinkProps = {
-  href: string;
-  variant?: keyof typeof anchorButtonVariants;
-  children: ReactNode;
-};
-
-const ButtonLink = ({ href, variant = "primary", children }: ButtonLinkProps) => {
-  const isInternal = href.startsWith("/");
-  const isExternal = href.startsWith("http");
-  const className = getButtonClasses(variant);
-
-  if (isInternal) {
-    return (
-      <Link href={href} className={className}>
-        {children}
-      </Link>
-    );
-  }
-
-  return (
-    <a
-      href={href}
-      className={className}
-      target={isExternal ? "_blank" : undefined}
-      rel={isExternal ? "noreferrer" : undefined}
-    >
-      {children}
-    </a>
-  );
-};
-
 export default function MembershipsPage({
-  membership,
+  memberships,
+  hero,
 }: InferGetStaticPropsType<typeof getStaticProps>) {
-  const title = membership?.title ?? "Memberships";
-  const heroDescription =
-    membership?.heroDescription ??
-    "Every EliteSport membership unlocks curated destinations, bespoke training design, and concierge-grade recovery care across the globe.";
-  const ctaLabel = membership?.ctaLabel ?? "Contact Membership";
-  const ctaHref = membership?.ctaUrl ?? "/contact";
-  const tiers = (membership?.tiers ?? []).filter((tier) => tier?.name);
-  const faqs = (membership?.faq ?? []).filter(
+  const primaryMembership = memberships[0] ?? null;
+  const title = primaryMembership?.title ?? "Memberships";
+  const ctaLabel = primaryMembership?.ctaLabel ?? "Contact Membership";
+  const ctaHref = primaryMembership?.ctaUrl ?? "/contact";
+  const tiers = collectMembershipTiers(memberships).filter(
+    (tier) => tier?.name
+  );
+  const faqs = collectMembershipFaqs(memberships).filter(
     (faq) => faq?.question && faq?.answer
   );
-
-  const totalBenefits = tiers.reduce((count, tier) => {
-    return count + (tier?.benefits?.length ?? 0);
-  }, 0);
-
-  const handleExploreClick = () => {
-    const section = document.getElementById("membership-tiers");
-    if (section) {
-      section.scrollIntoView({ behavior: "smooth" });
-    }
-  };
 
   return (
     <>
@@ -147,49 +60,7 @@ export default function MembershipsPage({
       </Head>
 
       <div className="space-y-20 pb-24">
-        <section className="relative isolate overflow-hidden border-b border-brand-deepBlue/60">
-          <Image
-            src={heroImage}
-            alt="Members training at EliteSport"
-            fill
-            sizes="100vw"
-            priority
-            className="object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-brand-black/95 via-brand-black/80 to-brand-deepBlue/70" />
-          <Container className="relative z-10 text-center sm:text-left">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, ease: "easeOut" }}
-              className="max-w-3xl space-y-6 py-24"
-            >
-              <p className="text-xs uppercase tracking-[0.6em] text-brand-lightBlue">
-                EliteSport
-              </p>
-              <div>
-                <h1 className="text-4xl font-semibold text-brand-ivory sm:text-5xl">
-                  {title}
-                </h1>
-                <p className="mt-4 text-base text-brand-gray sm:text-lg">
-                  {heroDescription}
-                </p>
-              </div>
-              <div className="flex flex-wrap gap-4">
-                <ButtonLink href={ctaHref}>{ctaLabel}</ButtonLink>
-                <Button
-                  type="button"
-                  variant="secondary"
-                  className="uppercase tracking-[0.25em]"
-                  onClick={handleExploreClick}
-                >
-                  Explore Tiers
-                </Button>
-              </div>
-            </motion.div>
-          </Container>
-        </section>
-
+        <Hero hero={hero} />
         <section id="membership-tiers">
           <Container className="space-y-14">
             <div className="space-y-4 text-center sm:text-left">
@@ -207,12 +78,6 @@ export default function MembershipsPage({
                     concierge-level servicing.
                   </p>
                 </div>
-                {tiers.length > 0 && (
-                  <p className="text-sm text-brand-gray">
-                    {tiers.length} tier{tiers.length === 1 ? "" : "s"} •{" "}
-                    {totalBenefits} benefits documented
-                  </p>
-                )}
               </div>
             </div>
 
@@ -228,63 +93,73 @@ export default function MembershipsPage({
                 }}
                 className="grid gap-8 md:grid-cols-2 xl:grid-cols-3"
               >
-                {tiers.map((tier) => (
-                  <motion.article
-                    key={tier.name}
-                    variants={motionItem}
-                    className={cn(
-                      "relative flex h-full flex-col rounded-3xl border border-brand-deepBlue/60 bg-brand-black/70 p-8 shadow-xl shadow-brand-black/30",
-                      tier.isPopular && "ring-2 ring-brand-gold/60 ring-offset-4 ring-offset-brand-black"
-                    )}
-                  >
-                    <div className="flex items-start justify-between gap-4">
-                      <div>
-                        <p className="text-xl font-semibold text-brand-ivory">
-                          {tier.name}
-                        </p>
-                        {tier.price && (
-                          <p className="mt-2 text-sm uppercase tracking-[0.3em] text-brand-gold">
-                            {tier.price}
-                          </p>
-                        )}
-                      </div>
-                      {tier.isPopular && (
-                        <span className="rounded-full border border-brand-gold/50 bg-brand-gold/10 px-3 py-1 text-xs uppercase tracking-[0.3em] text-brand-gold">
-                          Popular
-                        </span>
+                {tiers.map((tier, tierIndex) => {
+                  const cardBackground = getTierCardBackground(
+                    tier,
+                    tierIndex
+                  );
+                  const cardStyle = cardBackground
+                    ? { background: cardBackground }
+                    : undefined;
+                  const tierActionLabel =
+                    tier.ctaLabel ?? `Discover more about ${tier.name ?? "this tier"}`;
+                  const tierSlug = getTierSlug(tier.name);
+                  const tierHref = tierSlug ? getTierHref(tier.name) : ctaHref;
+
+                  return (
+                    <motion.article
+                      key={tier.name ?? `tier-${tierIndex}`}
+                      variants={motionItem}
+                      style={cardStyle}
+                      className={cn(
+                        "relative flex h-full flex-col rounded-3xl border border-brand-deepBlue/60 bg-brand-black p-8 shadow-xl shadow-brand-black/30",
+                        tier.isPopular &&
+                          "ring-2 ring-brand-gold/60 ring-offset-4 ring-offset-brand-black"
                       )}
-                    </div>
-                    <ul className="mt-6 flex-1 space-y-3">
-                      {tier.benefits?.map((benefit) => (
-                        <li key={benefit} className="flex items-start gap-3 text-sm text-brand-gray">
-                          <span className="mt-1 inline-flex h-5 w-5 items-center justify-center rounded-full bg-brand-deepBlue/60 text-brand-gold">
-                            <svg
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth={1.6}
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              className="h-3 w-3"
-                            >
-                              <path d={checkIconPath} />
-                            </svg>
-                          </span>
-                          <span>{benefit}</span>
-                        </li>
-                      ))}
-                    </ul>
-                    <div className="mt-8">
-                      <p className="text-xs uppercase tracking-[0.4em] text-brand-lightBlue">
-                        Concierge Access
-                      </p>
-                      <p className="mt-2 text-base text-brand-gray">
-                        Work with a membership director to tailor this tier to
-                        your travel or recovery schedule.
-                      </p>
-                    </div>
-                  </motion.article>
-                ))}
+                    >
+                      <Link
+                        href={tierHref}
+                        className="absolute inset-0 z-0"
+                        aria-label={`${tier.name ?? "Membership tier"} — ${tierActionLabel}`}
+                      >
+                        <span className="sr-only">{tierActionLabel}</span>
+                      </Link>
+                      <div className="relative z-10 flex flex-col gap-6">
+                        <div className="flex items-start justify-between gap-4">
+                          <div>
+                            <p className="text-xl font-semibold text-brand-ivory">
+                              {tier.name}
+                            </p>
+                            {tier.price && (
+                              <p className="mt-2 text-sm uppercase tracking-[0.3em] text-brand-gold">
+                                {tier.price}
+                              </p>
+                            )}
+                          </div>
+                          {tier.isPopular && (
+                            <span className="rounded-full border border-brand-gold/50 bg-brand-gold/10 px-3 py-1 text-xs uppercase tracking-[0.3em] text-brand-gold">
+                              Popular
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="flex-1 space-y-3">
+                          <p className="text-xs uppercase tracking-[0.3em] text-brand-lightBlue">
+                            Description
+                          </p>
+                          <p className="text-sm text-brand-gray">
+                            {tier.description ??
+                              "Details for this membership tier will be published soon."}
+                          </p>
+                        </div>
+
+                        <p className="text-xs uppercase tracking-[0.3em] text-brand-lightBlue">
+                          {tierActionLabel}
+                        </p>
+                      </div>
+                    </motion.article>
+                  );
+                })}
               </motion.div>
             ) : (
               <div className="rounded-3xl border border-brand-deepBlue/60 bg-brand-black/50 p-10 text-center text-brand-gray">
@@ -411,19 +286,24 @@ export const getStaticProps: GetStaticProps<MembershipsPageProps> = async () => 
   if (!client) {
     return {
       props: {
-        membership: null,
+        memberships: [],
+        hero: null,
       },
       revalidate: 60,
     };
   }
 
-  const membership = await client.fetch<MembershipInfo | null>(
-    MEMBERSHIP_QUERY
-  );
+  const [memberships, hero] = await Promise.all([
+    client.fetch<MembershipInfo[]>(MEMBERSHIP_QUERY),
+    fetchPageHero(MEMBERSHIPS_PAGE_SLUG, client),
+  ]);
+
+  const membershipEntries = memberships ?? [];
 
   return {
     props: {
-      membership,
+      memberships: membershipEntries,
+      hero: hero ?? null,
     },
     revalidate: 60,
   };

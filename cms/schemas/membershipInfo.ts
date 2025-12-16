@@ -12,11 +12,6 @@ export default defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
-      name: 'heroDescription',
-      title: 'Hero Description',
-      type: 'text',
-    }),
-    defineField({
       name: 'ctaLabel',
       title: 'Call to Action Label',
       type: 'string',
@@ -55,10 +50,42 @@ export default defineType({
               of: [{type: 'string'}],
             }),
             defineField({
+              name: 'cardColor',
+              title: 'Tier Card Color',
+              type: 'string',
+              description:
+                'Enter a hex or CSS color code that defines the tier card background.',
+            }),
+            defineField({
+              name: 'familyFriendly',
+              title: 'Family Friendly',
+              type: 'boolean',
+              description: 'Mark this tier as family inclusive so the UI can highlight it.',
+              initialValue: false,
+            }),
+            defineField({
+              name: 'familyFriendlyLogo',
+              title: 'Family Friendly Logo',
+              type: 'image',
+              description:
+                'Optional custom badge that will replace the default family icon when this tier is marked family friendly.',
+              options: {hotspot: true},
+            }),
+            defineField({
               name: 'isPopular',
               title: 'Mark as Popular',
               type: 'boolean',
               initialValue: false,
+            }),
+            defineField({
+              name: 'ctaLabel',
+              title: 'Tier CTA Label',
+              type: 'string',
+            }),
+            defineField({
+              name: 'ctaUrl',
+              title: 'Tier CTA URL',
+              type: 'url',
             }),
           ],
         }),
@@ -82,7 +109,7 @@ export default defineType({
   preview: {
     select: {
       title: 'title',
-      subtitle: 'heroDescription',
+      subtitle: 'ctaLabel',
     },
   },
 });

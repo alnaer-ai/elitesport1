@@ -1,13 +1,30 @@
 import Head from "next/head";
 import Image from "next/image";
+import Link from "next/link";
 import { GetStaticProps, InferGetStaticPropsType } from "next";
-import { ReactNode } from "react";
+import { ReactNode, useState } from "react";
 import { motion } from "framer-motion";
 import type { SanityImageSource } from "@sanity/image-url/lib/types/types";
 
 import { Button } from "@/components/Button";
 import { Container } from "@/components/Container";
+import {
+  PromotionCarousel,
+  PromotionModal,
+  PromoBadge,
+  type PromotionCardContent,
+} from "@/components/promotions";
 import { cn } from "@/lib/cn";
+import { getPlacePromotionBadge } from "@/lib/placePromotion";
+import {
+  PROMOTION_FALLBACK_IMAGE,
+  mapPromotionRecordToCardContent,
+  type PromotionRecord,
+} from "@/lib/promotionContent";
+import {
+  getPromotionTypeLabel,
+  type PromotionCategory as PromotionType,
+} from "@/lib/promotionLabels";
 import {
   isSanityConfigured,
   sanityClient,
@@ -29,16 +46,16 @@ const PLACE_CATEGORY_LABELS: Record<string, string> = {
   tennisSquash: "Tennis & Squash",
 };
 
+type PromotionCategory = PromotionType;
+
 const FALLBACK_PLACE_IMAGE =
   "https://images.unsplash.com/photo-1483721310020-03333e577078?auto=format&fit=crop&w=1600&q=80";
-const FALLBACK_PROMO_IMAGE =
-  "https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=1200&q=80";
 const HOME_SEO = {
   title: "EliteSport | Luxury Performance Destinations Worldwide",
   description:
     "Discover EliteSport’s curated network of gyms, spas, and private clubs worldwide. Explore memberships, exclusive promotions, and CMS-driven places.",
   url: "https://elitesport.com",
-  image: FALLBACK_PROMO_IMAGE,
+  image: PROMOTION_FALLBACK_IMAGE,
 };
 
 const sectionVariants = {
@@ -60,7 +77,6 @@ const cardVariants = {
 };
 
 type PlaceCategory = keyof typeof PLACE_CATEGORY_LABELS;
-
 type Place = {
   _id: string;
   name?: string;
@@ -70,17 +86,23 @@ type Place = {
   distanceLabel?: string;
   image?: SanityImageSource;
   imageAlt?: string;
+  promotionDisplay?: {
+    disableAutoBadge?: boolean;
+    customBadgeLabel?: string;
+  };
+  activePromotion?: {
+    _id: string;
+    title?: string;
+    discountPercentage?: number;
+  };
 };
 
-type Promotion = {
-  _id: string;
-  title?: string;
-  description?: string;
-  promoCode?: string;
-  image?: SanityImageSource;
-  imageAlt?: string;
-  ctaLabel?: string;
-  ctaUrl?: string;
+type Promotion = PromotionRecord & {
+  place?: {
+    _id?: string;
+    name?: string;
+    category?: PlaceCategory;
+  };
 };
 
 type ClientPartner = {
@@ -108,7 +130,13 @@ const HOME_PAGE_QUERY = `
     location,
     category,
     image,
-    imageAlt
+    imageAlt,
+    promotionDisplay,
+    "activePromotion": *[_type == "promotion" && references(^._id) && (!defined(expiryDate) || expiryDate > now())] | order(coalesce(validFrom, _createdAt) desc)[0] {
+      _id,
+      title,
+      discountPercentage
+    }
   },
   "nearbyPlaces": *[_type == "place" && isNearby == true] | order(coalesce(priority, 1000) asc, name asc)[0...4] {
     _id,
@@ -117,17 +145,28 @@ const HOME_PAGE_QUERY = `
     location,
     distanceLabel,
     image,
-    imageAlt
+    imageAlt,
+    promotionDisplay,
+    "activePromotion": *[_type == "promotion" && references(^._id) && (!defined(expiryDate) || expiryDate > now())] | order(coalesce(validFrom, _createdAt) desc)[0] {
+      _id,
+      title,
+      discountPercentage
+    }
   },
-  "promotions": *[_type == "promotion"] | order(isFeatured desc, coalesce(validFrom, _createdAt) desc)[0...6] {
+  "promotions": *[_type == "promotion" && (!defined(expiryDate) || expiryDate > now())] | order(coalesce(validFrom, _createdAt) desc)[0...8] {
     _id,
     title,
     description,
-    promoCode,
-    image,
+    discountPercentage,
+    promotionType,
+    promotionImage,
     imageAlt,
-    ctaLabel,
-    ctaUrl
+    expiryDate,
+    place->{
+      _id,
+      name,
+      category
+    }
   },
   "clientPartners": *[_type == "clientPartner"] | order(coalesce(priority, 1000) asc, name asc) {
     _id,
@@ -170,12 +209,17 @@ export default function Home(
   props: InferGetStaticPropsType<typeof getStaticProps>
 ) {
   const { popularPlaces, nearbyPlaces, promotions, clientPartners } = props;
+  const promotionCards: PromotionCardContent[] = promotions.map(
+    mapPromotionRecordToCardContent
+  );
+  const [selectedPromotion, setSelectedPromotion] =
+    useState<PromotionCardContent | null>(null);
 
   const clientLogos = clientPartners.filter(
     (entry) => entry.category === "client"
   );
   const partnerLogos = clientPartners.filter(
-    (entry) => entry.category && entry.category !== "client"
+    (entry) => entry.category === "partner"
   );
 
   return (
@@ -212,7 +256,12 @@ export default function Home(
             {popularPlaces.map((place) => {
               const imageUrl =
                 getImageUrl(place.image, 1600, 900) ?? FALLBACK_PLACE_IMAGE;
-              const locationLabel = place.location ?? getCategoryLabel(place.category);
+              const locationLabel =
+                place.location ?? getCategoryLabel(place.category);
+              const promoBadgeLabel = getPlacePromotionBadge({
+                promotionDisplay: place.promotionDisplay,
+                activePromotion: place.activePromotion,
+              });
 
               return (
                 <motion.article
@@ -221,6 +270,14 @@ export default function Home(
                   className="group overflow-hidden rounded-3xl border border-brand-deepBlue/40 bg-brand-black/60 shadow-lg shadow-brand-black/40"
                 >
                   <div className="relative h-56 w-full overflow-hidden">
+                    {promoBadgeLabel && (
+                      <PromoBadge
+                        label={promoBadgeLabel}
+                        tone="danger"
+                        variant="circle"
+                        className="absolute right-4 top-4 z-10"
+                      />
+                    )}
                     <Image
                       src={imageUrl}
                       alt={place.imageAlt ?? place.name ?? "EliteSport place"}
@@ -228,8 +285,9 @@ export default function Home(
                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                       className="object-cover transition-transform duration-700 group-hover:scale-105"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-                    <div className="absolute inset-x-0 bottom-0 p-5">
+                  </div>
+                  <div className="space-y-4 px-5 py-6">
+                    <div>
                       <p className="text-xs uppercase tracking-[0.4em] text-brand-lightBlue">
                         {locationLabel}
                       </p>
@@ -237,11 +295,11 @@ export default function Home(
                         {place.name ?? "EliteSport Place"}
                       </p>
                     </div>
+                    <p className="text-sm text-brand-gray/90">
+                      {place.description ??
+                        "Destination curated by EliteSport with white-glove service and member-only access."}
+                    </p>
                   </div>
-                  <p className="px-5 py-6 text-sm text-brand-gray/90">
-                    {place.description ??
-                      "Destination curated by EliteSport with white-glove service and member-only access."}
-                  </p>
                 </motion.article>
               );
             })}
@@ -264,6 +322,10 @@ export default function Home(
             {nearbyPlaces.map((place) => {
               const imageUrl = getImageUrl(place.image, 800, 800) ?? FALLBACK_PLACE_IMAGE;
               const distanceLabel = place.distanceLabel ?? place.location ?? "Featured";
+              const promoBadgeLabel = getPlacePromotionBadge({
+                promotionDisplay: place.promotionDisplay,
+                activePromotion: place.activePromotion,
+              });
 
               return (
                 <motion.article
@@ -276,6 +338,14 @@ export default function Home(
                   whileHover={{ y: -6 }}
                 >
                   <div className="relative h-32 w-32 overflow-hidden rounded-2xl">
+                    {promoBadgeLabel && (
+                      <PromoBadge
+                        label={promoBadgeLabel}
+                        tone="danger"
+                        variant="circle"
+                        className="absolute right-2 top-2 z-10"
+                      />
+                    )}
                     <Image
                       src={imageUrl}
                       alt={place.imageAlt ?? place.name ?? "EliteSport place"}
@@ -313,56 +383,15 @@ export default function Home(
 
       <Section
         eyebrow="Member Exclusives"
-        title="Recent Promotions"
-        description="Seasonal benefits for members, refreshed weekly with bespoke privileges."
+        title="Latest Promotions"
+        description="Newest offers stream directly from Sanity. No manual refreshes required."
       >
-        {promotions.length > 0 ? (
-          <motion.div
-            className="flex gap-6 overflow-x-auto pb-4"
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.3 }}
-            variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.15 } } }}
-          >
-            {promotions.map((promo) => {
-              const imageUrl = getImageUrl(promo.image, 1400, 900) ?? FALLBACK_PROMO_IMAGE;
-              const promoLabel = promo.promoCode ?? promo.ctaLabel ?? "Limited";
-
-              return (
-                <motion.article
-                  key={promo._id}
-                  variants={cardVariants}
-                  className="relative min-w-[260px] flex-1 overflow-hidden rounded-3xl border border-brand-deepBlue/60 bg-brand-black/70 shadow-glow sm:min-w-[320px]"
-                  whileHover={{ scale: 1.02 }}
-                >
-                  <div className="relative h-48">
-                    <Image
-                      src={imageUrl}
-                      alt={promo.imageAlt ?? promo.title ?? "EliteSport promotion"}
-                      fill
-                      sizes="(max-width: 768px) 80vw, 33vw"
-                      className="object-cover"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20" />
-                    <div className="absolute bottom-4 left-4 rounded-full bg-brand-black/70 px-4 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-brand-ivory/80">
-                      Limited
-                    </div>
-                  </div>
-                  <div className="space-y-3 px-6 py-6">
-                    <h3 className="text-xl text-brand-ivory">
-                      {promo.title ?? "EliteSport Promotion"}
-                    </h3>
-                    <p className="text-sm text-brand-gray/80">
-                      {promo.description ?? "Exclusive member perk curated via the CMS."}
-                    </p>
-                    <div className="inline-flex items-center gap-3 rounded-full border border-brand-lightBlue/20 bg-brand-lightBlue/10 px-5 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-brand-lightBlue">
-                      Code: {promoLabel}
-                    </div>
-                  </div>
-                </motion.article>
-              );
-            })}
-          </motion.div>
+        {promotionCards.length > 0 ? (
+          <PromotionCarousel
+            promotions={promotionCards}
+            ariaLabel="Latest active promotions"
+            onSelect={setSelectedPromotion}
+          />
         ) : (
           <p className="rounded-3xl border border-dashed border-brand-deepBlue/50 bg-brand-black/50 px-6 py-8 text-center text-sm text-brand-gray">
             Publish a promotion in Sanity to activate this carousel.
@@ -384,12 +413,17 @@ export default function Home(
           />
           <LogoGrid
             title="Our Partners"
-            items={partnerLogos.length > 0 ? partnerLogos : clientPartners}
+            items={partnerLogos}
             cardClassName="border-brand-lightBlue/20 bg-brand-lightBlue/5 text-brand-ivory/90"
           />
         </div>
       </Section>
     </div>
+      <PromotionModal
+        promotion={selectedPromotion}
+        isOpen={Boolean(selectedPromotion)}
+        onClose={() => setSelectedPromotion(null)}
+      />
     </>
   );
 }
@@ -423,7 +457,15 @@ const Hero = () => {
           </div>
           <div className="flex flex-wrap gap-4">
             <Button>Join Now</Button>
-            <Button variant="secondary">Explore Memberships</Button>
+            <Link
+              href="/memberships"
+              className={cn(
+                "inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-semibold uppercase tracking-[0.2em] transition duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-lightBlue focus-visible:ring-offset-2 focus-visible:ring-offset-brand-black",
+                "bg-brand-deepBlue text-brand-ivory hover:bg-brand-lightBlue/20 border border-brand-lightBlue/30"
+              )}
+            >
+              Explore Memberships
+            </Link>
           </div>
         </motion.div>
         <motion.div
@@ -521,21 +563,23 @@ const LogoGrid = ({
                 whileInView="visible"
                 viewport={{ once: true, amount: 0.2 }}
                 className={cn(
-                  "flex h-24 items-center justify-center rounded-2xl border text-center text-sm font-semibold",
+                  "flex min-h-[12rem] flex-col items-center justify-center gap-3 rounded-3xl border text-center text-sm font-semibold",
                   cardClassName,
                   item.website ? "transition hover:-translate-y-1" : ""
                 )}
                 whileHover={{ scale: item.website ? 1.03 : 1 }}
               >
                 {logoUrl ? (
-                  <div className="relative h-12 w-full">
-                    <Image
-                      src={logoUrl}
-                      alt={item.logoAlt ?? item.name ?? "Brand logo"}
-                      fill
-                      sizes="(max-width: 768px) 40vw, 20vw"
-                      className="object-contain"
-                    />
+                  <div className="flex w-full justify-center">
+                    <div className="relative h-32 w-32 overflow-hidden rounded-2xl bg-white p-4 shadow-inner">
+                      <Image
+                        src={logoUrl}
+                        alt={item.logoAlt ?? item.name ?? "Brand logo"}
+                        fill
+                        sizes="128px"
+                        className="object-contain"
+                      />
+                    </div>
                   </div>
                 ) : (
                   item.name ?? "Featured Brand"

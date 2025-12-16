@@ -18,10 +18,22 @@ export default defineType({
       rows: 3,
     }),
     defineField({
+      name: 'promoCode',
+      title: 'Promo Code',
+      type: 'string',
+      description: 'Optional code shown on the site for members to redeem.',
+    }),
+    defineField({
       name: 'image',
       title: 'Promo Image',
       type: 'image',
       options: {hotspot: true},
+    }),
+    defineField({
+      name: 'imageAlt',
+      title: 'Image Alt Text',
+      type: 'string',
+      description: 'Optional descriptive text for the promo image.',
     }),
     defineField({
       name: 'validFrom',

@@ -41,3 +41,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# sanity
+cms/.sanity/
+
+# local config overrides for sandboxed CLI runs
+.config/

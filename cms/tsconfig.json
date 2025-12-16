@@ -1,6 +1,8 @@
 {
-  "extends": "sanity/tsconfig",
+  "extends": "@sanity/tsconfig/strict",
   "compilerOptions": {
-    "strict": true
+    "strict": true,
+    "declaration": false,
+    "declarationMap": false
   }
 }
