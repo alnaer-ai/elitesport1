@@ -44,10 +44,31 @@ export default defineType({
               description: 'Display-friendly price such as "$199 / month".',
             }),
             defineField({
+              name: 'description',
+              title: 'Description',
+              type: 'text',
+              rows: 3,
+              description: 'Short narrative that appears on the tier card and hero.',
+            }),
+            defineField({
               name: 'benefits',
               title: 'Benefits',
               type: 'array',
               of: [{type: 'string'}],
+            }),
+            defineField({
+              name: 'familyBenefits',
+              title: 'Family Benefits',
+              type: 'array',
+              of: [{type: 'string'}],
+              description: 'Benefits specific to family-friendly memberships. Only shown when Family Friendly is enabled.',
+            }),
+            defineField({
+              name: 'hotelsGyms',
+              title: 'Hotels & Gyms',
+              type: 'array',
+              of: [{type: 'string'}],
+              description: 'List of hotel and gym venue names. Displayed as bullet points under the Benefits section.',
             }),
             defineField({
               name: 'cardColor',
@@ -57,24 +78,16 @@ export default defineType({
                 'Enter a hex or CSS color code that defines the tier card background.',
             }),
             defineField({
-              name: 'familyFriendly',
-              title: 'Family Friendly',
-              type: 'boolean',
-              description: 'Mark this tier as family inclusive so the UI can highlight it.',
-              initialValue: false,
-            }),
-            defineField({
-              name: 'familyFriendlyLogo',
-              title: 'Family Friendly Logo',
-              type: 'image',
-              description:
-                'Optional custom badge that will replace the default family icon when this tier is marked family friendly.',
-              options: {hotspot: true},
-            }),
-            defineField({
               name: 'isPopular',
               title: 'Mark as Popular',
               type: 'boolean',
+              initialValue: false,
+            }),
+            defineField({
+              name: 'isFamilyFriendly',
+              title: 'Family Friendly',
+              type: 'boolean',
+              description: 'Show a family friendly icon on the tier card.',
               initialValue: false,
             }),
             defineField({

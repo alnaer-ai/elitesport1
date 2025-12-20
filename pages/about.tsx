@@ -13,12 +13,6 @@ import {
   urlForImage,
 } from "@/lib/sanity.client";
 
-type TimelineEntry = {
-  year?: string;
-  title?: string;
-  description?: string;
-};
-
 type Differentiator = {
   title?: string;
   description?: string;
@@ -32,22 +26,18 @@ type TeamMember = {
 };
 
 type AboutInfo = {
-  companyDescription?: string;
   missionSectionEyebrow?: string;
   missionSectionTitle?: string;
   missionStatement?: string;
   missionImage?: SanityImageSource;
   vision?: string;
   visionImage?: SanityImageSource;
-  storyHeading?: string;
-  storyIntro?: string;
   valuesSectionEyebrow?: string;
   valuesSectionTitle?: string;
   valuesSectionDescription?: string;
   teamSectionEyebrow?: string;
   teamSectionTitle?: string;
   teamSectionDescription?: string;
-  timeline?: TimelineEntry[];
   teamMembers?: TeamMember[];
   coreValues?: string[];
   differentiators?: Differentiator[];
@@ -55,27 +45,23 @@ type AboutInfo = {
 
 type AboutPageProps = {
   about: AboutInfo | null;
-  hero: HeroPayload | null;
+  pageHero: HeroPayload | null;
 };
 
 const ABOUT_QUERY = `
   *[_type == "aboutInfo"][0]{
-    companyDescription,
     missionSectionEyebrow,
     missionSectionTitle,
     missionStatement,
     missionImage,
     vision,
     visionImage,
-    storyHeading,
-    storyIntro,
     valuesSectionEyebrow,
     valuesSectionTitle,
     valuesSectionDescription,
     teamSectionEyebrow,
     teamSectionTitle,
     teamSectionDescription,
-    timeline[]{year,title,description},
     teamMembers[]{name,role,bio,photo},
     coreValues,
     differentiators[]{title,description}
@@ -104,7 +90,7 @@ const getImageUrl = (source?: SanityImageSource, width = 2000) => {
 
 export default function AboutPage({
   about,
-  hero,
+  pageHero,
 }: InferGetStaticPropsType<typeof getStaticProps>) {
   if (!about) {
     return (
@@ -127,14 +113,8 @@ export default function AboutPage({
     );
   }
 
-  const timeline = (about.timeline ?? []).filter(
-    (entry) => entry.year || entry.title || entry.description
-  );
   const differentiators = (about.differentiators ?? []).filter(
     (item) => item.title || item.description
-  );
-  const teamMembers = (about.teamMembers ?? []).filter(
-    (member) => member.name || member.role || member.bio
   );
   const coreValues = about.coreValues ?? [];
 
@@ -152,145 +132,102 @@ export default function AboutPage({
       </Head>
 
       <div className="space-y-12 pb-24">
-        <Hero hero={hero} />
+        <Hero hero={pageHero} />
 
-        {(about.companyDescription ||
-          about.missionStatement ||
+        {(about.missionStatement ||
           about.vision ||
           missionImageUrl ||
           visionImageUrl ||
           about.missionSectionEyebrow ||
           about.missionSectionTitle) && (
           <motion.section {...motionSectionProps}>
-            <Container className="space-y-12">
-              {/* Row 1: Text | Image Card (Mission) */}
-              <div className="grid gap-12 lg:grid-cols-2">
-                {(about.missionSectionEyebrow ||
-                  about.missionSectionTitle ||
-                  about.companyDescription) && (
-                  <div className="space-y-6">
-                    {about.missionSectionEyebrow && (
-                      <p className="text-xs uppercase tracking-[0.5em] text-brand-lightBlue">
-                        {about.missionSectionEyebrow}
-                      </p>
+            <Container className="space-y-16">
+              {/* Mission Section */}
+              {(about.missionStatement || missionImageUrl || about.missionSectionEyebrow || about.missionSectionTitle) && (
+                <div className="space-y-8">
+                  {/* Mission Section Header */}
+                  {(about.missionSectionEyebrow || about.missionSectionTitle) && (
+                    <div className="space-y-4 text-center lg:text-left">
+                      {about.missionSectionEyebrow && (
+                        <p className="text-xs uppercase tracking-[0.5em] text-brand-lightBlue">
+                          {about.missionSectionEyebrow}
+                        </p>
+                      )}
+                      {about.missionSectionTitle && (
+                        <h2 className="font-display text-3xl text-brand-ivory sm:text-4xl">
+                          {about.missionSectionTitle}
+                        </h2>
+                      )}
+                    </div>
+                  )}
+                  
+                  {/* Mission Content: Text and Image separated */}
+                  <div className="grid gap-8 lg:grid-cols-2 lg:items-stretch">
+                    {/* Mission Text Card */}
+                    {about.missionStatement && (
+                      <article className="glass-card premium-card p-6 lg:p-8 flex flex-col">
+                        <div className="space-y-4 flex-1 flex flex-col justify-center items-center text-center">
+                          <h3 className="text-2xl sm:text-3xl uppercase tracking-[0.4em] text-brand-gold">
+                            Mission
+                          </h3>
+                          <p className="text-[1.3125rem] text-brand-gray leading-relaxed">
+                            {about.missionStatement}
+                          </p>
+                        </div>
+                      </article>
                     )}
-                    {about.missionSectionTitle && (
-                      <h2 className="font-display text-3xl text-brand-ivory sm:text-4xl">
-                        {about.missionSectionTitle}
-                      </h2>
-                    )}
-                    {about.companyDescription && (
-                      <p className="text-base text-brand-gray">
-                        {about.companyDescription}
-                      </p>
+                    
+                    {/* Mission Image Card */}
+                    {missionImageUrl && (
+                      <article className="glass-card premium-card p-0 overflow-hidden">
+                        <div className="relative aspect-[4/3] w-full">
+                          <Image
+                            src={missionImageUrl}
+                            alt="Mission visual"
+                            fill
+                            sizes="(max-width: 1024px) 100vw, 50vw"
+                            className="object-cover"
+                          />
+                        </div>
+                      </article>
                     )}
                   </div>
-                )}
-                {(about.missionStatement || missionImageUrl) && (
-                  <article className="glass-card premium-card p-6">
-                    <p className="text-xs uppercase tracking-[0.4em] text-brand-gold">
-                      Mission
-                    </p>
-                    {about.missionStatement && (
-                      <p className="mt-3 text-sm text-brand-gray">
-                        {about.missionStatement}
-                      </p>
-                    )}
-                    {missionImageUrl && (
-                      <div className="mt-5 relative h-48 w-full overflow-hidden rounded-2xl">
-                        <Image
-                          src={missionImageUrl}
-                          alt="Mission visual"
-                          fill
-                          sizes="(max-width: 768px) 100vw, 50vw"
-                          className="object-cover"
-                        />
-                      </div>
-                    )}
-                  </article>
-                )}
-              </div>
+                </div>
+              )}
 
-              {/* Row 2: Image Card (Vision) | Empty space for alternating pattern */}
+              {/* Vision Section */}
               {(about.vision || visionImageUrl) && (
-                <div className="grid gap-12 lg:grid-cols-2">
-                  <article className="glass-card premium-card p-6">
-                    <p className="text-xs uppercase tracking-[0.4em] text-brand-gold">
-                      Vision
-                    </p>
-                    {about.vision && (
-                      <p className="mt-3 text-sm text-brand-gray">
-                        {about.vision}
-                      </p>
-                    )}
+                <div className="space-y-8">
+                  {/* Vision Content: Image and Text separated (reversed order) */}
+                  <div className="grid gap-8 lg:grid-cols-2 lg:items-stretch">
+                    {/* Vision Image Card */}
                     {visionImageUrl && (
-                      <div className="mt-5 relative h-48 w-full overflow-hidden rounded-2xl">
-                        <Image
-                          src={visionImageUrl}
-                          alt="Vision visual"
-                          fill
-                          sizes="(max-width: 768px) 100vw, 50vw"
-                          className="object-cover"
-                        />
-                      </div>
+                      <article className="glass-card premium-card p-0 overflow-hidden order-1 lg:order-1">
+                        <div className="relative aspect-[4/3] w-full">
+                          <Image
+                            src={visionImageUrl}
+                            alt="Vision visual"
+                            fill
+                            sizes="(max-width: 1024px) 100vw, 50vw"
+                            className="object-cover"
+                          />
+                        </div>
+                      </article>
                     )}
-                  </article>
-                  {/* Empty space on the right to maintain alternating pattern */}
-                  <div />
-                </div>
-              )}
-            </Container>
-          </motion.section>
-        )}
-
-        {(about.storyHeading || about.storyIntro || timeline.length > 0) && (
-          <motion.section id="our-story" {...motionSectionProps}>
-            <Container className="space-y-10">
-              {(about.storyHeading || about.storyIntro) && (
-                <div className="space-y-4 text-center sm:text-left">
-                  {about.storyHeading && (
-                    <p className="text-xs uppercase tracking-[0.5em] text-brand-lightBlue">
-                      {about.storyHeading}
-                    </p>
-                  )}
-                  {about.storyIntro && (
-                    <h2 className="font-display text-3xl text-brand-ivory sm:text-4xl">
-                      {about.storyIntro}
-                    </h2>
-                  )}
-                </div>
-              )}
-              {timeline.length > 0 && (
-                <div className="relative pl-6">
-                  <span className="absolute left-2 top-0 bottom-0 w-px bg-gradient-to-b from-brand-gold via-brand-lightBlue to-transparent" />
-                  <div className="space-y-10">
-                    {timeline.map((entry, index) => (
-                      <motion.article
-                        key={`${entry.year ?? "timeline"}-${index}`}
-                        initial={{ opacity: 0, x: -20 }}
-                        whileInView={{ opacity: 1, x: 0 }}
-                        viewport={{ once: true, amount: 0.3 }}
-                        transition={{ duration: 0.4, delay: index * 0.05 }}
-                        className="relative border-l border-brand-deepBlue/60 pl-6"
-                      >
-                        <span className="absolute -left-2 top-2 h-3 w-3 rounded-full border border-brand-gold bg-brand-black" />
-                        {entry.year && (
-                          <p className="text-xs uppercase tracking-[0.4em] text-brand-gold">
-                            {entry.year}
-                          </p>
-                        )}
-                        {entry.title && (
-                          <h3 className="mt-2 font-display text-2xl text-brand-ivory">
-                            {entry.title}
+                    
+                    {/* Vision Text Card */}
+                    {about.vision && (
+                      <article className="glass-card premium-card p-6 lg:p-8 flex flex-col order-2 lg:order-2">
+                        <div className="space-y-4 flex-1 flex flex-col justify-center items-center text-center">
+                          <h3 className="text-2xl sm:text-3xl uppercase tracking-[0.4em] text-brand-gold">
+                            Vision
                           </h3>
-                        )}
-                        {entry.description && (
-                          <p className="mt-2 text-sm text-brand-gray">
-                            {entry.description}
+                          <p className="text-[1.3125rem] text-brand-gray leading-relaxed">
+                            {about.vision}
                           </p>
-                        )}
-                      </motion.article>
-                    ))}
+                        </div>
+                      </article>
+                    )}
                   </div>
                 </div>
               )}
@@ -365,72 +302,6 @@ export default function AboutPage({
           </motion.section>
         )}
 
-        {teamMembers.length > 0 && (
-          <motion.section id="our-team" {...motionSectionProps}>
-            <Container className="space-y-10">
-              {(about.teamSectionEyebrow ||
-                about.teamSectionTitle ||
-                about.teamSectionDescription) && (
-                <div className="space-y-3 text-center sm:text-left">
-                  {about.teamSectionEyebrow && (
-                    <p className="text-xs uppercase tracking-[0.5em] text-brand-lightBlue">
-                      {about.teamSectionEyebrow}
-                    </p>
-                  )}
-                  {about.teamSectionTitle && (
-                    <h2 className="font-display text-3xl text-brand-ivory">
-                      {about.teamSectionTitle}
-                    </h2>
-                  )}
-                  {about.teamSectionDescription && (
-                    <p className="text-sm text-brand-gray">
-                      {about.teamSectionDescription}
-                    </p>
-                  )}
-                </div>
-              )}
-              <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-                {teamMembers.map((member, index) => {
-                  const photoUrl = getImageUrl(member.photo, 900);
-
-                  return (
-                    <article
-                      key={`${member.name ?? "team-member"}-${index}`}
-                      className="glass-card premium-card flex flex-col gap-5 p-6"
-                    >
-                      <div className="relative h-64 w-full overflow-hidden rounded-2xl">
-                        {photoUrl && (
-                          <Image
-                            src={photoUrl}
-                            alt={member.name ?? "Team portrait"}
-                            fill
-                            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 30vw"
-                            className="object-cover"
-                          />
-                        )}
-                      </div>
-                      <div className="space-y-2">
-                        {member.name && (
-                          <h3 className="font-display text-2xl text-brand-ivory">
-                            {member.name}
-                          </h3>
-                        )}
-                        {member.role && (
-                          <p className="text-sm uppercase tracking-[0.3em] text-brand-gold">
-                            {member.role}
-                          </p>
-                        )}
-                        {member.bio && (
-                          <p className="text-sm text-brand-gray">{member.bio}</p>
-                        )}
-                      </div>
-                    </article>
-                  );
-                })}
-              </div>
-            </Container>
-          </motion.section>
-        )}
       </div>
     </>
   );
@@ -442,13 +313,13 @@ export const getStaticProps: GetStaticProps<AboutPageProps> = async () => {
     return {
       props: {
         about: null,
-        hero: null,
+        pageHero: null,
       },
       revalidate: 60,
     };
   }
 
-  const [about, hero] = await Promise.all([
+  const [about, pageHero] = await Promise.all([
     client.fetch<AboutInfo | null>(ABOUT_QUERY),
     fetchPageHero(ABOUT_PAGE_SLUG, client),
   ]);
@@ -456,7 +327,7 @@ export const getStaticProps: GetStaticProps<AboutPageProps> = async () => {
   return {
     props: {
       about,
-      hero: hero ?? null,
+      pageHero: pageHero ?? null,
     },
     revalidate: 60,
   };

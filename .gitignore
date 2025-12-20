@@ -20,6 +20,9 @@
 
 # production
 /build
+dist
+.test-build
+.cursor
 
 # misc
 .DS_Store

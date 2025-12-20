@@ -1,5 +1,6 @@
 import Image from "next/image";
-import { MouseEvent, useEffect, useState, type ReactNode } from "react";
+import Link from "next/link";
+import { MouseEvent, useEffect, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { PortableText } from "@portabletext/react";
 import type { SanityImageSource } from "@sanity/image-url";
@@ -22,6 +23,32 @@ const PLAY_STORE_URL =
 const DEFAULT_STORE_URL = APP_STORE_URL;
 const FALLBACK_OVERVIEW =
   "Destination curated by EliteSport with member-first amenities and elevated service.";
+
+const ChevronLeftIcon = ({ className }: { className?: string }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    fill="none"
+    viewBox="0 0 24 24"
+    strokeWidth={2}
+    stroke="currentColor"
+    className={className}
+  >
+    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+  </svg>
+);
+
+const ChevronRightIcon = ({ className }: { className?: string }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    fill="none"
+    viewBox="0 0 24 24"
+    strokeWidth={2}
+    stroke="currentColor"
+    className={className}
+  >
+    <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+  </svg>
+);
 
 const getImageUrl = (
   source?: SanityImageSource,
@@ -53,6 +80,44 @@ export const PlaceModal = ({
   categoryLabel,
 }: PlaceModalProps) => {
   const [storeUrl, setStoreUrl] = useState<string>(DEFAULT_STORE_URL);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  const scroll = (direction: "left" | "right") => {
+    if (scrollContainerRef.current) {
+      const { current } = scrollContainerRef;
+      const scrollAmount = current.clientWidth;
+      const maxScrollLeft = current.scrollWidth - current.clientWidth;
+      const tolerance = 5; // Buffer for scroll position precision
+
+      if (direction === "left") {
+        // If near start, loop to end
+        if (current.scrollLeft <= tolerance) {
+          current.scrollTo({
+            left: maxScrollLeft,
+            behavior: "smooth",
+          });
+        } else {
+          current.scrollBy({
+            left: -scrollAmount,
+            behavior: "smooth",
+          });
+        }
+      } else {
+        // If near end, loop to start
+        if (current.scrollLeft >= maxScrollLeft - tolerance) {
+          current.scrollTo({
+            left: 0,
+            behavior: "smooth",
+          });
+        } else {
+          current.scrollBy({
+            left: scrollAmount,
+            behavior: "smooth",
+          });
+        }
+      }
+    }
+  };
 
   useEffect(() => {
     if (!isOpen) {
@@ -117,37 +182,33 @@ export const PlaceModal = ({
     }
   };
 
-  const imageSource = place.featuredImage;
-  const imageUrl = getImageUrl(imageSource, 1600, 600) ?? FALLBACK_PLACE_IMAGE;
+  const rawImages = [place.featuredImage, ...(place.images || [])].filter(
+    (img) => img !== null && img !== undefined
+  );
+  const hasImages = rawImages.length > 0;
+
   const displayCategoryLabel =
     categoryLabel ?? place.location ?? getPlaceCategoryLabel(place.placeType);
+  const showAllPlacesLink =
+    displayCategoryLabel?.toLowerCase() === "most popular places";
   const overview = place.overview;
-  const locationDetails = place.locationDetails;
-  const contact = place.contactInformation;
-  const hasLocationDetails =
-    Boolean(locationDetails?.address) ||
-    Boolean(locationDetails?.mapLink) ||
-    Boolean(locationDetails?.coordinates?.lat) ||
-    Boolean(locationDetails?.coordinates?.lng);
-  const hasContact =
-    Boolean(contact?.phone) || Boolean(contact?.email) || Boolean(contact?.website);
 
   const portableTextComponents = {
     block: {
-      normal: ({ children }: { children: ReactNode }) => (
+      normal: ({ children }: { children?: ReactNode }) => (
         <p className="text-base text-brand-gray/90 leading-relaxed">{children}</p>
       ),
-      h3: ({ children }: { children: ReactNode }) => (
+      h3: ({ children }: { children?: ReactNode }) => (
         <h3 className="text-lg font-semibold text-brand-ivory">{children}</h3>
       ),
     },
     list: {
-      bullet: ({ children }: { children: ReactNode }) => (
+      bullet: ({ children }: { children?: ReactNode }) => (
         <ul className="list-disc space-y-2 pl-6 text-brand-gray/90">{children}</ul>
       ),
     },
     listItem: {
-      bullet: ({ children }: { children: ReactNode }) => <li>{children}</li>,
+      bullet: ({ children }: { children?: ReactNode }) => <li>{children}</li>,
     },
   };
 
@@ -160,15 +221,52 @@ export const PlaceModal = ({
       onClick={handleOverlayClick}
     >
       <div className="glass-card mx-auto w-full max-w-2xl rounded-[32px] overflow-hidden">
-        <div className="relative h-64 w-full overflow-hidden">
-          <Image
-            src={imageUrl}
-            alt={place.featuredImage?.alt ?? place.name ?? "EliteSport place"}
-            fill
-            sizes="(max-width: 768px) 100vw, 60vw"
-            className="object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-brand-black/90 via-brand-black/40 to-transparent" />
+        <div className="relative h-64 w-full group">
+          <div 
+            ref={scrollContainerRef}
+            className="flex h-full w-full overflow-x-auto snap-x snap-mandatory [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          >
+            {(hasImages ? rawImages : [undefined]).map((img, index) => {
+              const url = getImageUrl(img, 1600, 600) ?? FALLBACK_PLACE_IMAGE;
+              const alt = img?.alt ?? place.name ?? "EliteSport place";
+              return (
+                <div
+                  key={index}
+                  className="relative h-full w-full flex-shrink-0 snap-center"
+                >
+                  <Image
+                    src={url}
+                    alt={alt}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 60vw"
+                    className="object-cover"
+                  />
+                </div>
+              );
+            })}
+          </div>
+          <div className="absolute inset-0 bg-gradient-to-t from-brand-black/90 via-brand-black/40 to-transparent pointer-events-none" />
+
+          {/* Scroll Controls */}
+          {hasImages && rawImages.length > 1 && (
+            <>
+              <button
+                onClick={() => scroll("left")}
+                className="absolute left-4 top-1/2 -translate-y-1/2 z-10 rounded-full bg-brand-black/40 p-2 text-brand-ivory/90 backdrop-blur-md transition-all hover:bg-brand-gold hover:text-brand-black focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold opacity-0 group-hover:opacity-100 duration-300"
+                aria-label="Scroll left"
+              >
+                <ChevronLeftIcon className="h-6 w-6" />
+              </button>
+              <button
+                onClick={() => scroll("right")}
+                className="absolute right-4 top-1/2 -translate-y-1/2 z-10 rounded-full bg-brand-black/40 p-2 text-brand-ivory/90 backdrop-blur-md transition-all hover:bg-brand-gold hover:text-brand-black focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold opacity-0 group-hover:opacity-100 duration-300"
+                aria-label="Scroll right"
+              >
+                <ChevronRightIcon className="h-6 w-6" />
+              </button>
+            </>
+          )}
+
           <button
             type="button"
             onClick={onClose}
@@ -177,13 +275,23 @@ export const PlaceModal = ({
           >
             Close
           </button>
-          <div className="absolute bottom-6 left-6 right-6 space-y-3">
-            <p className="text-xs uppercase tracking-[0.45em] text-brand-lightBlue">
-              {displayCategoryLabel}
-            </p>
-            <h2 className="text-3xl font-semibold text-brand-ivory">
-              {place.name ?? "EliteSport Place"}
-            </h2>
+          <div className="absolute bottom-6 left-6 right-6 space-y-3 pointer-events-none">
+            <div className="pointer-events-auto">
+              <p className="text-xs uppercase tracking-[0.45em] text-brand-lightBlue">
+                {displayCategoryLabel}
+              </p>
+              {showAllPlacesLink && (
+                <Link
+                  href="/places"
+                  className="inline-block text-xs font-semibold uppercase tracking-[0.35em] text-brand-lightBlue transition hover:text-brand-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold focus-visible:ring-offset-2 focus-visible:ring-offset-brand-black"
+                >
+                  See All Places →
+                </Link>
+              )}
+              <h2 className="text-3xl font-semibold text-brand-ivory">
+                {place.name ?? "EliteSport Place"}
+              </h2>
+            </div>
           </div>
         </div>
         <div className="space-y-8 px-8 py-10">
@@ -198,86 +306,20 @@ export const PlaceModal = ({
             )}
           </div>
 
-          <div className="space-y-3">
-            <p className="text-sm font-semibold uppercase tracking-[0.35em] text-brand-gold">
-              Location
-            </p>
-            {hasLocationDetails ? (
-              <div className="space-y-2 text-brand-gray/90">
-                {locationDetails?.address && (
-                  <p className="text-base leading-relaxed whitespace-pre-line">
-                    {locationDetails.address}
-                  </p>
-                )}
-                {locationDetails?.mapLink && (
-                  <ButtonLink
-                    href={locationDetails.mapLink}
-                    variant="secondary"
-                    className="w-full sm:w-auto"
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    Open in Maps
-                  </ButtonLink>
-                )}
-                {(locationDetails?.coordinates?.lat || locationDetails?.coordinates?.lng) && (
-                  <p className="text-sm text-brand-gray/70">
-                    Coordinates:{" "}
-                    {[
-                      locationDetails?.coordinates?.lat,
-                      locationDetails?.coordinates?.lng,
-                    ]
-                      .filter((value) => value !== undefined && value !== null)
-                      .join(", ")}
-                  </p>
-                )}
-              </div>
-            ) : (
-              <p className="text-base text-brand-gray/80">
-                Location details will be added soon.
+          {place.benefits && place.benefits.length > 0 && (
+            <div className="space-y-3">
+              <p className="text-sm font-semibold uppercase tracking-[0.35em] text-brand-gold">
+                Benefits
               </p>
-            )}
-          </div>
-
-          <div className="space-y-3">
-            <p className="text-sm font-semibold uppercase tracking-[0.35em] text-brand-gold">
-              Contact
-            </p>
-            {hasContact ? (
-              <div className="space-y-2 text-brand-gray/90">
-                {contact?.phone && (
-                  <a
-                    className="block text-base hover:text-brand-ivory transition"
-                    href={`tel:${contact.phone}`}
-                  >
-                    {contact.phone}
-                  </a>
-                )}
-                {contact?.email && (
-                  <a
-                    className="block text-base hover:text-brand-ivory transition"
-                    href={`mailto:${contact.email}`}
-                  >
-                    {contact.email}
-                  </a>
-                )}
-                {contact?.website && (
-                  <a
-                    className="block text-base hover:text-brand-ivory transition"
-                    href={contact.website}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    {contact.website}
-                  </a>
-                )}
-              </div>
-            ) : (
-              <p className="text-base text-brand-gray/80">
-                Contact details will be added soon.
-              </p>
-            )}
-          </div>
+              <ul className="list-disc space-y-2 pl-6 text-brand-gray/90">
+                {place.benefits.map((benefit, index) => (
+                  <li key={index} className="text-base leading-relaxed">
+                    {benefit}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
           <div className="pt-2">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">

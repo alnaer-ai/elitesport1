@@ -1,18 +1,31 @@
 import { ReactNode, useEffect, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { cn } from "@/lib/cn";
+
+type ContactInfo = {
+  address?: string;
+  mapLocation?: {
+    lat?: number;
+    lng?: number;
+  };
+};
+
+type ContactInfoResponse = {
+  data: ContactInfo | null;
+};
 
 type LayoutProps = {
   children: ReactNode;
 };
 
 const NAV_LINKS = [
-  { href: "/", label: "Home" },
-  { href: "/memberships", label: "Memberships" },
   { href: "/about", label: "About Us" },
-  { href: "/contact", label: "Contact Us" },
+  { href: "/memberships", label: "Memberships" },
   { href: "/places", label: "Places" },
+  { href: "/promotions", label: "Promotions" },
+  { href: "/partners-clients", label: "Partners & Clients" },
 ];
 
 const SOCIAL_LINKS = [
@@ -61,12 +74,19 @@ const SiteHeader = () => {
       <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
         <Link
           href="/"
-          className="text-xl font-semibold tracking-tight text-brand-gold"
+          className="inline-flex items-center gap-3 text-xl font-semibold tracking-tight text-brand-gold"
         >
-          EliteSport
+          <Image
+            src="/elitsportlogo-clear.png"
+            alt="EliteSport logo"
+            width={1600}
+            height={1209}
+            className="h-12 w-auto drop-shadow-[0_0_10px_rgba(197,163,91,0.5)]"
+            priority
+          />
         </Link>
         <nav
-          className="hidden items-center gap-8 md:flex"
+          className="hidden items-center gap-8 md:flex md:flex-1 md:justify-center"
           aria-label="Primary navigation"
         >
           {NAV_LINKS.map((link) => {
@@ -87,6 +107,17 @@ const SiteHeader = () => {
             );
           })}
         </nav>
+        <div className="hidden items-center gap-4 md:flex">
+          <Link
+            href="/contact"
+            className={cn(
+              "inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 text-xs font-semibold uppercase tracking-[0.2em] transition duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-lightBlue focus-visible:ring-offset-2 focus-visible:ring-offset-brand-black",
+              "bg-brand-gold text-brand-black hover:bg-brand-lightBlue hover:text-brand-deepBlue shadow-glow"
+            )}
+          >
+            Get in Touch
+          </Link>
+        </div>
         <button
           type="button"
           className="inline-flex items-center justify-center rounded-md border border-brand-deepBlue/70 px-3 py-2 text-brand-ivory transition hover:border-brand-gold hover:text-brand-gold md:hidden"
@@ -135,6 +166,16 @@ const SiteHeader = () => {
                 {link.label}
               </Link>
             ))}
+            <Link
+              href="/contact"
+              className={cn(
+                "mt-2 inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-3 text-xs font-semibold uppercase tracking-[0.2em] transition duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-lightBlue focus-visible:ring-offset-2 focus-visible:ring-offset-brand-black",
+                "bg-brand-gold text-brand-black hover:bg-brand-lightBlue hover:text-brand-deepBlue shadow-glow"
+              )}
+              onClick={closeMenu}
+            >
+              Get in Touch
+            </Link>
           </div>
         </nav>
       )}
@@ -142,31 +183,98 @@ const SiteHeader = () => {
   );
 };
 
-const SiteFooter = () => (
-  <footer className="border-t border-brand-deepBlue/60 bg-brand-deepBlue/40 text-brand-gray">
-    <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-10 text-sm sm:px-6 lg:px-8 md:flex-row md:items-center md:justify-between">
-      <div>
-        <p className="font-display text-lg font-semibold text-brand-ivory">
-          EliteSport
-        </p>
-        <p className="text-xs text-brand-gray/80">
-          Elevate your performance with every session.
-        </p>
+const SiteFooter = () => {
+  const [contactInfo, setContactInfo] = useState<ContactInfo | null>(null);
+
+  useEffect(() => {
+    let isMounted = true;
+    const controller = new AbortController();
+
+    const fetchContactInfo = async () => {
+      try {
+        const response = await fetch("/api/contact-info", {
+          signal: controller.signal,
+        });
+
+        if (!response.ok) {
+          throw new Error(`Request failed with status ${response.status}`);
+        }
+
+        const payload: ContactInfoResponse = await response.json();
+        if (isMounted) {
+          setContactInfo(payload.data);
+        }
+      } catch (error) {
+        if (error instanceof DOMException && error.name === "AbortError") {
+          return;
+        }
+        console.error("Failed to load contact info:", error);
+      }
+    };
+
+    fetchContactInfo();
+
+    return () => {
+      isMounted = false;
+      controller.abort();
+    };
+  }, []);
+
+  const address = contactInfo?.address || "EliteSport Headquarters";
+  const lat = contactInfo?.mapLocation?.lat;
+  const lng = contactInfo?.mapLocation?.lng;
+
+  const googleMapsUrl =
+    typeof lat === "number" && typeof lng === "number"
+      ? `https://www.google.com/maps?q=${lat},${lng}`
+      : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
+
+  return (
+    <footer className="border-t border-brand-deepBlue/60 bg-brand-deepBlue/40 text-brand-gray">
+      <div className="mx-auto w-full max-w-6xl px-4 py-10 text-sm sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-3 md:items-start">
+          <div>
+            <p className="font-display text-lg font-semibold text-brand-ivory">
+              EliteSport
+            </p>
+            <p className="mt-1 text-xs text-brand-gray/80">
+              Elevate your performance with every session.
+            </p>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <div className="text-xs uppercase tracking-[0.35em] text-brand-lightBlue">
+              Location
+            </div>
+            <a
+              href={googleMapsUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs text-brand-gray transition hover:text-brand-gold max-w-[280px] break-words"
+              dir="ltr"
+            >
+              {address}
+            </a>
+          </div>
+
+          <div className="flex flex-col gap-3">
+            <p className="text-xs text-brand-gray/80">
+              © 2025 EliteSport. All rights reserved.
+            </p>
+            <div className="flex flex-wrap gap-4">
+              {SOCIAL_LINKS.map((social) => (
+                <a
+                  key={social.label}
+                  href={social.href}
+                  className="text-xs uppercase tracking-wide text-brand-gray transition hover:text-brand-gold"
+                >
+                  {social.label}
+                </a>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
-      <p className="text-xs text-brand-gray/80">
-        © 2025 EliteSport. All rights reserved.
-      </p>
-      <div className="flex gap-4">
-        {SOCIAL_LINKS.map((social) => (
-          <a
-            key={social.label}
-            href={social.href}
-            className="text-xs uppercase tracking-wide text-brand-gray transition hover:text-brand-gold"
-          >
-            {social.label}
-          </a>
-        ))}
-      </div>
-    </div>
-  </footer>
-);
+    </footer>
+  );
+};

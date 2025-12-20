@@ -3,7 +3,10 @@ export type MembershipTier = {
   price?: string;
   description?: string;
   benefits?: string[];
+  familyBenefits?: string[];
+  hotelsGyms?: string[];
   isPopular?: boolean;
+  isFamilyFriendly?: boolean;
   cardColor?: string;
   ctaLabel?: string;
   ctaUrl?: string;
@@ -32,7 +35,10 @@ export const MEMBERSHIP_QUERY = `
       price,
       description,
       benefits,
+      familyBenefits,
+      hotelsGyms,
       isPopular,
+      isFamilyFriendly,
       cardColor,
       ctaLabel,
       ctaUrl
@@ -49,10 +55,10 @@ export type MembershipTierEntry = {
   tier: MembershipTier;
 };
 
-const defaultTierColors = [
-  "linear-gradient(135deg, #8f6b29 0%, #fde08d 50%, #df9f28 100%)", // gold
-  "linear-gradient(135deg, #5f5f61 0%, #c0c0c0 50%, #f5f7fa 100%)", // silver
-  "linear-gradient(135deg, #4c2a0a 0%, #cd7f32 55%, #f4b183 100%)", // bronze
+export const defaultTierColors = [
+  "#f4b942", // gold - more vibrant
+  "#e8e8e8", // silver - brighter metallic
+  "#d4a574", // bronze - richer tone
 ] as const;
 
 export const collectMembershipTiers = (memberships: MembershipInfo[]) =>
@@ -88,7 +94,7 @@ export const getTierHref = (tierName?: string) => {
   return slug ? `/memberships/${slug}` : "/memberships";
 };
 
-export const getTierCardBackground = (
+export const getTierColor = (
   tier: MembershipTier,
   fallbackIndex?: number
 ) => {
@@ -102,5 +108,15 @@ export const getTierCardBackground = (
     return defaultTierColors[paletteIndex];
   }
 
-  return undefined;
+  return defaultTierColors[0];
+};
+
+/**
+ * @deprecated Use getTierColor instead
+ */
+export const getTierCardBackground = (
+  tier: MembershipTier,
+  fallbackIndex?: number
+) => {
+  return getTierColor(tier, fallbackIndex);
 };

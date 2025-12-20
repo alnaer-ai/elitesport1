@@ -5,119 +5,128 @@ const placeCategories = [
   {title: 'Gym', value: 'gym'},
   {title: 'Female Club', value: 'female'},
   {title: 'Kids Club', value: 'kids'},
-  {title: 'Spa', value: 'spa'},
   {title: 'Tennis & Squash', value: 'tennisSquash'},
+  {title: 'Wellness', value: 'wellness'},
 ];
+
+const getCategoryTitle = (value?: string) => {
+  if (!value) return undefined;
+  return placeCategories.find((item) => item.value === value)?.title ?? value;
+};
 
 export default defineType({
   name: 'place',
   title: 'Place',
   type: 'document',
   groups: [
-    {name: 'details', title: 'Details', default: true},
-    {name: 'flags', title: 'Highlights'},
+    {name: 'card', title: 'Card Fields', default: true},
+    {name: 'details', title: 'Modal Details'},
   ],
   fields: [
     defineField({
       name: 'name',
-      title: 'Name',
+      title: 'Place Name',
       type: 'string',
-      validation: (Rule) => Rule.required(),
-      group: 'details',
+      description: 'Displayed on cards and inside the modal header.',
+      validation: (Rule) => Rule.required().error('Place name is required.'),
+      group: 'card',
     }),
     defineField({
-      name: 'category',
-      title: 'Category',
+      name: 'placeType',
+      title: 'Place Type',
       type: 'string',
+      description: 'Category used for grouping and filtering.',
       options: {
         list: placeCategories,
         layout: 'radio',
       },
-      validation: (Rule) => Rule.required(),
-      group: 'details',
-    }),
-    defineField({
-      name: 'description',
-      title: 'Description',
-      type: 'text',
-      rows: 4,
-      group: 'details',
+      validation: (Rule) => Rule.required().error('Place type is required.'),
+      group: 'card',
     }),
     defineField({
       name: 'location',
-      title: 'Location',
+      title: 'Location Label',
       type: 'string',
-      description: 'Visible subtitle describing the city or region.',
-      group: 'details',
+      description: 'Short location text shown on cards (e.g., "Dubai Marina").',
+      validation: (Rule) => Rule.required().error('Location label is required.'),
+      group: 'card',
     }),
     defineField({
-      name: 'image',
-      title: 'Image',
+      name: 'featuredImage',
+      title: 'Featured Image',
       type: 'image',
+      description: 'Primary image used on cards and in the modal.',
       options: {hotspot: true},
+      validation: (Rule) => Rule.required().error('Featured image is required.'),
+      group: 'card',
+      fields: [
+        defineField({
+          name: 'alt',
+          title: 'Alt Text',
+          type: 'string',
+          description: 'Accessibility text. Leave empty to auto-generate from the place name.',
+        }),
+      ],
+    }),
+    defineField({
+      name: 'images',
+      title: 'Gallery Images',
+      type: 'array',
+      of: [
+        {
+          type: 'image',
+          options: {hotspot: true},
+          fields: [
+            {
+              name: 'alt',
+              type: 'string',
+              title: 'Alt Text',
+            },
+          ],
+        },
+      ],
+      description: 'Additional images displayed in the modal gallery.',
       group: 'details',
     }),
     defineField({
-      name: 'imageAlt',
-      title: 'Image Alt Text',
-      type: 'string',
-      description: 'Optional override for accessibility text on cards.',
+      name: 'showInMostPopular',
+      title: 'Show in Most Popular',
+      type: 'boolean',
+      description: 'Enable this to display the place in the Most Popular section.',
+      initialValue: false,
+      group: 'card',
+    }),
+    defineField({
+      name: 'overview',
+      title: 'Overview',
+      type: 'array',
+      of: [{type: 'block'}],
+      description: 'Short rich overview shown at the top of the modal.',
       group: 'details',
     }),
     defineField({
-      name: 'tags',
-      title: 'Tags',
+      name: 'benefits',
+      title: 'Benefits',
       type: 'array',
       of: [{type: 'string'}],
-      description: 'Free-form tags for search or filtering.',
+      description: 'List of benefits (bullet points).',
       group: 'details',
-    }),
-    defineField({
-      name: 'isMostPopular',
-      title: 'Most Popular',
-      type: 'boolean',
-      description: 'Mark to include in the “Most Popular” home page section.',
-      initialValue: false,
-      group: 'flags',
-    }),
-    defineField({
-      name: 'distanceLabel',
-      title: 'Distance Label',
-      type: 'string',
-      description:
-        'Optional distance/availability label (e.g., “2 km away”) for the Nearby section.',
-      group: 'flags',
-    }),
-    defineField({
-      name: 'isNearby',
-      title: 'Nearby Highlight',
-      type: 'boolean',
-      description: 'Mark to include in “Nearby” or location-focused sections.',
-      initialValue: false,
-      group: 'flags',
-    }),
-    defineField({
-      name: 'priority',
-      title: 'Display Priority',
-      type: 'number',
-      description: 'Lower numbers show first when sorted manually.',
-      group: 'flags',
     }),
   ],
   preview: {
     select: {
       title: 'name',
-      subtitle: 'category',
-      media: 'image',
-      isMostPopular: 'isMostPopular',
+      placeType: 'placeType',
+      location: 'location',
+      media: 'featuredImage',
     },
     prepare(selection) {
-      const {subtitle, isMostPopular} = selection;
+      const {title, placeType, location, media} = selection;
+      const subtitleParts = [getCategoryTitle(placeType), location].filter(Boolean);
       return {
-        ...selection,
-        subtitle: [subtitle, isMostPopular ? 'Most Popular' : null]
-          .filter(Boolean)
-          .join(' • '),
+        title: title || 'Untitled Place',
+        subtitle: subtitleParts.join(' • ') || 'Place',
+        media,
       };
     },
   },

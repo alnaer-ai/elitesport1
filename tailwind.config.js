@@ -52,6 +52,20 @@ module.exports = {
       boxShadow: {
         glow: "0 20px 45px rgba(197, 163, 91, 0.2)",
       },
+      keyframes: {
+        "logo-marquee": {
+          "0%": { transform: "translateX(0)" },
+          "100%": { transform: "translateX(-50%)" },
+        },
+        "tier-sheen": {
+          "0%": { transform: "translateX(-40%)" },
+          "100%": { transform: "translateX(120%)" },
+        },
+      },
+      animation: {
+        "logo-marquee": "logo-marquee 40s linear infinite",
+        "tier-sheen": "tier-sheen 14s ease-in-out infinite",
+      },
     },
   },
   plugins: [],

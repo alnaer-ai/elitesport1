@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@400;600&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@400;600;700&display=swap");
 
 @tailwind base;
 @tailwind components;
@@ -47,5 +47,195 @@
   ::selection {
     background: rgba(197, 163, 91, 0.35);
     color: #050609;
+  }
+}
+
+@layer components {
+  .glass-card {
+    --glass-border: rgba(255, 255, 255, 0.16);
+    --glass-bg:
+      radial-gradient(circle at 25% 20%, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.05) 55%),
+      linear-gradient(140deg, rgba(7, 13, 28, 0.85), rgba(2, 4, 9, 0.7));
+    --glass-highlight: rgba(255, 255, 255, 0.2);
+    --glass-glow: rgba(111, 175, 206, 0.2);
+    --glass-shadow: rgba(2, 6, 23, 0.6);
+    position: relative;
+    border-radius: 1.75rem;
+    border: 1px solid var(--glass-border);
+    background: var(--glass-bg);
+    backdrop-filter: blur(24px) saturate(140%);
+    -webkit-backdrop-filter: blur(24px) saturate(140%);
+    box-shadow:
+      0 25px 45px var(--glass-shadow),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    overflow: hidden;
+    transition: transform 250ms ease, border-color 250ms ease, box-shadow 250ms ease;
+  }
+
+  .glass-card::before {
+    content: "";
+    position: absolute;
+    inset: 1.5px;
+    border-radius: inherit;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: linear-gradient(180deg, var(--glass-highlight), transparent 55%);
+    opacity: 0.8;
+    mix-blend-mode: screen;
+    pointer-events: none;
+  }
+
+  .glass-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    box-shadow:
+      inset 0 0 35px rgba(255, 255, 255, 0.08),
+      0 0 50px var(--glass-glow);
+    opacity: 0.7;
+    pointer-events: none;
+  }
+
+  .glass-card > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  .glass-card:hover {
+    border-color: color-mix(in srgb, var(--glass-border), white 45%);
+    box-shadow:
+      0 30px 55px color-mix(in srgb, var(--glass-shadow), transparent 15%),
+      0 0 50px var(--glass-glow);
+  }
+
+  /* Premium Card Animation */
+  .premium-card {
+    @apply relative overflow-hidden transition-all duration-500 will-change-transform;
+    transition-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  .premium-card:hover {
+    @apply -translate-y-1 scale-[1.01];
+  }
+
+  /* Reflection Shine */
+  .premium-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: linear-gradient(
+      110deg,
+      transparent 30%,
+      rgba(255, 255, 255, 0.03) 45%,
+      rgba(255, 255, 255, 0.05) 50%,
+      rgba(255, 255, 255, 0.03) 55%,
+      transparent 70%
+    );
+    transform: translateX(-100%);
+    transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+    pointer-events: none;
+    z-index: 20;
+  }
+
+  .premium-card:hover::before {
+    transform: translateX(100%);
+    transition: transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  /* Minimal variant for Client/Partner cards - Apple-like, airy design */
+  .glass-card-minimal {
+    --glass-border: rgba(255, 255, 255, 0.06);
+    --glass-bg:
+      radial-gradient(circle at 25% 20%, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.03) 55%),
+      linear-gradient(140deg, rgba(7, 13, 28, 0.6), rgba(2, 4, 9, 0.5));
+    --glass-highlight: rgba(255, 255, 255, 0.08);
+    --glass-glow: rgba(111, 175, 206, 0.08);
+    --glass-shadow: rgba(2, 6, 23, 0.2);
+    position: relative;
+    border-radius: 1.5rem;
+    border: 0.5px solid var(--glass-border);
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px) saturate(120%);
+    -webkit-backdrop-filter: blur(20px) saturate(120%);
+    box-shadow:
+      0 8px 20px var(--glass-shadow),
+      inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    overflow: hidden;
+    transition: transform 250ms ease, border-color 250ms ease, box-shadow 250ms ease;
+  }
+
+  .glass-card-minimal::before {
+    content: "";
+    position: absolute;
+    inset: 0.5px;
+    border-radius: inherit;
+    border: 0.5px solid rgba(255, 255, 255, 0.04);
+    background: linear-gradient(180deg, var(--glass-highlight), transparent 55%);
+    opacity: 0.5;
+    mix-blend-mode: screen;
+    pointer-events: none;
+  }
+
+  .glass-card-minimal::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    box-shadow:
+      inset 0 0 20px rgba(255, 255, 255, 0.03),
+      0 0 15px var(--glass-glow);
+    opacity: 0.4;
+    pointer-events: none;
+  }
+
+  .glass-card-minimal > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  .glass-card-minimal:hover {
+    border-color: color-mix(in srgb, var(--glass-border), white 30%);
+    box-shadow:
+      0 12px 28px color-mix(in srgb, var(--glass-shadow), transparent 20%),
+      0 0 20px var(--glass-glow);
+  }
+
+  /* Clean logo card - borderless, no dark backgrounds, flat design */
+  .logo-card-clean {
+    position: relative;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border-radius: 0 !important;
+    overflow: visible;
+    transition: transform 250ms ease;
+  }
+
+  .logo-card-clean::before,
+  .logo-card-clean::after {
+    display: none !important;
+    content: none !important;
+  }
+
+  .logo-card-clean:hover {
+    border: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+  }
+
+  /* Disable premium-card effects for logo cards */
+  .logo-card-clean.premium-card::before {
+    display: none !important;
+    content: none !important;
+  }
+
+  .logo-card-clean.premium-card:hover {
+    transform: translateY(-2px);
+    box-shadow: none !important;
   }
 }

@@ -35,6 +35,7 @@ export default defineType({
     {name: 'content', title: 'Content', default: true},
     {name: 'media', title: 'Media'},
     {name: 'layout', title: 'Layout'},
+    {name: 'slideshow', title: 'Slideshow (Home Page Only)'},
     {name: 'publishing', title: 'Publishing'},
   ],
   fields: [
@@ -206,8 +207,11 @@ export default defineType({
           }
 
           const client = getClient({apiVersion: '2023-10-31'});
-          const pageRef = document?.targetPage?._ref;
-          let targetSlug = document?.targetSlug;
+          // Sanity's `document` type inside validation context is intentionally loose.
+          // Cast to `any` so we can safely read reference fields without TS errors.
+          const doc = document as any;
+          const pageRef = doc?.targetPage?._ref as string | undefined;
+          let targetSlug = doc?.targetSlug as string | undefined;
 
           if (!targetSlug && pageRef) {
             targetSlug = await client.fetch<string | undefined>(
@@ -220,7 +224,7 @@ export default defineType({
             return 'Pick the page slug this hero targets before publishing.';
           }
 
-          const docId = document?._id;
+          const docId = doc?._id as string | undefined;
           const publishedDocId = docId?.startsWith('drafts.')
             ? docId.replace(/^drafts\./, '')
             : docId;

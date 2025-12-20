@@ -1,6 +1,6 @@
 import {visionTool} from '@sanity/vision';
 import {defineConfig} from 'sanity';
-import {deskTool} from 'sanity/desk';
+import {deskTool, type StructureBuilder} from 'sanity/desk';
 
 import schemaTypes from './schemas';
 
@@ -13,12 +13,23 @@ const dataset =
   process.env['SANITY_DATASET'] ||
   'production';
 
+const hiddenDocumentTypes = ['page'];
+
+const structure = (S: StructureBuilder) =>
+  S.list()
+    .title('Content')
+    .items(
+      S.documentTypeListItems().filter(
+        (listItem) => !hiddenDocumentTypes.includes(listItem.getId() ?? '')
+      )
+    );
+
 export default defineConfig({
   name: 'elitesport',
   title: 'elitesport',
   projectId,
   dataset,
-  plugins: [deskTool(), visionTool()],
+  plugins: [deskTool({structure}), visionTool()],
   schema: {
     types: schemaTypes,
   },

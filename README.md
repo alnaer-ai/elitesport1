@@ -53,7 +53,7 @@ Schemas exist for:
 - `place` – used on Home (popular/nearby) and Places page
 - `promotion` – drives the promotions carousel on Home
 - `membershipInfo` – hero, tiers, and FAQs on Memberships page
-- `aboutInfo` – hero, mission, values, team content
+- `aboutInfo` – mission, story, values, and team content (hero is managed globally)
 - `contactInfo` – address, contact details, office hours, and map coordinates
 - `clientPartner` – logos for the “Clients & Partners” section
 
@@ -78,6 +78,30 @@ This keeps presentation concerns decoupled from content, so future pages (e.g., 
 ## Deployment
 
 Deploy the Next.js site (e.g., to Vercel) as usual. Set the same environment variables on the hosting provider and enable the Sanity webhook if you need on-demand revalidation.
+
+### Webhook Configuration for On-Demand Revalidation
+
+To enable instant content updates when publishing in Sanity, configure a webhook:
+
+1. **Set the revalidation secret** in your environment variables:
+   ```
+   SANITY_REVALIDATE_SECRET=your-secret-token-here
+   ```
+
+2. **In Sanity Studio**, go to Project Settings → API → Webhooks
+   - Click "Create webhook"
+   - URL: `https://your-domain.com/api/revalidate`
+   - Dataset: Select your production dataset
+   - Trigger on: Create, Update, Delete
+   - Filter: `_type == "place" || _type == "promotion" || _type == "page" || _type == "membershipInfo" || _type == "clientPartner"`
+   - HTTP method: POST
+   - API version: Same as your project
+   - Secret: Set the same value as `SANITY_REVALIDATE_SECRET`
+   - Include drafts: No (only published documents trigger revalidation)
+
+3. **Test the webhook** by publishing a Place document in Sanity. The home page, places page, and specific place page should update within seconds.
+
+**Note**: Without webhooks, pages revalidate every 60 seconds (ISR). With webhooks, updates are instant after publishing.
 
 ## QA & Maintenance notes
 

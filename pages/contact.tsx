@@ -3,7 +3,11 @@ import { GetStaticProps, InferGetStaticPropsType } from "next";
 import { ChangeEvent, FormEvent, useState } from "react";
 
 import { Container } from "@/components/Container";
+import { Hero } from "@/components/Hero";
+import { fetchPageHero, type HeroPayload } from "@/lib/hero";
 import { sanityClient } from "@/lib/sanity.client";
+import { MembershipSelect, type MembershipTier } from "@/components/contact/MembershipSelect";
+import { PlanTypeSelect, type PlanType } from "@/components/contact/PlanTypeSelect";
 
 type ContactHours = {
   label?: string;
@@ -24,6 +28,7 @@ type ContactInfo = {
 
 type ContactPageProps = {
   contact: ContactInfo | null;
+  hero: HeroPayload | null;
 };
 
 const CONTACT_INFO_QUERY = `
@@ -45,18 +50,22 @@ const CONTACT_INFO_QUERY = `
 
 const defaultIntro =
   "We would love to hear from you. Please reach out with any questions or collaboration ideas.";
+const CONTACT_PAGE_SLUG = "contact";
 
 const sanitizePhone = (phone?: string) =>
   phone ? phone.replace(/[^+\d]/g, "") : undefined;
 
 export default function ContactPage({
   contact,
+  hero,
 }: InferGetStaticPropsType<typeof getStaticProps>) {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     phone: "",
     message: "",
+    membership: "" as MembershipTier | "",
+    planType: "Single" as PlanType,
   });
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
 
@@ -65,13 +74,6 @@ export default function ContactPage({
   const phoneHref = sanitizePhone(contact?.phone);
   const emailAddress = contact?.email;
   const hours = contact?.hours?.filter((item) => item?.label && item?.value) ?? [];
-  const lat = contact?.mapLocation?.lat;
-  const lng = contact?.mapLocation?.lng;
-
-  const mapSrc =
-    typeof lat === "number" && typeof lng === "number"
-      ? `https://www.google.com/maps?q=${lat},${lng}&z=14&output=embed`
-      : `https://www.google.com/maps?q=${encodeURIComponent(address)}&z=12&output=embed`;
 
   const handleInputChange = (
     event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -81,8 +83,33 @@ export default function ContactPage({
     setStatusMessage(null);
   };
 
+  const handleMembershipChange = (value: MembershipTier) => {
+    setFormData((prev) => {
+      const isRestricted = value === "Gym" || value === "She";
+      return {
+        ...prev,
+        membership: value,
+        planType: isRestricted ? "Single" : prev.planType,
+      };
+    });
+    setStatusMessage(null);
+  };
+
+  const handlePlanTypeChange = (value: PlanType) => {
+    setFormData((prev) => ({ ...prev, planType: value }));
+    setStatusMessage(null);
+  };
+
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
+    if (!formData.membership) {
+      setStatusMessage("Please select a membership option.");
+      return;
+    }
+
+    // In a real app, you'd send formData.planType too
+    console.log("Submitting:", formData);
     setStatusMessage("Thank you for reaching out! We will respond shortly.");
   };
 
@@ -96,21 +123,14 @@ export default function ContactPage({
         />
       </Head>
 
+      <Hero hero={hero} />
       <Container className="space-y-12">
-        <div className="space-y-4 text-center sm:text-left">
-          <p className="text-xs uppercase tracking-[0.5em] text-brand-lightBlue">
-            Get In Touch
-          </p>
-          <h1 className="text-4xl font-semibold text-brand-ivory sm:text-5xl">
-            Contact Us
-          </h1>
-          <p className="mx-auto max-w-3xl text-base text-brand-gray sm:mx-0">
-            {introText}
-          </p>
-        </div>
+        <p className="mx-auto max-w-3xl text-center text-base text-brand-gray sm:mx-0 sm:text-left">
+          {introText}
+        </p>
 
-        <div className="grid grid-cols-1 gap-10 lg:grid-cols-2">
-          <div className="space-y-8 rounded-3xl border border-brand-deepBlue/60 bg-brand-deepBlue/20 p-8 shadow-2xl shadow-brand-deepBlue/20">
+        <div className="glass-card premium-card p-8">
+          <div className="space-y-8">
             <div>
               <h2 className="text-xl font-semibold text-brand-ivory">
                 Contact Details
@@ -165,20 +185,9 @@ export default function ContactPage({
               )}
             </dl>
           </div>
-
-          <div className="overflow-hidden rounded-3xl border border-brand-deepBlue/60 bg-brand-deepBlue/10">
-            <iframe
-              title="EliteSport location"
-              src={mapSrc}
-              className="h-[360px] w-full border-0"
-              loading="lazy"
-              allowFullScreen
-              referrerPolicy="no-referrer-when-downgrade"
-            />
-          </div>
         </div>
 
-        <div className="rounded-3xl border border-brand-deepBlue/60 bg-brand-deepBlue/30 p-8 shadow-2xl shadow-brand-deepBlue/20">
+        <div className="glass-card premium-card p-8">
           <h2 className="text-2xl font-semibold text-brand-ivory">Send Us a Message</h2>
           <p className="mt-3 text-sm text-brand-gray">
             Share a question, partnership idea, or membership request.
@@ -237,6 +246,21 @@ export default function ContactPage({
               />
             </div>
 
+            <div className="md:col-span-2 space-y-8 border-y border-brand-deepBlue/30 py-8">
+              <MembershipSelect
+                selected={formData.membership}
+                onChange={handleMembershipChange}
+              />
+
+              <PlanTypeSelect
+                selected={formData.planType}
+                onChange={handlePlanTypeChange}
+                isFamilyDisabled={
+                  formData.membership === "Gym" || formData.membership === "She"
+                }
+              />
+            </div>
+
             <div className="space-y-2 md:col-span-2">
               <label htmlFor="message" className="text-xs uppercase tracking-[0.3em] text-brand-lightBlue">
                 Message
@@ -281,16 +305,21 @@ export const getStaticProps: GetStaticProps<ContactPageProps> = async () => {
     return {
       props: {
         contact: null,
+        hero: null,
       },
       revalidate: 60,
     };
   }
 
-  const contact = await client.fetch<ContactInfo | null>(CONTACT_INFO_QUERY);
+  const [contact, hero] = await Promise.all([
+    client.fetch<ContactInfo | null>(CONTACT_INFO_QUERY),
+    fetchPageHero(CONTACT_PAGE_SLUG, client),
+  ]);
 
   return {
     props: {
       contact,
+      hero: hero ?? null,
     },
     revalidate: 60,
   };

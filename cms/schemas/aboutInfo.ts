@@ -6,34 +6,20 @@ export default defineType({
   type: 'document',
   fields: [
     defineField({
-      name: 'heroEyebrow',
-      title: 'Hero Eyebrow',
-      type: 'string',
-      description: 'Short label that appears above the headline.',
-    }),
-    defineField({
-      name: 'heroTitle',
-      title: 'Hero Title',
-      type: 'string',
-      validation: (Rule) => Rule.required(),
-    }),
-    defineField({
-      name: 'heroDescription',
-      title: 'Hero Description',
-      type: 'text',
-      rows: 3,
-    }),
-    defineField({
-      name: 'heroImage',
-      title: 'Hero Image',
-      type: 'image',
-      options: {hotspot: true},
-    }),
-    defineField({
       name: 'companyDescription',
       title: 'Company Description',
       type: 'text',
       rows: 4,
+    }),
+    defineField({
+      name: 'missionSectionEyebrow',
+      title: 'Mission Section Eyebrow',
+      type: 'string',
+    }),
+    defineField({
+      name: 'missionSectionTitle',
+      title: 'Mission Section Title',
+      type: 'string',
     }),
     defineField({
       name: 'missionStatement',
@@ -56,43 +42,6 @@ export default defineType({
       title: 'Vision Supporting Image',
       type: 'image',
       options: {hotspot: true},
-    }),
-    defineField({
-      name: 'storyHeading',
-      title: 'Story Heading',
-      type: 'string',
-    }),
-    defineField({
-      name: 'storyIntro',
-      title: 'Story Intro',
-      type: 'text',
-    }),
-    defineField({
-      name: 'timeline',
-      title: 'Story Timeline',
-      type: 'array',
-      of: [
-        defineArrayMember({
-          type: 'object',
-          fields: [
-            defineField({
-              name: 'year',
-              title: 'Year',
-              type: 'string',
-            }),
-            defineField({
-              name: 'title',
-              title: 'Title',
-              type: 'string',
-            }),
-            defineField({
-              name: 'description',
-              title: 'Description',
-              type: 'text',
-            }),
-          ],
-        }),
-      ],
     }),
     defineField({
       name: 'teamMembers',
@@ -136,6 +85,21 @@ export default defineType({
       of: [{type: 'string'}],
     }),
     defineField({
+      name: 'valuesSectionEyebrow',
+      title: 'Values Section Eyebrow',
+      type: 'string',
+    }),
+    defineField({
+      name: 'valuesSectionTitle',
+      title: 'Values Section Title',
+      type: 'string',
+    }),
+    defineField({
+      name: 'valuesSectionDescription',
+      title: 'Values Section Description',
+      type: 'text',
+    }),
+    defineField({
       name: 'differentiators',
       title: 'What Makes Us Different',
       type: 'array',
@@ -148,6 +112,21 @@ export default defineType({
           ],
         }),
       ],
+    }),
+    defineField({
+      name: 'teamSectionEyebrow',
+      title: 'Team Section Eyebrow',
+      type: 'string',
+    }),
+    defineField({
+      name: 'teamSectionTitle',
+      title: 'Team Section Title',
+      type: 'string',
+    }),
+    defineField({
+      name: 'teamSectionDescription',
+      title: 'Team Section Description',
+      type: 'text',
     }),
   ],
   preview: {
@@ -165,3 +144,4 @@ export default defineType({
     },
   },
 });
+
