@@ -147,26 +147,18 @@ export const PlaceModal = ({
   }, [isOpen]);
 
   useEffect(() => {
-    if (!isOpen) {
-      return;
-    }
-
     const userAgent = navigator?.userAgent ?? "";
-    const isIOS = /iPad|iPhone|iPod/i.test(userAgent);
-    const isAndroid = /Android/i.test(userAgent);
+    let newUrl = DEFAULT_STORE_URL;
 
-    if (isIOS) {
-      setStoreUrl(APP_STORE_URL);
-      return;
+    if (/iPad|iPhone|iPod/i.test(userAgent)) {
+      newUrl = APP_STORE_URL;
+    } else if (/Android/i.test(userAgent)) {
+      newUrl = PLAY_STORE_URL;
     }
 
-    if (isAndroid) {
-      setStoreUrl(PLAY_STORE_URL);
-      return;
-    }
-
-    setStoreUrl(DEFAULT_STORE_URL);
-  }, [isOpen]);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setStoreUrl((prev) => (prev !== newUrl ? newUrl : prev));
+  }, []);
 
   if (!isOpen || !place) {
     return null;
@@ -300,7 +292,7 @@ export const PlaceModal = ({
               Overview
             </p>
             {overview ? (
-              <PortableText value={overview} components={portableTextComponents} />
+              <PortableText value={overview ?? []} components={portableTextComponents} />
             ) : (
               <p className="text-base text-brand-gray/90">{FALLBACK_OVERVIEW}</p>
             )}

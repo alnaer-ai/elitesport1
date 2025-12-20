@@ -154,7 +154,7 @@ export const PromotionModal = ({
               <p className="text-xs uppercase tracking-[0.4em] text-brand-lightBlue">
                 Overview
               </p>
-              <PortableText value={overview} components={portableTextComponents} />
+              <PortableText value={overview ?? []} components={portableTextComponents} />
             </div>
           )}
 

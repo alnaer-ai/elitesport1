@@ -1,4 +1,4 @@
-import {defineField, defineType} from 'sanity';
+import {defineField, defineType, type SanityDocument} from 'sanity';
 
 const mediaTypes = [
   {title: 'Image', value: 'image'},
@@ -208,10 +208,13 @@ export default defineType({
 
           const client = getClient({apiVersion: '2023-10-31'});
           // Sanity's `document` type inside validation context is intentionally loose.
-          // Cast to `any` so we can safely read reference fields without TS errors.
-          const doc = document as any;
-          const pageRef = doc?.targetPage?._ref as string | undefined;
-          let targetSlug = doc?.targetSlug as string | undefined;
+          // Cast to strict type so we can safely read reference fields without TS errors.
+          const doc = document as SanityDocument & {
+            targetPage?: {_ref: string};
+            targetSlug?: string;
+          };
+          const pageRef = doc?.targetPage?._ref;
+          let targetSlug = doc?.targetSlug;
 
           if (!targetSlug && pageRef) {
             targetSlug = await client.fetch<string | undefined>(

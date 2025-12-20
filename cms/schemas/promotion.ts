@@ -15,7 +15,6 @@ const isValidCtaAction = (value?: string) => {
   if (value.startsWith('/')) return true;
 
   try {
-    // eslint-disable-next-line no-new
     new URL(value);
     return true;
   } catch {

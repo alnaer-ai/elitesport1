@@ -1,3 +1,5 @@
+import type { PortableTextBlock } from "@portabletext/types";
+
 export type PromotionCardContent = {
   id: string;
   title: string;
@@ -7,7 +9,7 @@ export type PromotionCardContent = {
   discountPercentage?: number;
   promotionTypeLabel?: string;
   metaLabel?: string;
-  overview?: any;
+  overview?: PortableTextBlock[];
   benefits?: string[];
   ctaLabel?: string;
   ctaAction?: string;

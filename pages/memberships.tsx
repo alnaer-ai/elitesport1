@@ -6,7 +6,6 @@ import { ButtonLink, secondaryButtonClasses } from "@/components/ButtonLink";
 import { Container } from "@/components/Container";
 import { Hero } from "@/components/Hero";
 import { MembershipCard } from "@/components/MembershipCard";
-import { cn } from "@/lib/cn";
 import {
   fetchPageHero,
   type HeroPayload,

@@ -7,7 +7,6 @@ import {
   getTierHref,
   getTierSlug,
   type MembershipTier,
-  defaultTierColors,
 } from "@/lib/membership";
 
 type MembershipCardProps = {

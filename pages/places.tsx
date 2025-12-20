@@ -81,7 +81,7 @@ export default function PlacesPage({
   places,
   hero,
 }: InferGetStaticPropsType<typeof getStaticProps>) {
-  const { openModal: openPlaceModal } = usePlaceModal();
+  // const { openModal: openPlaceModal } = usePlaceModal();
   const placesByCategory = PLACE_SECTIONS.map((section) => ({
     ...section,
     places: places.filter((place) => {

@@ -1,4 +1,6 @@
+import type { PortableTextBlock } from "@portabletext/types";
 import type { SanityImageSource } from "@sanity/image-url";
+
 export type PlaceCategory =
   | "hotel"
   | "gym"
@@ -19,7 +21,7 @@ export type Place = {
   images?: PlaceImage[];
   image?: SanityImageSource;
   imageAlt?: string;
-  overview?: any;
+  overview?: PortableTextBlock[];
   benefits?: string[];
   showInMostPopular?: boolean | null;
   slug?: string;

@@ -1,3 +1,4 @@
+import type { PortableTextBlock } from "@portabletext/types";
 import type { SanityImageSource } from "@sanity/image-url";
 
 import { getPromotionTypeLabel } from "./promotionLabels";
@@ -8,7 +9,7 @@ export type PromotionRecord = {
   _id: string;
   title?: string;
   promotionType?: string;
-  overview?: any;
+  overview?: PortableTextBlock[];
   overviewText?: string;
   benefits?: string[];
   ctaLabel?: string;

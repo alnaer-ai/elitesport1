@@ -12,7 +12,6 @@ import { ButtonLink, secondaryButtonClasses } from "@/components/ButtonLink";
 import { BusinessContactModal } from "@/components/BusinessContactModal";
 import { Container } from "@/components/Container";
 import { Hero } from "@/components/Hero";
-import { cn } from "@/lib/cn";
 import {
   fetchPageHero,
   type HeroPayload,
@@ -20,7 +19,6 @@ import {
 import {
   collectMembershipTiers,
   getTierColor,
-  getTierHref,
   getTierSlug,
   mapMembershipTierEntries,
   MEMBERSHIP_QUERY,
@@ -69,9 +67,9 @@ export default function MembershipTierPage({
     }
   });
   const tierOrderMap = new Map(tierOrderEntries);
-  const faqs = (membership.faq ?? []).filter(
-    (faq) => faq?.question && faq?.answer
-  );
+  // const faqs = (membership.faq ?? []).filter(
+  //   (faq) => faq?.question && faq?.answer
+  // );
   const ctaLabel =
     tier.ctaLabel ?? membership.ctaLabel ?? "Contact Membership";
   const ctaHref = tier.ctaUrl ?? membership.ctaUrl ?? "/contact";
