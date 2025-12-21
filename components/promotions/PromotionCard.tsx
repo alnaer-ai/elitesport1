@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { useState } from "react";
 import { cn } from "@/lib/cn";
 import type { PromotionCardContent } from "@/lib/promotionCardContent";
 
@@ -32,6 +33,8 @@ export const PromotionCard = ({
   layout = "grid",
   onSelect,
 }: PromotionCardProps) => {
+  const [imageError, setImageError] = useState(false);
+  
   const {
     title,
     imageUrl,
@@ -63,7 +66,7 @@ export const PromotionCard = ({
           imageHeightClasses[layout]
         )}
       >
-        {imageUrl ? (
+        {imageUrl && !imageError ? (
           <Image
             src={imageUrl}
             alt={imageAlt ?? title}
@@ -74,9 +77,12 @@ export const PromotionCard = ({
                 : "(max-width: 768px) 90vw, (max-width: 1200px) 45vw, 360px"
             }
             className="object-cover transition duration-700 group-hover:scale-105"
+            onError={() => setImageError(true)}
           />
         ) : (
-          <div className="absolute inset-0 bg-gradient-to-br from-brand-deepBlue to-brand-black" />
+          <div className="absolute inset-0 bg-gradient-to-br from-brand-deepBlue to-brand-black flex items-center justify-center">
+            <span className="text-brand-ivory/40 text-sm">Image unavailable</span>
+          </div>
         )}
         <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors duration-500" />
         
