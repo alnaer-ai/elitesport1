@@ -12,6 +12,7 @@ import {
 import { cn } from "@/lib/cn";
 import { type HeroPayload } from "@/lib/hero";
 import { getPageHero, getAllPlaces, type Place as MockPlace } from "@/lib/mockData";
+import { getHotelsAsPlaces } from "@/lib/api/hotels";
 
 type PlacesPageProps = {
   places: Place[];
@@ -202,7 +203,17 @@ const CategorySection = ({
 
 
 export const getStaticProps: GetStaticProps<PlacesPageProps> = async () => {
-  const places = getAllPlaces().map(mapMockPlaceToPlace);
+  // Get mock places for non-hotel categories (gym, female, kids, tennisSquash)
+  const mockPlaces = getAllPlaces()
+    .filter((place) => place.placeType !== "hotel")
+    .map(mapMockPlaceToPlace);
+
+  // Fetch hotels from the EliteSport API
+  const apiHotels = await getHotelsAsPlaces();
+
+  // Combine API hotels with mock non-hotel places
+  const places: Place[] = [...apiHotels, ...mockPlaces];
+
   const hero = getPageHero("places");
 
   return {

@@ -18,34 +18,14 @@ import {
   type PromotionRecord,
 } from "@/lib/promotionContent";
 import { getPromotionTypeLabel } from "@/lib/promotionLabels";
-import {
-  getPageHero,
-  getActivePromotions,
-  type PromotionRecord as MockPromotionRecord,
-} from "@/lib/mockData";
+import { getPageHero } from "@/lib/mockData";
+import { getPromotions } from "@/lib/api/promotions";
 
 type PromotionsPageProps = {
   promotions: PromotionRecord[];
   hero: HeroPayload | null;
 };
 
-// Convert mock promotion to PromotionRecord type (ensure no undefined values for serialization)
-const mapMockPromotionToRecord = (mockPromo: MockPromotionRecord): PromotionRecord => ({
-  _id: mockPromo._id,
-  title: mockPromo.title ?? null,
-  promotionType: mockPromo.promotionType ?? null,
-  overview: mockPromo.overview ?? null,
-  overviewText: mockPromo.overviewText ?? null,
-  benefits: mockPromo.benefits ?? null,
-  ctaLabel: mockPromo.ctaLabel ?? null,
-  ctaAction: mockPromo.ctaAction ?? null,
-  featuredImageUrl: mockPromo.featuredImageUrl ?? null,
-  imageAlt: mockPromo.imageAlt ?? null,
-  discountPercentage: mockPromo.discountPercentage ?? null,
-  isPublished: mockPromo.isPublished ?? null,
-  publishStartDate: mockPromo.publishStartDate ?? null,
-  publishEndDate: mockPromo.publishEndDate ?? null,
-});
 
 export default function PromotionsPage({
   promotions,
@@ -187,7 +167,8 @@ export default function PromotionsPage({
 }
 
 export const getStaticProps: GetStaticProps<PromotionsPageProps> = async () => {
-  const promotions = getActivePromotions().map(mapMockPromotionToRecord);
+  // Fetch all promotions from API (sorted by date, newest first)
+  const promotions = await getPromotions();
   const hero = getPageHero("promotions");
 
   return {

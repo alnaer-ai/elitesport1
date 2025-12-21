@@ -33,14 +33,13 @@ import {
 import {
   getPageHero,
   getPopularPlaces,
-  getLatestPromotions,
   getClients,
   getPartners,
   getMemberships,
   type ClientPartner,
   type Place as MockPlace,
-  type PromotionRecord as MockPromotionRecord,
 } from "@/lib/mockData";
+import { getPromotions } from "@/lib/api/promotions";
 
 const PLACE_CATEGORY_LABELS: Record<string, string> = {
   hotel: "Hotel",
@@ -125,23 +124,6 @@ const mapMockPlaceToPlace = (mockPlace: MockPlace): Place => ({
   tags: mockPlace.tags ?? null,
 });
 
-// Convert mock promotion to PromotionRecord type (ensure no undefined values for serialization)
-const mapMockPromotionToRecord = (mockPromo: MockPromotionRecord): PromotionRecord => ({
-  _id: mockPromo._id,
-  title: mockPromo.title ?? null,
-  promotionType: mockPromo.promotionType ?? null,
-  overview: mockPromo.overview ?? null,
-  overviewText: mockPromo.overviewText ?? null,
-  benefits: mockPromo.benefits ?? null,
-  ctaLabel: mockPromo.ctaLabel ?? null,
-  ctaAction: mockPromo.ctaAction ?? null,
-  featuredImageUrl: mockPromo.featuredImageUrl ?? null,
-  imageAlt: mockPromo.imageAlt ?? null,
-  discountPercentage: mockPromo.discountPercentage ?? null,
-  isPublished: mockPromo.isPublished ?? null,
-  publishStartDate: mockPromo.publishStartDate ?? null,
-  publishEndDate: mockPromo.publishEndDate ?? null,
-});
 
 export default function Home(
   props: InferGetStaticPropsType<typeof getStaticProps>
@@ -536,11 +518,13 @@ const LatestPromotionsGrid = ({
 const HOME_LOGO_LIMIT = 6;
 
 export const getStaticProps: GetStaticProps<HomePageProps> = async () => {
-  // Fetch static mock data
+  // Fetch promotions from API (sorted by date, newest first)
+  const apiPromotions = await getPromotions();
+  
+  // Fetch static mock data for other sections
   const hero = getPageHero("home");
   const aboutHero = getPageHero("about");
   const popularPlaces = getPopularPlaces().map(mapMockPlaceToPlace);
-  const promotions = getLatestPromotions(HOME_LATEST_PROMOTIONS_LIMIT).map(mapMockPromotionToRecord);
   const allClients = getClients();
   const allPartners = getPartners();
   const memberships = getMemberships();
@@ -548,7 +532,8 @@ export const getStaticProps: GetStaticProps<HomePageProps> = async () => {
   return {
     props: {
       popularPlaces,
-      promotions,
+      // API promotions are already sorted by date (newest first)
+      promotions: apiPromotions,
       clientLogos: selectRandomItems(allClients, HOME_LOGO_LIMIT),
       partnerLogos: selectRandomItems(allPartners, HOME_LOGO_LIMIT),
       memberships,
