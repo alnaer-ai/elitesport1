@@ -32,7 +32,7 @@ const fadeInUp = {
   initial: { opacity: 0, y: 30 },
   whileInView: { opacity: 1, y: 0 },
   viewport: { once: true },
-  transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] },
+  transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] as const },
 };
 
 const primaryButtonClass =
@@ -107,7 +107,7 @@ export default function AboutPage({
           className="relative isolate -mt-20 min-h-[85vh] overflow-hidden pt-20 sm:-mt-24 sm:pt-24"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] as const }}
         >
           <div className="absolute inset-0">
             {pageHero?.imageUrl ? (
@@ -136,24 +136,24 @@ export default function AboutPage({
           </div>
 
           <Container className="relative z-10 flex min-h-[85vh] flex-col justify-center py-32">
-            <motion.div 
+            <motion.div
               className="max-w-4xl space-y-8"
               initial={{ opacity: 0, y: 50 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.9, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+              transition={{ duration: 0.9, delay: 0.2, ease: [0.16, 1, 0.3, 1] as const }}
             >
               <h1 className="font-display text-5xl leading-[1.05] tracking-[-0.02em] sm:text-6xl lg:text-7xl">
                 A Better Way
                 <br />
                 <span className="text-brand-gold">to Live</span>
               </h1>
-              
+
               <p className="max-w-2xl text-lg leading-[1.9] text-brand-ivory/80 sm:text-xl">
                 Experience a luxury style of life. Elite Sport gives you unlimited access to health
                 clubs across the UAE — gyms, saunas, swimming pools, beaches, and more — with extra
                 discounts at restaurants, cafes, training or sports classes, and spas.
               </p>
-              
+
               <div className="flex flex-wrap gap-4 pt-4">
                 <Link href="/memberships" className={primaryButtonClass}>
                   Explore Membership
@@ -162,7 +162,7 @@ export default function AboutPage({
                   View Partners
                 </Link>
               </div>
-              
+
               <div className="flex flex-wrap gap-3 pt-6">
                 {[
                   "Resort & Hotel Privileges",
@@ -180,9 +180,9 @@ export default function AboutPage({
               </div>
             </motion.div>
           </Container>
-          
+
           {/* Scroll indicator */}
-          <motion.div 
+          <motion.div
             className="absolute bottom-8 left-1/2 -translate-x-1/2"
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -190,7 +190,7 @@ export default function AboutPage({
           >
             <div className="flex flex-col items-center gap-2 text-brand-ivory/40">
               <span className="text-[0.65rem] uppercase tracking-[0.3em]">Scroll</span>
-              <motion.div 
+              <motion.div
                 className="h-8 w-px bg-gradient-to-b from-brand-ivory/40 to-transparent"
                 animate={{ scaleY: [1, 0.6, 1] }}
                 transition={{ duration: 1.5, repeat: Infinity }}
@@ -205,7 +205,7 @@ export default function AboutPage({
             <Container>
               <div className="mb-20 text-center">
                 {about.missionSectionEyebrow && (
-                  <motion.p 
+                  <motion.p
                     {...fadeInUp}
                     className="mb-4 text-xs uppercase tracking-[0.5em] text-brand-lightBlue"
                   >
@@ -213,7 +213,7 @@ export default function AboutPage({
                   </motion.p>
                 )}
                 {about.missionSectionTitle && (
-                  <motion.h2 
+                  <motion.h2
                     {...fadeInUp}
                     className="font-display text-4xl tracking-tight sm:text-5xl"
                   >
@@ -225,7 +225,7 @@ export default function AboutPage({
               <div className="grid gap-8 lg:grid-cols-2 lg:gap-10">
                 {/* Mission Card */}
                 {about.missionStatement && (
-                  <motion.article 
+                  <motion.article
                     {...fadeInUp}
                     className="group relative overflow-hidden rounded-[2rem] border border-brand-ivory/10 bg-gradient-to-br from-brand-deepBlue/40 via-brand-black to-brand-deepBlue/30"
                   >
@@ -265,7 +265,7 @@ export default function AboutPage({
 
                 {/* Vision Card */}
                 {(about.vision || visionImageUrl) && (
-                  <motion.article 
+                  <motion.article
                     {...fadeInUp}
                     className="group relative overflow-hidden rounded-[2rem] border border-brand-ivory/10 bg-gradient-to-br from-brand-black via-brand-deepBlue/40 to-brand-black"
                   >
@@ -320,18 +320,18 @@ export default function AboutPage({
                 </p>
                 <span className="h-px w-12 bg-brand-gold" />
               </motion.div>
-              
+
               <motion.h2 {...fadeInUp} className="font-display text-4xl tracking-tight sm:text-5xl">
                 Where Members Unwind
               </motion.h2>
-              
+
               <motion.p {...fadeInUp} className="mt-6 max-w-2xl text-base leading-relaxed text-brand-gray sm:text-lg">
                 Every experience reflects calm, hospitality-first moments — private pools,
                 spa sanctuaries, and beachfront lounges from our trusted luxury partners.
               </motion.p>
             </div>
 
-            <motion.div 
+            <motion.div
               {...staggerChildren}
               className="grid gap-6 md:grid-cols-3"
             >
@@ -351,7 +351,7 @@ export default function AboutPage({
                       className="object-cover transition-transform duration-700 group-hover:scale-105"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-brand-black via-brand-black/40 to-transparent" />
-                    
+
                     <div className="absolute inset-0 flex flex-col justify-end p-6 sm:p-8">
                       <span className="mb-4 w-fit rounded-full border border-brand-ivory/30 bg-brand-black/40 px-3 py-1.5 text-[0.65rem] uppercase tracking-[0.25em] text-brand-ivory/90 backdrop-blur-sm">
                         {escape.tag}

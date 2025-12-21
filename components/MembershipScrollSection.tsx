@@ -36,7 +36,7 @@ export function MembershipScrollSection({
   const sectionRef = useRef<HTMLDivElement>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const cardsContainerRef = useRef<HTMLDivElement>(null);
-  
+
   // State for scroll control
   const [isLocked, setIsLocked] = useState(false);
   const [hasCompleted, setHasCompleted] = useState(false);
@@ -45,16 +45,16 @@ export function MembershipScrollSection({
   );
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
   const enableScrollExperience = isMobile && !prefersReducedMotion;
-  
+
   // Motion values for smooth animations
   const scrollProgress = useMotionValue(0);
   const cardIndex = useMotionValue(0);
-  
+
   // Velocity tracking for escape mechanism
   const lastScrollTime = useRef(0);
   const lastScrollY = useRef(0);
   const velocityHistory = useRef<number[]>([]);
-  
+
   // Track accumulated scroll during lock
   const accumulatedScroll = useRef(0);
   const maxScroll = useRef(0);
@@ -66,18 +66,18 @@ export function MembershipScrollSection({
   useEffect(() => {
     const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
     setPrefersReducedMotion(motionQuery.matches);
-    
+
     const handleMotionChange = (e: MediaQueryListEvent) => {
       setPrefersReducedMotion(e.matches);
     };
     motionQuery.addEventListener("change", handleMotionChange);
-    
+
     const checkMobile = () => {
       setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
     };
     checkMobile();
     window.addEventListener("resize", checkMobile);
-    
+
     return () => {
       motionQuery.removeEventListener("change", handleMotionChange);
       window.removeEventListener("resize", checkMobile);
@@ -95,7 +95,7 @@ export function MembershipScrollSection({
         maxScroll.current = Math.max(0, scrollWidth - containerWidth);
       }
     };
-    
+
     calculateMaxScroll();
     window.addEventListener("resize", calculateMaxScroll);
     return () => window.removeEventListener("resize", calculateMaxScroll);
@@ -112,21 +112,21 @@ export function MembershipScrollSection({
   const calculateVelocity = useCallback((currentY: number) => {
     const now = performance.now();
     const timeDelta = now - lastScrollTime.current;
-    
+
     if (timeDelta > 0 && timeDelta < 200) {
       const distance = Math.abs(currentY - lastScrollY.current);
       const velocity = (distance / timeDelta) * 100; // pixels per 100ms
       velocityHistory.current.push(velocity);
-      
+
       // Keep only last 5 velocity samples
       if (velocityHistory.current.length > 5) {
         velocityHistory.current.shift();
       }
     }
-    
+
     lastScrollTime.current = now;
     lastScrollY.current = currentY;
-    
+
     // Return average velocity
     if (velocityHistory.current.length > 0) {
       return velocityHistory.current.reduce((a, b) => a + b, 0) / velocityHistory.current.length;
@@ -136,10 +136,10 @@ export function MembershipScrollSection({
 
   // Intersection observer to detect when section enters view
   const [isInView, setIsInView] = useState(false);
-  
+
   useEffect(() => {
     if (!enableScrollExperience || !sectionRef.current) return;
-    
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -159,12 +159,12 @@ export function MembershipScrollSection({
           }
         });
       },
-      { 
+      {
         threshold: 0.4, // Section needs to be 40% visible
         rootMargin: "0px 0px 0px 0px"
       }
     );
-    
+
     observer.observe(sectionRef.current);
     return () => observer.disconnect();
   }, [enableScrollExperience, hasCompleted, scrollProgress, cardIndex, isLocked]);
@@ -172,16 +172,16 @@ export function MembershipScrollSection({
   // Check if scroll lock should engage (called from wheel handler)
   const shouldEnterScrollLock = useCallback(() => {
     if (!enableScrollExperience || hasCompleted || !isInView || isLocked) return false;
-    
+
     const section = sectionRef.current;
     if (!section) return false;
-    
+
     const rect = section.getBoundingClientRect();
     const viewportHeight = window.innerHeight;
-    
+
     // Check if section header is visible near top of viewport
     const headerTop = rect.top;
-    
+
     // Only lock when section header is near top of viewport (just scrolled to section)
     // and section is mostly visible
     return headerTop >= -100 && headerTop <= viewportHeight * 0.15;
@@ -190,7 +190,7 @@ export function MembershipScrollSection({
   // Handle wheel events - both for entering lock and during lock
   const handleWheel = useCallback((e: WheelEvent) => {
     if (!enableScrollExperience) return;
-    
+
     // Check if we should enter scroll lock
     if (!isLocked && e.deltaY > 0 && shouldEnterScrollLock()) {
       e.preventDefault();
@@ -199,38 +199,38 @@ export function MembershipScrollSection({
       velocityHistory.current = [];
       return;
     }
-    
+
     // If not locked, allow normal scrolling
     if (!isLocked) return;
-    
+
     const velocity = calculateVelocity(e.pageY);
-    
+
     // Allow escape on fast scroll
     if (velocity > ESCAPE_VELOCITY_THRESHOLD) {
       setIsLocked(false);
       setHasCompleted(true);
       return;
     }
-    
+
     e.preventDefault();
-    
+
     const delta = e.deltaY * SCROLL_SENSITIVITY;
     accumulatedScroll.current += delta;
-    
+
     // Clamp progress between 0 and 1
     const totalScrollRange = window.innerHeight * (tierCount - 1) * 0.5;
     const progress = Math.max(0, Math.min(1, accumulatedScroll.current / totalScrollRange));
-    
+
     // Animate to new progress value
     animate(scrollProgress, progress, {
       type: "spring",
       stiffness: 300,
       damping: 40,
     });
-    
+
     // Update current card index for visual feedback
     cardIndex.set(Math.round(progress * (tierCount - 1)));
-    
+
     // Check if completed
     if (progress >= 0.98) {
       // Smoothly complete and release lock
@@ -246,7 +246,7 @@ export function MembershipScrollSection({
         },
       });
     }
-    
+
     // Allow scroll back to exit from start
     if (progress <= 0.02 && accumulatedScroll.current < -50) {
       setIsLocked(false);
@@ -256,7 +256,7 @@ export function MembershipScrollSection({
 
   // Handle touch events for mobile
   const touchStartY = useRef(0);
-  
+
   const handleTouchStart = useCallback((e: TouchEvent) => {
     if (!enableScrollExperience) return;
     touchStartY.current = e.touches[0].clientY;
@@ -264,10 +264,10 @@ export function MembershipScrollSection({
 
   const handleTouchMove = useCallback((e: TouchEvent) => {
     if (!enableScrollExperience) return;
-    
+
     const currentY = e.touches[0].clientY;
     const deltaY = touchStartY.current - currentY;
-    
+
     // Check if we should enter scroll lock on swipe up
     if (!isLocked && deltaY > 10 && shouldEnterScrollLock()) {
       e.preventDefault();
@@ -277,36 +277,36 @@ export function MembershipScrollSection({
       touchStartY.current = currentY;
       return;
     }
-    
+
     if (!isLocked) return;
-    
+
     // Calculate velocity
     const velocity = calculateVelocity(currentY);
-    
+
     if (velocity > ESCAPE_VELOCITY_THRESHOLD * 1.5) {
       setIsLocked(false);
       setHasCompleted(true);
       return;
     }
-    
+
     e.preventDefault();
-    
+
     accumulatedScroll.current += deltaY * 2;
     touchStartY.current = currentY;
-    
+
     const totalScrollRange = window.innerHeight * (tierCount - 1) * 0.5;
     const progress = Math.max(0, Math.min(1, accumulatedScroll.current / totalScrollRange));
-    
+
     scrollProgress.set(progress);
     cardIndex.set(Math.round(progress * (tierCount - 1)));
-    
+
     if (progress >= 0.98) {
       setTimeout(() => {
         setIsLocked(false);
         setHasCompleted(true);
       }, 200);
     }
-    
+
     if (progress <= 0.02 && accumulatedScroll.current < -30) {
       setIsLocked(false);
       accumulatedScroll.current = 0;
@@ -316,11 +316,11 @@ export function MembershipScrollSection({
   // Attach event listeners
   useEffect(() => {
     if (!enableScrollExperience) return;
-    
+
     window.addEventListener("wheel", handleWheel, { passive: false });
     window.addEventListener("touchstart", handleTouchStart, { passive: true });
     window.addEventListener("touchmove", handleTouchMove, { passive: false });
-    
+
     return () => {
       window.removeEventListener("wheel", handleWheel);
       window.removeEventListener("touchstart", handleTouchStart);
@@ -343,7 +343,7 @@ export function MembershipScrollSection({
       document.body.style.overflow = "";
       document.body.style.touchAction = "";
     }
-    
+
     return () => {
       document.body.style.overflow = "";
       document.body.style.touchAction = "";
@@ -356,13 +356,13 @@ export function MembershipScrollSection({
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (!isLocked) return;
-      
+
       if (e.key === "Escape") {
         setIsLocked(false);
         setHasCompleted(true);
         return;
       }
-      
+
       if (e.key === "ArrowRight" || e.key === "ArrowDown") {
         e.preventDefault();
         const current = scrollProgress.get();
@@ -370,7 +370,7 @@ export function MembershipScrollSection({
         const newProgress = Math.min(1, current + step);
         animate(scrollProgress, newProgress, { duration: 0.4 });
         cardIndex.set(Math.round(newProgress * (tierCount - 1)));
-        
+
         if (newProgress >= 1) {
           setTimeout(() => {
             setIsLocked(false);
@@ -378,7 +378,7 @@ export function MembershipScrollSection({
           }, 400);
         }
       }
-      
+
       if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
         e.preventDefault();
         const current = scrollProgress.get();
@@ -388,7 +388,7 @@ export function MembershipScrollSection({
         cardIndex.set(Math.round(newProgress * (tierCount - 1)));
       }
     };
-    
+
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [enableScrollExperience, isLocked, scrollProgress, cardIndex, tierCount]);
@@ -409,7 +409,7 @@ export function MembershipScrollSection({
 
   // Track current card index as React state for reactivity
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
-  
+
   // Sync motion value to React state
   useEffect(() => {
     if (!enableScrollExperience) return;
@@ -422,7 +422,7 @@ export function MembershipScrollSection({
 
   // Progress indicator dots
   const ProgressIndicator = () => (
-    <motion.div 
+    <motion.div
       className="flex justify-center gap-2 mt-8"
       initial={{ opacity: 0 }}
       animate={{ opacity: isLocked ? 1 : 0.5 }}
@@ -437,8 +437,8 @@ export function MembershipScrollSection({
           )}
           animate={{
             width: currentCardIndex === index ? 24 : 8,
-            backgroundColor: currentCardIndex === index 
-              ? "rgb(111, 175, 206)" 
+            backgroundColor: currentCardIndex === index
+              ? "rgb(111, 175, 206)"
               : "rgba(111, 175, 206, 0.3)",
           }}
         />
@@ -451,9 +451,9 @@ export function MembershipScrollSection({
     <motion.p
       className="text-center text-xs uppercase tracking-[0.3em] text-brand-lightBlue/60 mt-6"
       initial={{ opacity: 0, y: 10 }}
-      animate={{ 
-        opacity: isLocked ? 1 : 0, 
-        y: isLocked ? 0 : 10 
+      animate={{
+        opacity: isLocked ? 1 : 0,
+        y: isLocked ? 0 : 10
       }}
       transition={{ duration: 0.4 }}
     >
@@ -464,9 +464,9 @@ export function MembershipScrollSection({
   // Render standard grid for desktop or reduced motion users
   if (!enableScrollExperience) {
     return (
-      <StandardMembershipSection 
-        tiers={tiers} 
-        allTiersCount={allTiersCount} 
+      <StandardMembershipSection
+        tiers={tiers}
+        allTiersCount={allTiersCount}
       />
     );
   }
@@ -496,12 +496,12 @@ export function MembershipScrollSection({
       <Container>
         <div className="space-y-10">
           {/* Section Header */}
-          <motion.div 
+          <motion.div
             className="space-y-4 text-center md:text-left"
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.5 }}
-            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] as const }}
           >
             <p className="text-xs uppercase tracking-[0.4em] text-brand-lightBlue">
               Membership Tiers
@@ -514,14 +514,14 @@ export function MembershipScrollSection({
             </p>
           </motion.div>
 
-              {/* Scrollable Cards Container */}
+          {/* Scrollable Cards Container */}
           {tiers.length > 0 ? (
             <>
               <div ref={scrollAreaRef} className="relative overflow-hidden">
                 <motion.div
                   ref={cardsContainerRef}
                   className="flex gap-6"
-                  style={{ 
+                  style={{
                     x: translateX,
                     willChange: "transform",
                   }}
@@ -533,10 +533,10 @@ export function MembershipScrollSection({
                       initial={{ opacity: 0, scale: 0.95 }}
                       whileInView={{ opacity: 1, scale: 1 }}
                       viewport={{ once: true, amount: 0.3 }}
-                      transition={{ 
-                        duration: 0.5, 
+                      transition={{
+                        duration: 0.5,
                         delay: index * 0.1,
-                        ease: [0.16, 1, 0.3, 1] 
+                        ease: [0.16, 1, 0.3, 1] as const
                       }}
                     >
                       <MembershipCard tier={tier} index={index} />
@@ -559,7 +559,7 @@ export function MembershipScrollSection({
               <ScrollHint />
 
               {allTiersCount > 3 && (
-                <motion.div 
+                <motion.div
                   className="mt-10 flex justify-center"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -599,7 +599,7 @@ function StandardMembershipSection({
       initial={{ opacity: 0, y: 60 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.25 }}
-      transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+      transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] as const }}
     >
       <Container className="space-y-10 py-0">
         <div className="space-y-4 text-center md:text-left">

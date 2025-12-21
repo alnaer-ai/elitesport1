@@ -225,16 +225,7 @@ const SiteFooter = () => {
     };
   }, []);
 
-  const DEFAULT_MAP_URL = "https://maps.app.goo.gl/hoVheUudEp7Jveeh9";
-  const address = (contactInfo?.address ?? "").trim();
-  const lat = contactInfo?.mapLocation?.lat;
-  const lng = contactInfo?.mapLocation?.lng;
-  const hasAddress = Boolean(address);
-
-  const googleMapsUrl =
-    typeof lat === "number" && typeof lng === "number"
-      ? `https://www.google.com/maps?q=${lat},${lng}`
-      : DEFAULT_MAP_URL;
+  const googleMapsUrl = "https://maps.app.goo.gl/hoVheUudEp7Jveeh9";
 
   return (
     <footer className="mt-16 border-t border-brand-deepBlue/40 bg-gradient-to-b from-brand-black via-[#0b1422] to-black text-brand-ivory">
@@ -309,26 +300,14 @@ const SiteFooter = () => {
                   </span>
                   <div className="space-y-1">
                     <p className="font-semibold text-brand-ivory">Head Office</p>
-                    {hasAddress ? (
-                      <a
-                        href={googleMapsUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="max-w-xs break-words whitespace-pre-line leading-relaxed transition hover:text-brand-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-lightBlue focus-visible:ring-offset-2 focus-visible:ring-offset-brand-black"
-                        dir="ltr"
-                      >
-                        {address}
-                      </a>
-                    ) : (
-                      <a
-                        href={googleMapsUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 text-sm font-medium text-brand-gold transition hover:text-brand-lightBlue focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-lightBlue focus-visible:ring-offset-2 focus-visible:ring-offset-brand-black"
-                      >
-                        View on Google Maps
-                      </a>
-                    )}
+                    <a
+                      href={googleMapsUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 text-sm font-medium text-brand-gold transition hover:text-brand-lightBlue focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-lightBlue focus-visible:ring-offset-2 focus-visible:ring-offset-brand-black"
+                    >
+                      View on Google Maps
+                    </a>
                   </div>
                 </div>
                 <MapPreview googleMapsUrl={googleMapsUrl} />
@@ -389,22 +368,22 @@ const SocialIcon = ({ name }: { name: SocialIconName }) => {
   switch (name) {
     case "facebook":
       return (
-      <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5">
-        <path
-          fill="currentColor"
-          d="M13.4 21v-7.1h2.4l.4-2.8h-2.8V9.2c0-.8.3-1.4 1.4-1.4H16V5.2C15.6 5.1 14.6 5 13.5 5 11 5 9.3 6.5 9.3 8.9v2.2H7v2.8h2.3V21h4.1Z"
-        />
-      </svg>
+        <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5">
+          <path
+            fill="currentColor"
+            d="M13.4 21v-7.1h2.4l.4-2.8h-2.8V9.2c0-.8.3-1.4 1.4-1.4H16V5.2C15.6 5.1 14.6 5 13.5 5 11 5 9.3 6.5 9.3 8.9v2.2H7v2.8h2.3V21h4.1Z"
+          />
+        </svg>
       );
     case "instagram":
       return (
         <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5">
-        <path
-          fill="currentColor"
-          d="M8 3h8a5 5 0 0 1 5 5v8a5 5 0 0 1-5 5H8a5 5 0 0 1-5-5V8a5 5 0 0 1 5-5Zm0 2a3 3 0 0 0-3 3v8a3 3 0 0 0 3 3h8a3 3 0 0 0 3-3V8a3 3 0 0 0-3-3H8Zm4 3.5A3.5 3.5 0 1 1 8.5 12 3.5 3.5 0 0 1 12 8.5Zm0 2a1.5 1.5 0 1 0 1.5 1.5A1.5 1.5 0 0 0 12 10.5Zm4-2.8a1.2 1.2 0 1 1 1.2-1.2 1.2 1.2 0 0 1-1.2 1.2Z"
-        />
-      </svg>
-    );
+          <path
+            fill="currentColor"
+            d="M8 3h8a5 5 0 0 1 5 5v8a5 5 0 0 1-5 5H8a5 5 0 0 1-5-5V8a5 5 0 0 1 5-5Zm0 2a3 3 0 0 0-3 3v8a3 3 0 0 0 3 3h8a3 3 0 0 0 3-3V8a3 3 0 0 0-3-3H8Zm4 3.5A3.5 3.5 0 1 1 8.5 12 3.5 3.5 0 0 1 12 8.5Zm0 2a1.5 1.5 0 1 0 1.5 1.5A1.5 1.5 0 0 0 12 10.5Zm4-2.8a1.2 1.2 0 1 1 1.2-1.2 1.2 1.2 0 0 1-1.2 1.2Z"
+          />
+        </svg>
+      );
     case "linkedin":
       return (
         <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5">

@@ -1,3 +1,4 @@
+import React from "react";
 import { motion } from "framer-motion";
 import { Container } from "@/components/Container";
 import { cn } from "@/lib/cn";
@@ -5,7 +6,7 @@ import { cn } from "@/lib/cn";
 export type FeatureCard = {
   title: string;
   description: string;
-  Icon: () => JSX.Element;
+  Icon: () => React.ReactElement;
 };
 
 const PricingIcon = () => (
@@ -167,7 +168,7 @@ const fadeInUp = {
   initial: { opacity: 0, y: 30 },
   whileInView: { opacity: 1, y: 0 },
   viewport: { once: true },
-  transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] },
+  transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] as const },
 };
 
 type SpecialFeaturesSectionProps = {

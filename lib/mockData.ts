@@ -28,7 +28,7 @@ export type HeroPayload = {
   _id?: string;
   internalName?: string;
   title?: string;
-  subtitle?: string;
+  subtitle?: string | null;
   mediaType?: HeroMediaType;
   imageUrl?: string;
   video?: HeroVideoSource;
