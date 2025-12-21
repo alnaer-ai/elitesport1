@@ -2,90 +2,22 @@ import Head from "next/head";
 import Image from "next/image";
 import { GetStaticProps, InferGetStaticPropsType } from "next";
 import { motion } from "framer-motion";
-import type { SanityImageSource } from "@sanity/image-url";
 
 import { Container } from "@/components/Container";
 import { Hero } from "@/components/Hero";
-import { fetchPageHero, type HeroPayload } from "@/lib/hero";
-import {
-  isSanityConfigured,
-  sanityClient,
-  urlForImage,
-} from "@/lib/sanity.client";
-
-type Differentiator = {
-  title?: string;
-  description?: string;
-};
-
-type TeamMember = {
-  name?: string;
-  role?: string;
-  bio?: string;
-  photo?: SanityImageSource;
-};
-
-type AboutInfo = {
-  missionSectionEyebrow?: string;
-  missionSectionTitle?: string;
-  missionStatement?: string;
-  missionImage?: SanityImageSource;
-  vision?: string;
-  visionImage?: SanityImageSource;
-  valuesSectionEyebrow?: string;
-  valuesSectionTitle?: string;
-  valuesSectionDescription?: string;
-  teamSectionEyebrow?: string;
-  teamSectionTitle?: string;
-  teamSectionDescription?: string;
-  teamMembers?: TeamMember[];
-  coreValues?: string[];
-  differentiators?: Differentiator[];
-};
+import { type HeroPayload } from "@/lib/hero";
+import { getPageHero, getAboutInfo, type AboutInfo } from "@/lib/mockData";
 
 type AboutPageProps = {
   about: AboutInfo | null;
   pageHero: HeroPayload | null;
 };
 
-const ABOUT_QUERY = `
-  *[_type == "aboutInfo"][0]{
-    missionSectionEyebrow,
-    missionSectionTitle,
-    missionStatement,
-    missionImage,
-    vision,
-    visionImage,
-    valuesSectionEyebrow,
-    valuesSectionTitle,
-    valuesSectionDescription,
-    teamSectionEyebrow,
-    teamSectionTitle,
-    teamSectionDescription,
-    teamMembers[]{name,role,bio,photo},
-    coreValues,
-    differentiators[]{title,description}
-  }
-`;
-const ABOUT_PAGE_SLUG = "about";
-
 const motionSectionProps = {
   initial: { opacity: 0, y: 30 },
   whileInView: { opacity: 1, y: 0 },
   viewport: { once: true, amount: 0.25 },
   transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] as const },
-};
-
-const getImageUrl = (source?: SanityImageSource, width = 2000) => {
-  if (!source || !isSanityConfigured) {
-    return undefined;
-  }
-
-  try {
-    return urlForImage(source).width(width).auto("format").url();
-  } catch {
-    return undefined;
-  }
 };
 
 export default function AboutPage({
@@ -105,7 +37,7 @@ export default function AboutPage({
         <div className="py-24">
           <Container className="text-center">
             <p className="text-sm text-brand-gray">
-              About page content is not yet available. Please add content in the CMS.
+              About page content is not yet available.
             </p>
           </Container>
         </div>
@@ -118,8 +50,8 @@ export default function AboutPage({
   );
   const coreValues = about.coreValues ?? [];
 
-  const missionImageUrl = getImageUrl(about.missionImage, 1800);
-  const visionImageUrl = getImageUrl(about.visionImage, 1800);
+  const missionImageUrl = about.missionImageUrl;
+  const visionImageUrl = about.visionImageUrl;
 
   return (
     <>
@@ -308,21 +240,8 @@ export default function AboutPage({
 }
 
 export const getStaticProps: GetStaticProps<AboutPageProps> = async () => {
-  const client = sanityClient;
-  if (!client) {
-    return {
-      props: {
-        about: null,
-        pageHero: null,
-      },
-      revalidate: 60,
-    };
-  }
-
-  const [about, pageHero] = await Promise.all([
-    client.fetch<AboutInfo | null>(ABOUT_QUERY),
-    fetchPageHero(ABOUT_PAGE_SLUG, client),
-  ]);
+  const about = getAboutInfo();
+  const pageHero = getPageHero("about");
 
   return {
     props: {

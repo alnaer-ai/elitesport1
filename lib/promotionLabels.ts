@@ -10,7 +10,7 @@ const PROMOTION_TYPE_LABELS: Record<string, string> = {
 
 export type PromotionCategory = keyof typeof PROMOTION_TYPE_LABELS;
 
-export const getPromotionTypeLabel = (promotionType?: string) => {
+export const getPromotionTypeLabel = (promotionType?: string | null) => {
   if (!promotionType) return undefined;
   return PROMOTION_TYPE_LABELS[promotionType] ?? promotionType;
 };

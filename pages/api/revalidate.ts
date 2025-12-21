@@ -1,14 +1,9 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 
 /**
- * Webhook handler for Sanity CMS to trigger on-demand revalidation.
- * 
- * Configure this endpoint in Sanity webhook settings:
- * - URL: https://your-domain.com/api/revalidate
- * - Trigger on: Create, Update, Delete
- * - Filter: _type == "place" || _type == "promotion" || _type == "page"
- * 
- * Set SANITY_REVALIDATE_SECRET in your environment variables for security.
+ * Webhook handler for on-demand revalidation.
+ * Previously used for Sanity CMS webhooks.
+ * Now available for future API integration.
  */
 export default async function handler(
   req: NextApiRequest,
@@ -20,8 +15,8 @@ export default async function handler(
   }
 
   // Verify webhook secret for security
-  const secret = req.headers["x-sanity-secret"] || req.body?.secret;
-  const expectedSecret = process.env.SANITY_REVALIDATE_SECRET;
+  const secret = req.headers["x-revalidate-secret"] || req.body?.secret;
+  const expectedSecret = process.env.REVALIDATE_SECRET;
 
   if (expectedSecret && secret !== expectedSecret) {
     return res.status(401).json({ message: "Invalid secret" });
@@ -35,19 +30,15 @@ export default async function handler(
     const pathsToRevalidate: string[] = [];
 
     if (documentType === "place") {
-      // Revalidate surfaces that render place cards/modals
       pathsToRevalidate.push("/");
       pathsToRevalidate.push("/places");
       pathsToRevalidate.push("/promotions");
     } else if (documentType === "promotion") {
-      // Promotions appear on home page and promotions page
       pathsToRevalidate.push("/");
       pathsToRevalidate.push("/promotions");
     } else if (documentType === "page") {
-      // Revalidate based on page slug
       const slug = body?.slug?.current;
       if (slug) {
-        // Map common page slugs to routes
         const pageRouteMap: Record<string, string> = {
           home: "/",
           places: "/places",

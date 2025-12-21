@@ -1,5 +1,5 @@
 import Head from "next/head";
-import { GetServerSideProps, InferGetServerSidePropsType } from "next";
+import { GetStaticProps, InferGetStaticPropsType } from "next";
 import { useMemo, useState } from "react";
 
 import { Container } from "@/components/Container";
@@ -11,28 +11,46 @@ import {
   type PromotionCardContent,
 } from "@/components/promotions";
 import { cn } from "@/lib/cn";
-import { fetchPageHero, type HeroPayload } from "@/lib/hero";
+import { type HeroPayload } from "@/lib/hero";
 import {
   isPromotionActive,
   mapPromotionRecordToCardContent,
   type PromotionRecord,
 } from "@/lib/promotionContent";
 import { getPromotionTypeLabel } from "@/lib/promotionLabels";
-import { sanityClient } from "@/lib/sanity.client";
-import { ALL_ACTIVE_PROMOTIONS_QUERY } from "@/lib/promotionQueries";
+import {
+  getPageHero,
+  getActivePromotions,
+  type PromotionRecord as MockPromotionRecord,
+} from "@/lib/mockData";
 
 type PromotionsPageProps = {
   promotions: PromotionRecord[];
   hero: HeroPayload | null;
 };
 
-const PROMOTIONS_PAGE_QUERY = ALL_ACTIVE_PROMOTIONS_QUERY;
-const PROMOTIONS_PAGE_SLUG = "promotions";
+// Convert mock promotion to PromotionRecord type (ensure no undefined values for serialization)
+const mapMockPromotionToRecord = (mockPromo: MockPromotionRecord): PromotionRecord => ({
+  _id: mockPromo._id,
+  title: mockPromo.title ?? null,
+  promotionType: mockPromo.promotionType ?? null,
+  overview: mockPromo.overview ?? null,
+  overviewText: mockPromo.overviewText ?? null,
+  benefits: mockPromo.benefits ?? null,
+  ctaLabel: mockPromo.ctaLabel ?? null,
+  ctaAction: mockPromo.ctaAction ?? null,
+  featuredImageUrl: mockPromo.featuredImageUrl ?? null,
+  imageAlt: mockPromo.imageAlt ?? null,
+  discountPercentage: mockPromo.discountPercentage ?? null,
+  isPublished: mockPromo.isPublished ?? null,
+  publishStartDate: mockPromo.publishStartDate ?? null,
+  publishEndDate: mockPromo.publishEndDate ?? null,
+});
 
 export default function PromotionsPage({
   promotions,
   hero,
-}: InferGetServerSidePropsType<typeof getServerSideProps>) {
+}: InferGetStaticPropsType<typeof getStaticProps>) {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedPromotion, setSelectedPromotion] =
     useState<PromotionCardContent | null>(null);
@@ -78,7 +96,7 @@ export default function PromotionsPage({
         <title>Promotions | EliteSport</title>
         <meta
           name="description"
-          content="Browse every active EliteSport promotion with responsive filters and CMS-powered content."
+          content="Browse every active EliteSport promotion with responsive filters."
         />
       </Head>
 
@@ -151,8 +169,7 @@ export default function PromotionsPage({
             />
           ) : (
             <p className="glass-card border border-dashed border-white/25 px-6 py-8 text-center text-sm text-brand-gray">
-              No active promotions match this filter. Adjust categories or
-              publish a new promotion in Sanity.
+              No active promotions match this filter.
             </p>
           )}
         </Container>
@@ -169,37 +186,15 @@ export default function PromotionsPage({
   );
 }
 
-export const getServerSideProps: GetServerSideProps<
-  PromotionsPageProps
-> = async () => {
-  const client = sanityClient;
-
-  if (!client) {
-    return {
-      props: { promotions: [], hero: null },
-    };
-  }
-
-  try {
-    const [promotions, hero] = await Promise.all([
-      client.fetch<PromotionRecord[]>(PROMOTIONS_PAGE_QUERY),
-      fetchPageHero(PROMOTIONS_PAGE_SLUG, client),
-    ]);
-
-    return {
-      props: {
-        promotions: promotions ?? [],
-        hero: hero ?? null,
-      },
-    };
-  } catch (error) {
-    console.error("Failed to fetch promotions page content", error);
-  }
+export const getStaticProps: GetStaticProps<PromotionsPageProps> = async () => {
+  const promotions = getActivePromotions().map(mapMockPromotionToRecord);
+  const hero = getPageHero("promotions");
 
   return {
     props: {
-      promotions: [],
-      hero: null,
+      promotions,
+      hero: hero ?? null,
     },
+    revalidate: 60,
   };
 };

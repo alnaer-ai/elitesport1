@@ -3,12 +3,10 @@ import Link from "next/link";
 import { MouseEvent, useEffect, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { PortableText } from "@portabletext/react";
-import type { SanityImageSource } from "@sanity/image-url";
 
 import { ButtonLink } from "@/components/ButtonLink";
 import { getPlaceCategoryLabel } from "@/lib/placePresentation";
 import type { Place } from "@/lib/placeTypes";
-import { isSanityConfigured, urlForImage } from "@/lib/sanity.client";
 
 export type PlaceModalProps = {
   place: Place | null;
@@ -50,26 +48,6 @@ const ChevronRightIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
-const getImageUrl = (
-  source?: SanityImageSource,
-  width = 1600,
-  height?: number
-) => {
-  if (!source || !isSanityConfigured) {
-    return undefined;
-  }
-
-  try {
-    let builder = urlForImage(source).width(width).auto("format");
-    if (height) {
-      builder = builder.height(height).fit("crop");
-    }
-    return builder.url();
-  } catch {
-    return undefined;
-  }
-};
-
 const FALLBACK_PLACE_IMAGE =
   "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=1600&q=80";
 
@@ -87,10 +65,9 @@ export const PlaceModal = ({
       const { current } = scrollContainerRef;
       const scrollAmount = current.clientWidth;
       const maxScrollLeft = current.scrollWidth - current.clientWidth;
-      const tolerance = 5; // Buffer for scroll position precision
+      const tolerance = 5;
 
       if (direction === "left") {
-        // If near start, loop to end
         if (current.scrollLeft <= tolerance) {
           current.scrollTo({
             left: maxScrollLeft,
@@ -103,7 +80,6 @@ export const PlaceModal = ({
           });
         }
       } else {
-        // If near end, loop to start
         if (current.scrollLeft >= maxScrollLeft - tolerance) {
           current.scrollTo({
             left: 0,
@@ -156,7 +132,6 @@ export const PlaceModal = ({
       newUrl = PLAY_STORE_URL;
     }
 
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setStoreUrl((prev) => (prev !== newUrl ? newUrl : prev));
   }, []);
 
@@ -174,8 +149,9 @@ export const PlaceModal = ({
     }
   };
 
-  const rawImages = [place.featuredImage, ...(place.images || [])].filter(
-    (img) => img !== null && img !== undefined
+  // Build image URLs array from place data
+  const rawImages = [place.featuredImageUrl, ...(place.imageUrls || [])].filter(
+    (img): img is string => Boolean(img)
   );
   const hasImages = rawImages.length > 0;
 
@@ -218,9 +194,8 @@ export const PlaceModal = ({
             ref={scrollContainerRef}
             className="flex h-full w-full overflow-x-auto snap-x snap-mandatory [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           >
-            {(hasImages ? rawImages : [undefined]).map((img, index) => {
-              const url = getImageUrl(img, 1600, 600) ?? FALLBACK_PLACE_IMAGE;
-              const alt = img?.alt ?? place.name ?? "EliteSport place";
+            {(hasImages ? rawImages : [FALLBACK_PLACE_IMAGE]).map((url, index) => {
+              const alt = place.imageAlt ?? place.name ?? "EliteSport place";
               return (
                 <div
                   key={index}

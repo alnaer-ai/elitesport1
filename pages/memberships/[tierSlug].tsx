@@ -12,22 +12,17 @@ import { ButtonLink, secondaryButtonClasses } from "@/components/ButtonLink";
 import { BusinessContactModal } from "@/components/BusinessContactModal";
 import { Container } from "@/components/Container";
 import { Hero } from "@/components/Hero";
-import {
-  fetchPageHero,
-  type HeroPayload,
-} from "@/lib/hero";
+import { type HeroPayload } from "@/lib/hero";
 import {
   collectMembershipTiers,
   getTierColor,
   getTierSlug,
   mapMembershipTierEntries,
-  MEMBERSHIP_QUERY,
   type MembershipInfo,
   type MembershipTier,
 } from "@/lib/membership";
-import { sanityClient } from "@/lib/sanity.client";
+import { getPageHero, getMemberships } from "@/lib/mockData";
 
-const MEMBERSHIPS_PAGE_SLUG = "memberships";
 const checkIconPath = "M20 6L9 17L4 12";
 
 type MembershipTierPageProps = {
@@ -67,9 +62,6 @@ export default function MembershipTierPage({
     }
   });
   const tierOrderMap = new Map(tierOrderEntries);
-  // const faqs = (membership.faq ?? []).filter(
-  //   (faq) => faq?.question && faq?.answer
-  // );
   const ctaLabel =
     tier.ctaLabel ?? membership.ctaLabel ?? "Contact Membership";
   const ctaHref = tier.ctaUrl ?? membership.ctaUrl ?? "/contact";
@@ -402,15 +394,7 @@ export default function MembershipTierPage({
 }
 
 export const getStaticPaths: GetStaticPaths = async () => {
-  const client = sanityClient;
-  if (!client) {
-    return {
-      paths: [],
-      fallback: "blocking",
-    };
-  }
-
-  const memberships = (await client.fetch<MembershipInfo[]>(MEMBERSHIP_QUERY)) ?? [];
+  const memberships = getMemberships();
   const tiers = collectMembershipTiers(memberships);
 
   const tierSlugs = tiers
@@ -434,14 +418,6 @@ export const getStaticPaths: GetStaticPaths = async () => {
 export const getStaticProps: GetStaticProps<MembershipTierPageProps> = async ({
   params,
 }) => {
-  const client = sanityClient;
-  if (!client) {
-    return {
-      notFound: true,
-      revalidate: 60,
-    };
-  }
-
   const tierSlug = Array.isArray(params?.tierSlug)
     ? params.tierSlug[0]
     : params?.tierSlug;
@@ -453,7 +429,7 @@ export const getStaticProps: GetStaticProps<MembershipTierPageProps> = async ({
     };
   }
 
-  const memberships = (await client.fetch<MembershipInfo[]>(MEMBERSHIP_QUERY)) ?? [];
+  const memberships = getMemberships();
 
   if (memberships.length === 0) {
     return {
@@ -474,7 +450,7 @@ export const getStaticProps: GetStaticProps<MembershipTierPageProps> = async ({
     };
   }
 
-  const hero = await fetchPageHero(MEMBERSHIPS_PAGE_SLUG, client);
+  const hero = getPageHero("memberships");
 
   return {
     props: {

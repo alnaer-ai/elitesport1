@@ -1,53 +1,32 @@
+/**
+ * Promotion content utilities.
+ * Previously used Sanity image processing, now uses plain URLs.
+ */
+
 import type { PortableTextBlock } from "@portabletext/types";
-import type { SanityImageSource } from "@sanity/image-url";
 
 import { getPromotionTypeLabel } from "./promotionLabels";
 import type { PromotionCardContent } from "./promotionCardContent";
-import { isSanityConfigured, urlForImage } from "./sanity.client";
 
 export type PromotionRecord = {
   _id: string;
-  title?: string;
-  promotionType?: string;
-  overview?: PortableTextBlock[];
-  overviewText?: string;
-  benefits?: string[];
-  ctaLabel?: string;
-  ctaAction?: string;
-  featuredImage?: SanityImageSource;
-  imageAlt?: string;
-  discountPercentage?: number;
-  isPublished?: boolean;
-  publishStartDate?: string;
-  publishEndDate?: string;
+  title?: string | null;
+  promotionType?: string | null;
+  overview?: PortableTextBlock[] | null;
+  overviewText?: string | null;
+  benefits?: string[] | null;
+  ctaLabel?: string | null;
+  ctaAction?: string | null;
+  featuredImageUrl?: string | null;
+  imageAlt?: string | null;
+  discountPercentage?: number | null;
+  isPublished?: boolean | null;
+  publishStartDate?: string | null;
+  publishEndDate?: string | null;
 };
 
 export const PROMOTION_FALLBACK_IMAGE =
   "https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=1200&q=80";
-
-type ImageOptions = {
-  width?: number;
-  height?: number;
-};
-
-export const getPromotionImageUrl = (
-  source?: SanityImageSource,
-  { width = 1400, height = 900 }: ImageOptions = {}
-) => {
-  if (!source || !isSanityConfigured) {
-    return undefined;
-  }
-
-  try {
-    let builder = urlForImage(source).width(width).auto("format");
-    if (height) {
-      builder = builder.height(height).fit("crop");
-    }
-    return builder.url();
-  } catch {
-    return undefined;
-  }
-};
 
 type PromotionCardOptions = {
   metaLabelFallback?: string;
@@ -58,8 +37,7 @@ export const mapPromotionRecordToCardContent = (
   promotion: PromotionRecord,
   { metaLabelFallback, fallbackImage = PROMOTION_FALLBACK_IMAGE }: PromotionCardOptions = {}
 ): PromotionCardContent => {
-  const imageSource = promotion.featuredImage;
-  const imageUrl = getPromotionImageUrl(imageSource) ?? fallbackImage;
+  const imageUrl = promotion.featuredImageUrl ?? fallbackImage;
   const promotionTypeLabel = getPromotionTypeLabel(promotion.promotionType);
   const discountPercentage =
     typeof promotion.discountPercentage === "number"
@@ -80,12 +58,12 @@ export const mapPromotionRecordToCardContent = (
     discountPercentage,
     promotionTypeLabel,
     metaLabel,
-    overview: promotion.overview,
-    benefits: promotion.benefits,
-    ctaLabel: promotion.ctaLabel,
-    ctaAction: promotion.ctaAction,
-    publishStartDate: promotion.publishStartDate,
-    publishEndDate: promotion.publishEndDate,
+    overview: promotion.overview ?? undefined,
+    benefits: promotion.benefits ?? undefined,
+    ctaLabel: promotion.ctaLabel ?? undefined,
+    ctaAction: promotion.ctaAction ?? undefined,
+    publishStartDate: promotion.publishStartDate ?? undefined,
+    publishEndDate: promotion.publishEndDate ?? undefined,
   };
 };
 

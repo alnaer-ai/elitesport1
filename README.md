@@ -1,10 +1,10 @@
 ## Overview
 
-EliteSport is a modern marketing site built with **Next.js 16**, **React 19**, **TypeScript**, **Tailwind CSS**, **Framer Motion**, and a headless CMS (Sanity). Pages are statically generated from CMS content so new hero copy, places, promotions, or memberships can be published without redeploying the site.
+EliteSport is a modern marketing site built with **Next.js 16**, **React 19**, **TypeScript**, **Tailwind CSS**, and **Framer Motion**. Pages are statically generated from local mock data, ready for future API integration.
 
 Key pages:
 
-- Home, Memberships, About, Contact, and Places (all CMS powered)
+- Home, Memberships, About, Contact, Places, and Promotions
 - Shared layout with accessible navigation, skip link, and footer
 - Components live in `components/` to keep sections reusable and ready for future expansion
 
@@ -12,16 +12,6 @@ Key pages:
 
 - Node.js 18+
 - npm 10+ (or another package manager)
-- Sanity project credentials exposed via the environment variables listed below
-
-Copy `.env.local.example` (if available) into `.env.local` and provide at least:
-
-```
-NEXT_PUBLIC_SANITY_PROJECT_ID=xxxx
-NEXT_PUBLIC_SANITY_DATASET=production
-NEXT_PUBLIC_SANITY_API_VERSION=2023-10-01
-SANITY_API_READ_TOKEN=xxxxxxxx
-```
 
 ## Running the app
 
@@ -34,74 +24,45 @@ npm run dev
 
 # lint the project
 npm run lint
+
+# run tests
+npm test
 ```
 
-The site runs at [http://localhost:3000](http://localhost:3000). All pages are statically generated and revalidated every 60 seconds when hitting Sanity.
+The site runs at [http://localhost:3000](http://localhost:3000). All pages are statically generated with ISR (revalidate every 60 seconds).
 
-## Sanity Studio
+## Data Layer
 
-The CMS lives inside the `cms/` directory.
+Content is served from static mock data in `lib/mockData.ts`. This includes:
 
-```bash
-cd cms
-npm install
-npm run dev
-```
+- `MOCK_HEROES` – hero content for each page
+- `MOCK_PLACES` – gym, hotel, and wellness destinations
+- `MOCK_PROMOTIONS` – member promotions and offers
+- `MOCK_MEMBERSHIPS` – membership tiers and FAQs
+- `MOCK_CLIENT_PARTNERS` – client and partner logos
+- `MOCK_ABOUT` – about page content
+- `MOCK_CONTACT` – contact information
 
-Schemas exist for:
+Helper functions like `getPageHero()`, `getAllPlaces()`, `getActivePromotions()` provide type-safe access to this data.
 
-- `place` – used on Home (popular/nearby) and Places page
-- `promotion` – drives the promotions carousel on Home
-- `membershipInfo` – hero, tiers, and FAQs on Memberships page
-- `aboutInfo` – mission, story, values, and team content (hero is managed globally)
-- `contactInfo` – address, contact details, office hours, and map coordinates
-- `clientPartner` – logos for the “Clients & Partners” section
-
-Whenever relevant data is missing the UI renders helpful placeholder copy, so editors can ship incremental content safely.
+**Future API Integration:** The data layer is designed for easy migration to an external API. Replace the mock data functions with API calls when ready.
 
 ## Structure and conventions
 
-- `components/` holds UI atoms (Button, Container, Layout, Typography)
-- `pages/` contains route-level components that call the CMS
-- `lib/sanity.client.ts` exposes a configured Sanity client plus helper utilities
+- `components/` holds UI atoms (Button, Container, Layout, Typography) and feature components
+- `pages/` contains route-level components
+- `lib/` contains data utilities, type definitions, and helper functions
 - Tailwind custom theme tokens are defined in `tailwind.config.js`; global styles live in `styles/globals.css`
 
 To add new sections/pages:
 
-1. Create or update a schema in `cms/schemas`.
-2. Publish the document so it is queryable.
-3. Consume that data inside a page via `sanityClient.fetch`.
-4. If a section will be reused, place it in `components/` and import it wherever needed.
-
-This keeps presentation concerns decoupled from content, so future pages (e.g., a new “Events” tab or an additional Places category) are mostly CMS work plus a light template update.
+1. Add mock data to `lib/mockData.ts` following existing patterns.
+2. Create a new page in `pages/` that consumes the data via `getStaticProps`.
+3. If a section will be reused, place it in `components/` and import it wherever needed.
 
 ## Deployment
 
-Deploy the Next.js site (e.g., to Vercel) as usual. Set the same environment variables on the hosting provider and enable the Sanity webhook if you need on-demand revalidation.
-
-### Webhook Configuration for On-Demand Revalidation
-
-To enable instant content updates when publishing in Sanity, configure a webhook:
-
-1. **Set the revalidation secret** in your environment variables:
-   ```
-   SANITY_REVALIDATE_SECRET=your-secret-token-here
-   ```
-
-2. **In Sanity Studio**, go to Project Settings → API → Webhooks
-   - Click "Create webhook"
-   - URL: `https://your-domain.com/api/revalidate`
-   - Dataset: Select your production dataset
-   - Trigger on: Create, Update, Delete
-   - Filter: `_type == "place" || _type == "promotion" || _type == "page" || _type == "membershipInfo" || _type == "clientPartner"`
-   - HTTP method: POST
-   - API version: Same as your project
-   - Secret: Set the same value as `SANITY_REVALIDATE_SECRET`
-   - Include drafts: No (only published documents trigger revalidation)
-
-3. **Test the webhook** by publishing a Place document in Sanity. The home page, places page, and specific place page should update within seconds.
-
-**Note**: Without webhooks, pages revalidate every 60 seconds (ISR). With webhooks, updates are instant after publishing.
+Deploy the Next.js site (e.g., to Vercel) as usual. No external services or environment variables are required.
 
 ## QA & Maintenance notes
 
@@ -110,4 +71,4 @@ To enable instant content updates when publishing in Sanity, configure a webhook
 - Framer Motion animations respect `prefers-reduced-motion` via browser defaults, so keep motion subtle when adding new sections.
 - Before opening a PR, run `npm run lint`.
 
-For support or onboarding, point teammates to this README plus the schema definitions inside `cms/schemas/`. Most additions boil down to Sanity document updates.
+For support or onboarding, point teammates to this README plus the mock data definitions in `lib/mockData.ts`.

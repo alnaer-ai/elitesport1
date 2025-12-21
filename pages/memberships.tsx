@@ -6,24 +6,18 @@ import { ButtonLink, secondaryButtonClasses } from "@/components/ButtonLink";
 import { Container } from "@/components/Container";
 import { Hero } from "@/components/Hero";
 import { MembershipCard } from "@/components/MembershipCard";
-import {
-  fetchPageHero,
-  type HeroPayload,
-} from "@/lib/hero";
+import { type HeroPayload } from "@/lib/hero";
 import {
   collectMembershipFaqs,
   collectMembershipTiers,
-  MEMBERSHIP_QUERY,
   type MembershipInfo,
 } from "@/lib/membership";
-import { sanityClient } from "@/lib/sanity.client";
+import { getPageHero, getMemberships } from "@/lib/mockData";
 
 type MembershipsPageProps = {
   memberships: MembershipInfo[];
   hero: HeroPayload | null;
 };
-
-const MEMBERSHIPS_PAGE_SLUG = "memberships";
 
 export default function MembershipsPage({
   memberships,
@@ -95,8 +89,7 @@ export default function MembershipsPage({
               </motion.div>
             ) : (
               <div className="glass-card p-10 text-center text-brand-gray">
-                Membership tiers are being curated in the CMS. Add tier entries
-                inside Sanity to populate this section automatically.
+                Membership tiers are being curated. Check back soon.
               </div>
             )}
           </Container>
@@ -114,8 +107,7 @@ export default function MembershipsPage({
                   Common questions
                 </h3>
                 <p className="text-base text-brand-gray">
-                  Details below are authored in the CMS so your team can update
-                  responses without a deployment.
+                  Details below help answer your membership questions.
                 </p>
               </div>
               {faqs.length > 0 ? (
@@ -143,8 +135,7 @@ export default function MembershipsPage({
                 </div>
               ) : (
                 <div className="glass-card rounded-2xl border border-dashed border-white/25 p-6 text-sm text-brand-gray">
-                  No FAQs have been added yet. Create entries in the Membership
-                  Info document to publish them instantly.
+                  No FAQs have been added yet.
                 </div>
               )}
             </div>
@@ -181,27 +172,12 @@ export default function MembershipsPage({
 }
 
 export const getStaticProps: GetStaticProps<MembershipsPageProps> = async () => {
-  const client = sanityClient;
-  if (!client) {
-    return {
-      props: {
-        memberships: [],
-        hero: null,
-      },
-      revalidate: 60,
-    };
-  }
-
-  const [memberships, hero] = await Promise.all([
-    client.fetch<MembershipInfo[]>(MEMBERSHIP_QUERY),
-    fetchPageHero(MEMBERSHIPS_PAGE_SLUG, client),
-  ]);
-
-  const membershipEntries = memberships ?? [];
+  const memberships = getMemberships();
+  const hero = getPageHero("memberships");
 
   return {
     props: {
-      memberships: membershipEntries,
+      memberships,
       hero: hero ?? null,
     },
     revalidate: 60,

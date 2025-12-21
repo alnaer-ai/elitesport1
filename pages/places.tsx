@@ -10,8 +10,8 @@ import {
   type Place,
 } from "@/components/places";
 import { cn } from "@/lib/cn";
-import { fetchPageHero, type HeroPayload } from "@/lib/hero";
-import { sanityClient } from "@/lib/sanity.client";
+import { type HeroPayload } from "@/lib/hero";
+import { getPageHero, getAllPlaces, type Place as MockPlace } from "@/lib/mockData";
 
 type PlacesPageProps = {
   places: Place[];
@@ -56,32 +56,27 @@ const PLACE_SECTIONS = [
   },
 ] as const;
 
-const PLACE_QUERY = `
-  *[_type == "place"] | order(coalesce(priority, 1000) asc, name asc) {
-    _id,
-    "slug": slug.current,
-    name,
-    "placeType": placeType,
-    "category": coalesce(placeType, category),
-    description,
-    location,
-    "featuredImage": featuredImage,
-    "images": images,
-    "image": coalesce(featuredImage, image),
-    "imageAlt": coalesce(featuredImage.alt, imageAlt),
-    overview,
-    tags,
-    benefits
-  }
-`;
-
-const PLACES_PAGE_SLUG = "places";
+// Convert mock place to Place type (ensure no undefined values for serialization)
+const mapMockPlaceToPlace = (mockPlace: MockPlace): Place => ({
+  _id: mockPlace._id,
+  name: mockPlace.name ?? null,
+  placeType: mockPlace.placeType ?? null,
+  category: mockPlace.category ?? null,
+  location: mockPlace.location ?? null,
+  featuredImageUrl: mockPlace.featuredImageUrl ?? null,
+  imageUrls: mockPlace.imageUrls ?? null,
+  imageAlt: mockPlace.imageAlt ?? null,
+  overview: mockPlace.overview ?? null,
+  benefits: mockPlace.benefits ?? null,
+  showInMostPopular: mockPlace.showInMostPopular ?? null,
+  slug: mockPlace.slug ?? null,
+  tags: mockPlace.tags ?? null,
+});
 
 export default function PlacesPage({
   places,
   hero,
 }: InferGetStaticPropsType<typeof getStaticProps>) {
-  // const { openModal: openPlaceModal } = usePlaceModal();
   const placesByCategory = PLACE_SECTIONS.map((section) => ({
     ...section,
     places: places.filter((place) => {
@@ -111,7 +106,7 @@ export default function PlacesPage({
         <title>Places | EliteSport</title>
         <meta
           name="description"
-          content="Explore EliteSport-approved hotels, gyms, spas, and clubs worldwide — organized by category and powered by live CMS content."
+          content="Explore EliteSport-approved hotels, gyms, spas, and clubs worldwide — organized by category."
         />
       </Head>
 
@@ -207,21 +202,8 @@ const CategorySection = ({
 
 
 export const getStaticProps: GetStaticProps<PlacesPageProps> = async () => {
-  const client = sanityClient;
-  if (!client) {
-    return {
-      props: {
-        places: [],
-        hero: null,
-      },
-      revalidate: 60,
-    };
-  }
-
-  const [places, hero] = await Promise.all([
-    client.fetch<Place[]>(PLACE_QUERY),
-    fetchPageHero(PLACES_PAGE_SLUG, client),
-  ]);
+  const places = getAllPlaces().map(mapMockPlaceToPlace);
+  const hero = getPageHero("places");
 
   return {
     props: {

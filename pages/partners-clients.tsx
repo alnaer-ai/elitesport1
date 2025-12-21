@@ -2,42 +2,21 @@ import Head from "next/head";
 import Image from "next/image";
 import { GetStaticProps, InferGetStaticPropsType } from "next";
 import { motion } from "framer-motion";
-import type { SanityImageSource } from "@sanity/image-url";
 
 import { Container } from "@/components/Container";
 import { Hero } from "@/components/Hero";
 import { cn } from "@/lib/cn";
-import { fetchPageHero, type HeroPayload } from "@/lib/hero";
+import { type HeroPayload } from "@/lib/hero";
 import {
-  isSanityConfigured,
-  sanityClient,
-  urlForImage,
-} from "@/lib/sanity.client";
-
-type ClientPartner = {
-  _id: string;
-  name?: string;
-  category?: "client" | "partner" | "sponsor";
-  logo?: SanityImageSource;
-  logoAlt?: string;
-  website?: string;
-};
+  getPageHero,
+  getClientPartners,
+  type ClientPartner,
+} from "@/lib/mockData";
 
 type PartnersClientsPageProps = {
   entries: ClientPartner[];
   hero: HeroPayload | null;
 };
-
-const CLIENT_PARTNERS_QUERY = `
-  *[_type == "clientPartner"] | order(coalesce(priority, 1000) asc, name asc) {
-    _id,
-    name,
-    category,
-    logo,
-    logoAlt,
-    website
-  }
-`;
 
 const gridAnimation = {
   hidden: {},
@@ -51,25 +30,6 @@ const gridAnimation = {
 const cardAnimation = {
   hidden: { opacity: 0, y: 24 },
   visible: { opacity: 1, y: 0 },
-};
-
-const PARTNERS_CLIENTS_PAGE_SLUG = "partners-clients";
-
-const getImageUrl = (source?: SanityImageSource, width = 600, height = 300) => {
-  if (!source || !isSanityConfigured) {
-    return undefined;
-  }
-
-  try {
-    return urlForImage(source)
-      .width(width)
-      .height(height)
-      .fit("crop")
-      .auto("format")
-      .url();
-  } catch {
-    return undefined;
-  }
 };
 
 export default function PartnersClientsPage({
@@ -96,7 +56,7 @@ export default function PartnersClientsPage({
           eyebrow="Global Collaborators"
           description="Elite hospitality groups, wellness pioneers, and sport innovators partnering with us to craft elevated guest experiences."
           items={partners}
-          emptyState="Partners managed in Sanity will display here automatically."
+          emptyState="Partners will display here."
           cardClassName="text-brand-ivory/90 [--glass-glow:rgba(125,190,220,0.12)]"
         />
         <LogoGridSection
@@ -104,7 +64,7 @@ export default function PartnersClientsPage({
           eyebrow="Trusted Clients"
           description="Members, private families, and executive teams who count on EliteSport to deliver seamless training itineraries."
           items={clients}
-          emptyState="Publish client entries in the CMS to populate this list."
+          emptyState="Client entries will display here."
           cardClassName="text-brand-ivory/80 [--glass-glow:rgba(197,163,91,0.12)]"
         />
       </div>
@@ -164,7 +124,7 @@ const LogoCard = ({
   item: ClientPartner;
   cardClassName: string;
 }) => {
-  const logoUrl = getImageUrl(item.logo);
+  const logoUrl = item.logoUrl;
   const Wrapper = item.website ? "a" : "div";
   const wrapperProps = item.website
     ? {
@@ -222,26 +182,12 @@ const LogoCard = ({
 };
 
 export const getStaticProps: GetStaticProps<PartnersClientsPageProps> = async () => {
-  const client = sanityClient;
-
-  if (!client) {
-    return {
-      props: {
-        entries: [],
-        hero: null,
-      },
-      revalidate: 60,
-    };
-  }
-
-  const [entries, hero] = await Promise.all([
-    client.fetch<ClientPartner[]>(CLIENT_PARTNERS_QUERY),
-    fetchPageHero(PARTNERS_CLIENTS_PAGE_SLUG, client),
-  ]);
+  const entries = getClientPartners();
+  const hero = getPageHero("partners-clients");
 
   return {
     props: {
-      entries: entries ?? [],
+      entries,
       hero: hero ?? null,
     },
     revalidate: 60,

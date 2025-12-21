@@ -1,5 +1,9 @@
+/**
+ * Place type definitions.
+ * Previously used Sanity image types, now uses plain URL strings.
+ */
+
 import type { PortableTextBlock } from "@portabletext/types";
-import type { SanityImageSource } from "@sanity/image-url";
 
 export type PlaceCategory =
   | "hotel"
@@ -9,21 +13,18 @@ export type PlaceCategory =
   | "tennisSquash"
   | "wellness";
 
-export type PlaceImage = SanityImageSource & { alt?: string };
-
 export type Place = {
   _id: string;
   name?: string | null;
   placeType?: PlaceCategory | null;
   category?: PlaceCategory | null;
   location?: string | null;
-  featuredImage?: PlaceImage;
-  images?: PlaceImage[];
-  image?: SanityImageSource;
-  imageAlt?: string;
-  overview?: PortableTextBlock[];
-  benefits?: string[];
+  featuredImageUrl?: string | null;
+  imageUrls?: string[] | null;
+  imageAlt?: string | null;
+  overview?: PortableTextBlock[] | null;
+  benefits?: string[] | null;
   showInMostPopular?: boolean | null;
-  slug?: string;
-  tags?: string[];
+  slug?: string | null;
+  tags?: string[] | null;
 };

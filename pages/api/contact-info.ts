@@ -1,29 +1,11 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 
-import { sanityClient } from "@/lib/sanity.client";
-
-type ContactInfo = {
-  address?: string;
-  mapLocation?: {
-    lat?: number;
-    lng?: number;
-  };
-};
+import { getContactInfo, type ContactInfo } from "@/lib/mockData";
 
 type ContactInfoResponse = {
-  data: ContactInfo | null;
+  data: Pick<ContactInfo, "address" | "mapLocation"> | null;
   error?: string;
 };
-
-const CONTACT_INFO_QUERY = `
-  *[_type == "contactInfo"][0]{
-    address,
-    mapLocation{
-      lat,
-      lng
-    }
-  }
-`;
 
 export default async function handler(
   request: NextApiRequest,
@@ -35,15 +17,12 @@ export default async function handler(
     return;
   }
 
-  if (!sanityClient) {
-    response
-      .status(500)
-      .json({ data: null, error: "Sanity client is not configured" });
-    return;
-  }
-
   try {
-    const data = await sanityClient.fetch<ContactInfo | null>(CONTACT_INFO_QUERY);
+    const contact = getContactInfo();
+    const data = {
+      address: contact.address,
+      mapLocation: contact.mapLocation,
+    };
 
     response.setHeader(
       "Cache-Control",

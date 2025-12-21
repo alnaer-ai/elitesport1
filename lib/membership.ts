@@ -25,31 +25,6 @@ export type MembershipInfo = {
   faq?: MembershipFaq[];
 };
 
-export const MEMBERSHIP_QUERY = `
-  *[_type == "membershipInfo"] | order(_createdAt asc){
-    title,
-    ctaLabel,
-    ctaUrl,
-    tiers[]{
-      name,
-      price,
-      description,
-      benefits,
-      familyBenefits,
-      hotelsGyms,
-      isPopular,
-      isFamilyFriendly,
-      cardColor,
-      ctaLabel,
-      ctaUrl
-    },
-    faq[]{
-      question,
-      answer
-    }
-  }
-`;
-
 export type MembershipTierEntry = {
   membership: MembershipInfo;
   tier: MembershipTier;

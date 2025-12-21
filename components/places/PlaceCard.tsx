@@ -1,15 +1,13 @@
 import Image from "next/image";
 import { MouseEvent } from "react";
 import { motion } from "framer-motion";
-import type { SanityImageSource } from "@sanity/image-url";
 
 import { getPlaceCategoryLabel } from "@/lib/placePresentation";
 import type { Place } from "@/lib/placeTypes";
-import { isSanityConfigured, urlForImage } from "@/lib/sanity.client";
 
 export type PlaceCardProps = {
   place: Place;
-  categoryLabel?: string; // Kept for compatibility but might be unused if we prefer internal logic
+  categoryLabel?: string;
   onSelect?: (place: Place) => void;
   imageWidth?: number;
   imageHeight?: number;
@@ -23,26 +21,6 @@ const cardMotionProps = {
   transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] as const },
 };
 
-const getImageUrl = (
-  source?: SanityImageSource,
-  width = 1600,
-  height?: number
-) => {
-  if (!source || !isSanityConfigured) {
-    return undefined;
-  }
-
-  try {
-    let builder = urlForImage(source).width(width).auto("format");
-    if (height) {
-      builder = builder.height(height).fit("crop");
-    }
-    return builder.url();
-  } catch {
-    return undefined;
-  }
-};
-
 const FALLBACK_PLACE_IMAGE =
   "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=1600&q=80";
 
@@ -50,12 +28,9 @@ export const PlaceCard = ({
   place,
   categoryLabel: _providedLabel,
   onSelect,
-  imageWidth = 1600,
-  imageHeight,
   motionProps = cardMotionProps,
 }: PlaceCardProps) => {
-  const imageSource = place.featuredImage;
-  const imageUrl = getImageUrl(imageSource, imageWidth, imageHeight) ?? FALLBACK_PLACE_IMAGE;
+  const imageUrl = place.featuredImageUrl ?? FALLBACK_PLACE_IMAGE;
   const placeCategory = place.placeType;
   const categoryLabel = _providedLabel ?? getPlaceCategoryLabel(placeCategory ?? undefined);
   const locationLabel = place.location;
@@ -91,7 +66,7 @@ export const PlaceCard = ({
       <div className="relative h-56 w-full overflow-hidden">
         <Image
           src={imageUrl}
-          alt={place.featuredImage?.alt ?? place.name ?? "EliteSport place"}
+          alt={place.imageAlt ?? place.name ?? "EliteSport place"}
           fill
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
           className="object-cover transition-transform duration-700 hover:scale-105"

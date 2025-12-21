@@ -3,7 +3,6 @@ import Link from "next/link";
 
 import { cn } from "@/lib/cn";
 import { HeroPayload } from "@/lib/hero";
-import { isSanityConfigured, urlForImage } from "@/lib/sanity.client";
 
 import { Container } from "./Container";
 
@@ -82,7 +81,7 @@ export const Hero = ({ hero, customOverlayColor }: HeroProps) => {
   const mediaType = hero.mediaType ?? "image";
   const hasMedia =
     mediaType === "image"
-      ? Boolean(hero.image)
+      ? Boolean(hero.imageUrl)
       : mediaType === "video"
       ? Boolean(hero.video?.file || hero.video?.url)
       : false;
@@ -176,7 +175,7 @@ const HeroBackground = ({ hero }: { hero: HeroPayload }) => {
     );
   }
 
-  const imageUrl = getImageUrl(hero.image);
+  const imageUrl = hero.imageUrl;
   if (!imageUrl) {
     return <div className="absolute inset-0 bg-brand-black" />;
   }
@@ -224,7 +223,7 @@ const HeroVideo = ({ hero }: { hero: HeroPayload }) => {
 };
 
 const HeroImage = ({ hero }: { hero: HeroPayload }) => {
-  const imageUrl = getImageUrl(hero.image);
+  const imageUrl = hero.imageUrl;
   if (!imageUrl) {
     return <div className="h-80 w-full bg-brand-black" />;
   }
@@ -265,18 +264,6 @@ const HeroCta = ({ href, children }: { href: string; children: string }) => {
       {children}
     </a>
   );
-};
-
-const getImageUrl = (image?: HeroPayload["image"]) => {
-  if (!image || !isSanityConfigured) {
-    return undefined;
-  }
-
-  try {
-    return urlForImage(image).width(2400).auto("format").url();
-  } catch {
-    return undefined;
-  }
 };
 
 const clampOpacity = (value?: number) => {

@@ -4,7 +4,6 @@ import Link from "next/link";
 import { GetStaticProps, InferGetStaticPropsType } from "next";
 import { ReactNode, useState } from "react";
 import { motion } from "framer-motion";
-import type { SanityImageSource } from "@sanity/image-url";
 
 import { ButtonLink } from "@/components/ButtonLink";
 import { Container } from "@/components/Container";
@@ -14,7 +13,6 @@ import {
   PlaceCard,
   usePlaceModal,
   type Place,
-  type PlaceCategory,
 } from "@/components/places";
 import {
   PromotionCard,
@@ -22,10 +20,9 @@ import {
   type PromotionCardContent,
 } from "@/components/promotions";
 import { cn } from "@/lib/cn";
-import { fetchPageHero, type HeroPayload } from "@/lib/hero";
+import { type HeroPayload } from "@/lib/hero";
 import {
   collectMembershipTiers,
-  MEMBERSHIP_QUERY,
   type MembershipInfo,
 } from "@/lib/membership";
 import {
@@ -34,13 +31,16 @@ import {
   type PromotionRecord,
 } from "@/lib/promotionContent";
 import {
-  isSanityConfigured,
-  sanityClient,
-  urlForImage,
-} from "@/lib/sanity.client";
-import {
-  buildLatestPromotionsQuery,
-} from "@/lib/promotionQueries";
+  getPageHero,
+  getPopularPlaces,
+  getLatestPromotions,
+  getClients,
+  getPartners,
+  getMemberships,
+  type ClientPartner,
+  type Place as MockPlace,
+  type PromotionRecord as MockPromotionRecord,
+} from "@/lib/mockData";
 
 const PLACE_CATEGORY_LABELS: Record<string, string> = {
   hotel: "Hotel",
@@ -53,7 +53,7 @@ const PLACE_CATEGORY_LABELS: Record<string, string> = {
 const HOME_SEO = {
   title: "EliteSport | Luxury Performance Destinations Worldwide",
   description:
-    "Discover EliteSport’s curated network of gyms and private clubs worldwide. Explore memberships, exclusive promotions, and CMS-driven places.",
+    "Discover EliteSport's curated network of gyms and private clubs worldwide. Explore memberships, exclusive promotions, and CMS-driven places.",
   url: "https://elitesport.com",
   image: PROMOTION_FALLBACK_IMAGE,
 };
@@ -78,15 +78,6 @@ const cardVariants = {
 
 type Promotion = PromotionRecord;
 
-type ClientPartner = {
-  _id: string;
-  name?: string;
-  category?: "client" | "partner" | "sponsor";
-  logo?: SanityImageSource;
-  logoAlt?: string;
-  website?: string;
-};
-
 type HomePageProps = {
   popularPlaces: Place[];
   promotions: Promotion[];
@@ -97,48 +88,9 @@ type HomePageProps = {
   aboutHero: HeroPayload | null;
 };
 
-type HomePageQueryResult = Omit<
-  HomePageProps,
-  "hero" | "aboutHero" | "clientLogos" | "partnerLogos"
-> & {
-  clientPartners: ClientPartner[];
-};
-
 const HOME_LATEST_PROMOTIONS_LIMIT = 5;
-const HOME_LATEST_PROMOTIONS_QUERY = buildLatestPromotionsQuery(
-  HOME_LATEST_PROMOTIONS_LIMIT
-);
-const HOME_PAGE_SLUG = "home";
-const ABOUT_PAGE_SLUG = "about";
-const HOME_LOGO_LIMIT = 6;
 
-const HOME_PAGE_QUERY = `
-{
-  "popularPlaces": *[_type == "place" && showInMostPopular == true && !(_id in path("drafts.**"))] | order(name asc)[0...6] {
-    _id,
-    name,
-    "placeType": placeType,
-    location,
-    featuredImage,
-    images,
-    overview,
-    benefits,
-    showInMostPopular
-  },
-  "promotions": ${HOME_LATEST_PROMOTIONS_QUERY},
-  "clientPartners": *[_type == "clientPartner"] | order(coalesce(priority, 1000) asc, name asc) {
-    _id,
-    name,
-    category,
-    logo,
-    logoAlt,
-    website
-  },
-  "memberships": ${MEMBERSHIP_QUERY}
-}
-`;
-
-const getCategoryLabel = (category?: PlaceCategory) => {
+const getCategoryLabel = (category?: Place["placeType"]) => {
   if (!category) return "EliteSport";
   return PLACE_CATEGORY_LABELS[category] ?? "EliteSport";
 };
@@ -155,6 +107,41 @@ const selectRandomItems = <T,>(items: T[], limit: number) => {
   }
   return result.slice(0, limit);
 };
+
+// Convert mock place to Place type (ensure no undefined values for serialization)
+const mapMockPlaceToPlace = (mockPlace: MockPlace): Place => ({
+  _id: mockPlace._id,
+  name: mockPlace.name ?? null,
+  placeType: mockPlace.placeType ?? null,
+  category: mockPlace.category ?? null,
+  location: mockPlace.location ?? null,
+  featuredImageUrl: mockPlace.featuredImageUrl ?? null,
+  imageUrls: mockPlace.imageUrls ?? null,
+  imageAlt: mockPlace.imageAlt ?? null,
+  overview: mockPlace.overview ?? null,
+  benefits: mockPlace.benefits ?? null,
+  showInMostPopular: mockPlace.showInMostPopular ?? null,
+  slug: mockPlace.slug ?? null,
+  tags: mockPlace.tags ?? null,
+});
+
+// Convert mock promotion to PromotionRecord type (ensure no undefined values for serialization)
+const mapMockPromotionToRecord = (mockPromo: MockPromotionRecord): PromotionRecord => ({
+  _id: mockPromo._id,
+  title: mockPromo.title ?? null,
+  promotionType: mockPromo.promotionType ?? null,
+  overview: mockPromo.overview ?? null,
+  overviewText: mockPromo.overviewText ?? null,
+  benefits: mockPromo.benefits ?? null,
+  ctaLabel: mockPromo.ctaLabel ?? null,
+  ctaAction: mockPromo.ctaAction ?? null,
+  featuredImageUrl: mockPromo.featuredImageUrl ?? null,
+  imageAlt: mockPromo.imageAlt ?? null,
+  discountPercentage: mockPromo.discountPercentage ?? null,
+  isPublished: mockPromo.isPublished ?? null,
+  publishStartDate: mockPromo.publishStartDate ?? null,
+  publishEndDate: mockPromo.publishEndDate ?? null,
+});
 
 export default function Home(
   props: InferGetStaticPropsType<typeof getStaticProps>
@@ -207,10 +194,10 @@ export default function Home(
             <Container>
               <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
                 {/* Hero Image - Left Side */}
-                {aboutHero.image && (
+                {aboutHero.imageUrl && (
                   <div className="relative order-2 lg:order-1">
                     <div className="glass-card premium-card overflow-hidden rounded-[32px]">
-                      <AboutHeroImage image={aboutHero.image} title={aboutHero.title} />
+                      <AboutHeroImage imageUrl={aboutHero.imageUrl} title={aboutHero.title} />
                     </div>
                   </div>
                 )}
@@ -280,7 +267,7 @@ export default function Home(
             </>
           ) : (
             <p className="glass-card border border-dashed border-white/25 px-6 py-8 text-center text-sm text-brand-gray">
-              Add published places inside Sanity to populate this section.
+              No places available at this time.
             </p>
           )}
         </Section>
@@ -288,7 +275,7 @@ export default function Home(
         <Section
           eyebrow="Member Exclusives"
           title="Latest Promotions"
-          description="Newest offers stream directly from Sanity. No manual refreshes required."
+          description="Newest offers stream directly from our curated collection. No manual refreshes required."
         >
           {promotionCards.length > 0 ? (
             <>
@@ -310,7 +297,7 @@ export default function Home(
             </>
           ) : (
             <p className="glass-card border border-dashed border-white/25 px-6 py-8 text-center text-sm text-brand-gray">
-              Publish a promotion in Sanity to activate this carousel.
+              No promotions available at this time.
             </p>
           )}
         </Section>
@@ -358,7 +345,7 @@ export default function Home(
             </>
           ) : (
             <p className="glass-card border border-dashed border-white/25 px-6 py-8 text-center text-sm text-brand-gray">
-              Add membership tiers in Sanity to populate this section.
+              Membership tiers coming soon.
             </p>
           )}
         </Section>
@@ -439,22 +426,6 @@ const LogoGrid = ({
   items: ClientPartner[];
   cardClassName: string;
 }) => {
-  const getImageUrl = (source?: SanityImageSource, width = 600, height = 300) => {
-    if (!source || !isSanityConfigured) {
-      return undefined;
-    }
-
-    try {
-      let builder = urlForImage(source).width(width).auto("format");
-      if (height) {
-        builder = builder.height(height).fit("crop");
-      }
-      return builder.url();
-    } catch {
-      return undefined;
-    }
-  };
-
   return (
     <div>
       <p className="text-xs uppercase tracking-[0.4em] text-brand-lightBlue">{title}</p>
@@ -462,7 +433,7 @@ const LogoGrid = ({
         <div className="mt-6">
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
             {items.map((item, itemIndex) => {
-              const logoUrl = getImageUrl(item.logo, 600, 300);
+              const logoUrl = item.logoUrl;
               const key = item._id ?? `${title}-${itemIndex}`;
 
               return (
@@ -499,7 +470,7 @@ const LogoGrid = ({
         </div>
       ) : (
         <p className="glass-card mt-4 rounded-2xl border border-dashed border-white/25 p-4 text-center text-xs text-brand-gray">
-          Add {title.toLowerCase()} inside the CMS to showcase their logos here.
+          Add {title.toLowerCase()} to showcase their logos here.
         </p>
       )}
     </div>
@@ -507,29 +478,12 @@ const LogoGrid = ({
 };
 
 const AboutHeroImage = ({
-  image,
+  imageUrl,
   title,
 }: {
-  image: SanityImageSource;
+  imageUrl: string;
   title?: string;
 }) => {
-  const getImageUrl = (source?: SanityImageSource, width = 1200) => {
-    if (!source || !isSanityConfigured) {
-      return undefined;
-    }
-
-    try {
-      return urlForImage(source).width(width).auto("format").url();
-    } catch {
-      return undefined;
-    }
-  };
-
-  const imageUrl = getImageUrl(image);
-  if (!imageUrl) {
-    return <div className="relative h-80 w-full bg-brand-black" />;
-  }
-
   return (
     <div className="relative aspect-[4/3] w-full overflow-hidden">
       <Image
@@ -579,42 +533,25 @@ const LatestPromotionsGrid = ({
   );
 };
 
-export const getStaticProps: GetStaticProps<HomePageProps> = async () => {
-  const client = sanityClient;
-  if (!client) {
-    return {
-      props: {
-        popularPlaces: [],
-        promotions: [],
-        clientLogos: [],
-        partnerLogos: [],
-        memberships: [],
-        hero: null,
-        aboutHero: null,
-      },
-      revalidate: 60,
-    };
-  }
+const HOME_LOGO_LIMIT = 6;
 
-  const [data, hero, aboutHero] = await Promise.all([
-    client.fetch<HomePageQueryResult>(HOME_PAGE_QUERY),
-    fetchPageHero(HOME_PAGE_SLUG, client),
-    fetchPageHero(ABOUT_PAGE_SLUG, client),
-  ]);
+export const getStaticProps: GetStaticProps<HomePageProps> = async () => {
+  // Fetch static mock data
+  const hero = getPageHero("home");
+  const aboutHero = getPageHero("about");
+  const popularPlaces = getPopularPlaces().map(mapMockPlaceToPlace);
+  const promotions = getLatestPromotions(HOME_LATEST_PROMOTIONS_LIMIT).map(mapMockPromotionToRecord);
+  const allClients = getClients();
+  const allPartners = getPartners();
+  const memberships = getMemberships();
 
   return {
     props: {
-      popularPlaces: data.popularPlaces ?? [],
-      promotions: data.promotions ?? [],
-      clientLogos: selectRandomItems(
-        (data.clientPartners ?? []).filter((entry) => entry.category === "client"),
-        HOME_LOGO_LIMIT
-      ),
-      partnerLogos: selectRandomItems(
-        (data.clientPartners ?? []).filter((entry) => entry.category === "partner"),
-        HOME_LOGO_LIMIT
-      ),
-      memberships: data.memberships ?? [],
+      popularPlaces,
+      promotions,
+      clientLogos: selectRandomItems(allClients, HOME_LOGO_LIMIT),
+      partnerLogos: selectRandomItems(allPartners, HOME_LOGO_LIMIT),
+      memberships,
       hero: hero ?? null,
       aboutHero: aboutHero ?? null,
     },

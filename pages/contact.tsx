@@ -4,53 +4,18 @@ import { ChangeEvent, FormEvent, useState } from "react";
 
 import { Container } from "@/components/Container";
 import { Hero } from "@/components/Hero";
-import { fetchPageHero, type HeroPayload } from "@/lib/hero";
-import { sanityClient } from "@/lib/sanity.client";
+import { type HeroPayload } from "@/lib/hero";
 import { MembershipSelect, type MembershipTier } from "@/components/contact/MembershipSelect";
 import { PlanTypeSelect, type PlanType } from "@/components/contact/PlanTypeSelect";
-
-type ContactHours = {
-  label?: string;
-  value?: string;
-};
-
-type ContactInfo = {
-  address?: string;
-  phone?: string;
-  email?: string;
-  introText?: string;
-  mapLocation?: {
-    lat?: number;
-    lng?: number;
-  };
-  hours?: ContactHours[];
-};
+import { getPageHero, getContactInfo, type ContactInfo } from "@/lib/mockData";
 
 type ContactPageProps = {
   contact: ContactInfo | null;
   hero: HeroPayload | null;
 };
 
-const CONTACT_INFO_QUERY = `
-  *[_type == "contactInfo"][0]{
-    address,
-    phone,
-    email,
-    introText,
-    mapLocation{
-      lat,
-      lng
-    },
-    hours[]{
-      label,
-      value
-    }
-  }
-`;
-
 const defaultIntro =
   "We would love to hear from you. Please reach out with any questions or collaboration ideas.";
-const CONTACT_PAGE_SLUG = "contact";
 
 const sanitizePhone = (phone?: string) =>
   phone ? phone.replace(/[^+\d]/g, "") : undefined;
@@ -300,21 +265,8 @@ export default function ContactPage({
 }
 
 export const getStaticProps: GetStaticProps<ContactPageProps> = async () => {
-  const client = sanityClient;
-  if (!client) {
-    return {
-      props: {
-        contact: null,
-        hero: null,
-      },
-      revalidate: 60,
-    };
-  }
-
-  const [contact, hero] = await Promise.all([
-    client.fetch<ContactInfo | null>(CONTACT_INFO_QUERY),
-    fetchPageHero(CONTACT_PAGE_SLUG, client),
-  ]);
+  const contact = getContactInfo();
+  const hero = getPageHero("contact");
 
   return {
     props: {
