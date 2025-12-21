@@ -42,7 +42,10 @@ const HeroTitle = ({ title }: { title: string }) => {
       
       if (isHighlighted) {
         return (
-          <span key={index} className="text-brand-gold drop-shadow-[0_0_15px_rgba(197,163,91,0.6)]">
+          <span 
+            key={index} 
+            className="text-brand-gold drop-shadow-[0_0_20px_rgba(197,163,91,0.8),0_0_40px_rgba(197,163,91,0.4)] [text-shadow:0_0_10px_rgba(197,163,91,0.9),0_0_20px_rgba(197,163,91,0.6)]"
+          >
             {word}
             {index < words.length - 1 ? " " : ""}
           </span>

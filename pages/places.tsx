@@ -11,7 +11,7 @@ import {
 } from "@/components/places";
 import { cn } from "@/lib/cn";
 import { type HeroPayload } from "@/lib/hero";
-import { getPageHero, getAllPlaces, type Place as MockPlace } from "@/lib/mockData";
+import { getPageHero, type Place as MockPlace } from "@/lib/mockData";
 import { getHotelsAsPlaces } from "@/lib/api/hotels";
 
 type PlacesPageProps = {
@@ -57,22 +57,6 @@ const PLACE_SECTIONS = [
   },
 ] as const;
 
-// Convert mock place to Place type (ensure no undefined values for serialization)
-const mapMockPlaceToPlace = (mockPlace: MockPlace): Place => ({
-  _id: mockPlace._id,
-  name: mockPlace.name ?? null,
-  placeType: mockPlace.placeType ?? null,
-  category: mockPlace.category ?? null,
-  location: mockPlace.location ?? null,
-  featuredImageUrl: mockPlace.featuredImageUrl ?? null,
-  imageUrls: mockPlace.imageUrls ?? null,
-  imageAlt: mockPlace.imageAlt ?? null,
-  overview: mockPlace.overview ?? null,
-  benefits: mockPlace.benefits ?? null,
-  showInMostPopular: mockPlace.showInMostPopular ?? null,
-  slug: mockPlace.slug ?? null,
-  tags: mockPlace.tags ?? null,
-});
 
 export default function PlacesPage({
   places,
@@ -203,16 +187,10 @@ const CategorySection = ({
 
 
 export const getServerSideProps: GetServerSideProps<PlacesPageProps> = async () => {
-  // Get mock places for non-hotel categories (gym, female, kids, tennisSquash)
-  const mockPlaces = getAllPlaces()
-    .filter((place) => place.placeType !== "hotel")
-    .map(mapMockPlaceToPlace);
-
   // Fetch hotels from the EliteSport API
   const apiHotels = await getHotelsAsPlaces();
 
-  // Combine API hotels with mock non-hotel places
-  const places: Place[] = [...apiHotels, ...mockPlaces];
+  const places: Place[] = [...apiHotels];
 
   const hero = getPageHero("places");
 

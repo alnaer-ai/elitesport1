@@ -56,9 +56,6 @@ export default async function handler(
       }
     } else if (documentType === "membershipInfo") {
       pathsToRevalidate.push("/memberships");
-    } else if (documentType === "clientPartner") {
-      pathsToRevalidate.push("/");
-      pathsToRevalidate.push("/partners-clients");
     }
 
     // Perform revalidation for each path

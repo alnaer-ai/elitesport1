@@ -59,16 +59,14 @@ The site uses a hybrid data approach combining API integration and mock data:
 
 Content from `lib/mockData.ts`:
 - `MOCK_HEROES` – hero content for each page
-- `MOCK_PLACES` – gym, hotel, and wellness destinations (non-hotel categories only)
 - `MOCK_MEMBERSHIPS` – membership tiers and FAQs
-- `MOCK_CLIENT_PARTNERS` – client and partner logos
 - `MOCK_ABOUT` – about page content
 - `MOCK_CONTACT` – contact information
 
 ### Environment Variables Required
 
 ```bash
-ELITESPORT_API_URL=https://elitesport.online
+ELITESPORT_HOTELS_API_URL=https://elitesport.online/api/get-hotels-web
 ELITESPORT_PROMOTIONS_API_URL=https://elitesport.online/api/get-promo-web
 ELITESPORT_API_TOKEN=your_token_here
 ```
@@ -113,7 +111,7 @@ To add new sections/pages:
 Deploy the Next.js site (e.g., to Vercel) as usual. 
 
 **Required Environment Variables:**
-- `ELITESPORT_API_URL` - Base API URL
+- `ELITESPORT_HOTELS_API_URL` - Hotels/places API endpoint
 - `ELITESPORT_PROMOTIONS_API_URL` - Promotions API endpoint
 - `ELITESPORT_API_TOKEN` - API authentication token
 

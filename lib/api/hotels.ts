@@ -30,7 +30,9 @@ export type HotelApiResponse = {
 // CONFIGURATION
 // =============================================================================
 
-const API_URL = process.env.ELITESPORT_API_URL;
+// Prefer the explicit hotels endpoint; fall back to the legacy ELITESPORT_API_URL for compatibility
+const API_URL =
+  process.env.ELITESPORT_HOTELS_API_URL ?? process.env.ELITESPORT_API_URL;
 const API_TOKEN = process.env.ELITESPORT_API_TOKEN;
 
 // =============================================================================
@@ -50,7 +52,7 @@ export async function fetchHotels(): Promise<HotelApiResponse[]> {
   // Validate environment configuration
   if (!API_URL) {
     throw new Error(
-      "[Hotels API] Missing ELITESPORT_API_URL environment variable"
+      "[Hotels API] Missing ELITESPORT_HOTELS_API_URL (or legacy ELITESPORT_API_URL) environment variable"
     );
   }
 

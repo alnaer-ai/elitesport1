@@ -32,12 +32,7 @@ import {
 } from "@/lib/promotionContent";
 import {
   getPageHero,
-  getPopularPlaces,
-  getClients,
-  getPartners,
   getMemberships,
-  type ClientPartner,
-  type Place as MockPlace,
 } from "@/lib/mockData";
 import { getPromotions } from "@/lib/api/promotions";
 
@@ -80,8 +75,6 @@ type Promotion = PromotionRecord;
 type HomePageProps = {
   popularPlaces: Place[];
   promotions: Promotion[];
-  clientLogos: ClientPartner[];
-  partnerLogos: ClientPartner[];
   memberships: MembershipInfo[];
   hero: HeroPayload | null;
   aboutHero: HeroPayload | null;
@@ -94,36 +87,6 @@ const getCategoryLabel = (category?: Place["placeType"]) => {
   return PLACE_CATEGORY_LABELS[category] ?? "EliteSport";
 };
 
-const selectRandomItems = <T,>(items: T[], limit: number) => {
-  if (items.length <= limit) {
-    return [...items];
-  }
-
-  const result = [...items];
-  for (let i = result.length - 1; i > 0; i -= 1) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [result[i], result[j]] = [result[j], result[i]];
-  }
-  return result.slice(0, limit);
-};
-
-// Convert mock place to Place type (ensure no undefined values for serialization)
-const mapMockPlaceToPlace = (mockPlace: MockPlace): Place => ({
-  _id: mockPlace._id,
-  name: mockPlace.name ?? null,
-  placeType: mockPlace.placeType ?? null,
-  category: mockPlace.category ?? null,
-  location: mockPlace.location ?? null,
-  featuredImageUrl: mockPlace.featuredImageUrl ?? null,
-  imageUrls: mockPlace.imageUrls ?? null,
-  imageAlt: mockPlace.imageAlt ?? null,
-  overview: mockPlace.overview ?? null,
-  benefits: mockPlace.benefits ?? null,
-  showInMostPopular: mockPlace.showInMostPopular ?? null,
-  slug: mockPlace.slug ?? null,
-  tags: mockPlace.tags ?? null,
-});
-
 
 export default function Home(
   props: InferGetStaticPropsType<typeof getStaticProps>
@@ -133,8 +96,6 @@ export default function Home(
     aboutHero,
     popularPlaces,
     promotions,
-    clientLogos,
-    partnerLogos,
     memberships,
   } = props;
   const promotionCards: PromotionCardContent[] = promotions
@@ -332,33 +293,6 @@ export default function Home(
           )}
         </Section>
 
-        <Section
-          eyebrow="Trusted by Leaders"
-          title="Our Clients & Partners"
-          description="World-renowned brands and tastemakers rely on EliteSport to curate elevated training everywhere."
-          className="bg-brand-deepBlue/20"
-        >
-          <div className="grid gap-10 lg:grid-cols-2">
-            <LogoGrid
-              title="Our Clients"
-              items={clientLogos}
-              cardClassName="text-brand-ivory/80 [--glass-glow:rgba(197,163,91,0.35)]"
-            />
-            <LogoGrid
-              title="Our Partners"
-              items={partnerLogos}
-              cardClassName="text-brand-ivory/90 [--glass-glow:rgba(111,175,206,0.35)]"
-            />
-          </div>
-          <div className="mt-10 flex justify-center">
-            <Link
-              href="/partners-clients"
-              className="text-sm font-semibold uppercase tracking-[0.35em] text-brand-lightBlue transition hover:text-brand-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold focus-visible:ring-offset-2 focus-visible:ring-offset-brand-black"
-            >
-              View All Clients &amp; Partners →
-            </Link>
-          </div>
-        </Section>
       </div>
     </>
   );
@@ -399,65 +333,6 @@ const Section = ({
   );
 };
 
-const LogoGrid = ({
-  title,
-  items,
-  cardClassName,
-}: {
-  title: string;
-  items: ClientPartner[];
-  cardClassName: string;
-}) => {
-  return (
-    <div>
-      <p className="text-xs uppercase tracking-[0.4em] text-brand-lightBlue">{title}</p>
-      {items.length > 0 ? (
-        <div className="mt-6">
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
-            {items.map((item, itemIndex) => {
-              const logoUrl = item.logoUrl;
-              const key = item._id ?? `${title}-${itemIndex}`;
-
-              return (
-                <motion.div
-                  key={key}
-                  variants={cardVariants}
-                  initial="hidden"
-                  whileInView="visible"
-                  viewport={{ once: true, amount: 0.2 }}
-                  className={cn(
-                    "logo-card-clean premium-card flex min-h-[14.4rem] flex-col items-center justify-center gap-2.5 text-center text-sm font-semibold",
-                    cardClassName
-                  )}
-                >
-                  {logoUrl ? (
-                    <div className="flex w-full justify-center">
-                      <div className="relative h-[10.8rem] w-[10.8rem] overflow-hidden rounded-2xl bg-white p-5 shadow-inner">
-                        <Image
-                          src={logoUrl}
-                          alt={item.logoAlt ?? item.name ?? "Brand logo"}
-                          fill
-                          sizes="144px"
-                          className="object-contain"
-                        />
-                      </div>
-                    </div>
-                  ) : (
-                    item.name ?? "Featured Brand"
-                  )}
-                </motion.div>
-              );
-            })}
-          </div>
-        </div>
-      ) : (
-        <p className="glass-card mt-4 rounded-2xl border border-dashed border-white/25 p-4 text-center text-xs text-brand-gray">
-          Add {title.toLowerCase()} to showcase their logos here.
-        </p>
-      )}
-    </div>
-  );
-};
 
 const AboutHeroImage = ({
   imageUrl,
@@ -515,7 +390,6 @@ const LatestPromotionsGrid = ({
   );
 };
 
-const HOME_LOGO_LIMIT = 6;
 
 export const getStaticProps: GetStaticProps<HomePageProps> = async () => {
   // Fetch promotions from API (sorted by date, newest first)
@@ -524,9 +398,7 @@ export const getStaticProps: GetStaticProps<HomePageProps> = async () => {
   // Fetch static mock data for other sections
   const hero = getPageHero("home");
   const aboutHero = getPageHero("about");
-  const popularPlaces = getPopularPlaces().map(mapMockPlaceToPlace);
-  const allClients = getClients();
-  const allPartners = getPartners();
+  const popularPlaces: Place[] = [];
   const memberships = getMemberships();
 
   return {
@@ -534,8 +406,6 @@ export const getStaticProps: GetStaticProps<HomePageProps> = async () => {
       popularPlaces,
       // API promotions are already sorted by date (newest first)
       promotions: apiPromotions,
-      clientLogos: selectRandomItems(allClients, HOME_LOGO_LIMIT),
-      partnerLogos: selectRandomItems(allPartners, HOME_LOGO_LIMIT),
       memberships,
       hero: hero ?? null,
       aboutHero: aboutHero ?? null,

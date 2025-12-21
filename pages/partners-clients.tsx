@@ -9,12 +9,17 @@ import { cn } from "@/lib/cn";
 import { type HeroPayload } from "@/lib/hero";
 import {
   getPageHero,
-  getClientPartners,
-  type ClientPartner,
 } from "@/lib/mockData";
 
 type PartnersClientsPageProps = {
-  entries: ClientPartner[];
+  entries: Array<{
+    _id: string;
+    name?: string;
+    category?: "client" | "partner" | "sponsor";
+    logoUrl?: string;
+    logoAlt?: string;
+    website?: string;
+  }>;
   hero: HeroPayload | null;
 };
 
@@ -83,7 +88,14 @@ const LogoGridSection = ({
   title: string;
   eyebrow: string;
   description: string;
-  items: ClientPartner[];
+  items: Array<{
+    _id: string;
+    name?: string;
+    category?: "client" | "partner" | "sponsor";
+    logoUrl?: string;
+    logoAlt?: string;
+    website?: string;
+  }>;
   emptyState: string;
   cardClassName: string;
 }) => {
@@ -121,7 +133,14 @@ const LogoCard = ({
   item,
   cardClassName,
 }: {
-  item: ClientPartner;
+  item: {
+    _id: string;
+    name?: string;
+    category?: "client" | "partner" | "sponsor";
+    logoUrl?: string;
+    logoAlt?: string;
+    website?: string;
+  };
   cardClassName: string;
 }) => {
   const logoUrl = item.logoUrl;
@@ -182,7 +201,14 @@ const LogoCard = ({
 };
 
 export const getStaticProps: GetStaticProps<PartnersClientsPageProps> = async () => {
-  const entries = getClientPartners();
+  const entries: Array<{
+    _id: string;
+    name?: string;
+    category?: "client" | "partner" | "sponsor";
+    logoUrl?: string;
+    logoAlt?: string;
+    website?: string;
+  }> = [];
   const hero = getPageHero("partners-clients");
 
   return {
