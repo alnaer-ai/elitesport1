@@ -69,6 +69,7 @@ export async function fetchHotels(): Promise<HotelApiResponse[]> {
 
     const response = await fetch(API_URL, {
       method: "POST",
+      cache: "no-store",
       headers: {
         "Content-Type": "application/json",
         Authorization: authHeader,
@@ -215,4 +216,3 @@ export async function getHotelsAsPlaces(): Promise<Place[]> {
     return [];
   }
 }
-

@@ -1,5 +1,5 @@
 import Head from "next/head";
-import { GetStaticProps, InferGetStaticPropsType } from "next";
+import { GetServerSideProps, InferGetServerSidePropsType } from "next";
 import { type MouseEvent } from "react";
 
 import { Container } from "@/components/Container";
@@ -77,7 +77,7 @@ const mapMockPlaceToPlace = (mockPlace: MockPlace): Place => ({
 export default function PlacesPage({
   places,
   hero,
-}: InferGetStaticPropsType<typeof getStaticProps>) {
+}: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const placesByCategory = PLACE_SECTIONS.map((section) => ({
     ...section,
     places: places.filter((place) => {
@@ -202,7 +202,7 @@ const CategorySection = ({
 };
 
 
-export const getStaticProps: GetStaticProps<PlacesPageProps> = async () => {
+export const getServerSideProps: GetServerSideProps<PlacesPageProps> = async () => {
   // Get mock places for non-hotel categories (gym, female, kids, tennisSquash)
   const mockPlaces = getAllPlaces()
     .filter((place) => place.placeType !== "hotel")
@@ -221,6 +221,5 @@ export const getStaticProps: GetStaticProps<PlacesPageProps> = async () => {
       places,
       hero: hero ?? null,
     },
-    revalidate: 60,
   };
 };
