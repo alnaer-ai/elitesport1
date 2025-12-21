@@ -3,7 +3,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { getContactInfo, type ContactInfo } from "@/lib/mockData";
 
 type ContactInfoResponse = {
-  data: Pick<ContactInfo, "address" | "mapLocation"> | null;
+  data: Pick<ContactInfo, "address" | "mapLocation" | "phone" | "email" | "hours"> | null;
   error?: string;
 };
 
@@ -22,6 +22,9 @@ export default async function handler(
     const data = {
       address: contact.address,
       mapLocation: contact.mapLocation,
+      phone: contact.phone,
+      email: contact.email,
+      hours: contact.hours,
     };
 
     response.setHeader(

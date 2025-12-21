@@ -45,16 +45,16 @@ export const MOCK_HEROES: Record<string, HeroPayload> = {
   home: {
     _id: "hero-home",
     internalName: "Home Hero",
-    title: "Fitness is Happiness",
-    subtitle:
-      "Access the world's finest gyms, private clubs, and wellness retreats with a single EliteSport membership.",
+    title: "Fitness is Happniess",
+    subtitle: null,
     mediaType: "image",
+    // Premium infinity pool at luxury resort - no gym imagery
     imageUrl:
-      "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=2400&q=80",
+      "https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=2400&q=80",
     ctaLabel: "Explore Memberships",
     ctaLink: "/memberships",
     layoutVariant: "overlay",
-    overlayOpacity: 65,
+    overlayOpacity: 55,
     textAlignment: "left",
     isPublished: true,
     targetSlug: "home",
@@ -62,14 +62,15 @@ export const MOCK_HEROES: Record<string, HeroPayload> = {
   about: {
     _id: "hero-about",
     internalName: "About Hero",
-    title: "Elevating Performance Since 2015",
+    title: "Calm Escapes, Elevated Living",
     subtitle:
-      "We bridge the gap between luxury hospitality and elite fitness, creating seamless experiences for discerning members worldwide.",
+      "We blend resort-level hospitality, private beach access, and restorative rituals with optional performance when you want it.",
     mediaType: "image",
+    // Luxury hotel lobby with elegant interior design
     imageUrl:
-      "https://images.unsplash.com/photo-1571902943202-507ec2618e8f?auto=format&fit=crop&w=2400&q=80",
+      "/goldenh.png",
     layoutVariant: "overlay",
-    overlayOpacity: 70,
+    overlayOpacity: 65,
     textAlignment: "center",
     isPublished: true,
     targetSlug: "about",
@@ -79,12 +80,13 @@ export const MOCK_HEROES: Record<string, HeroPayload> = {
     internalName: "Places Hero",
     title: "Elite Destinations",
     subtitle:
-      "Curated residences and training spaces where performance, hospitality, and wellness are seamlessly woven together.",
+      "Curated residences and retreats where hospitality, wellness, and elevated living are seamlessly woven together.",
     mediaType: "image",
+    // Stunning luxury resort pool with palm trees and ocean view
     imageUrl:
-      "https://images.unsplash.com/photo-1540497077202-7c8a3999166f?auto=format&fit=crop&w=2400&q=80",
+      "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=2400&q=80",
     layoutVariant: "overlay",
-    overlayOpacity: 60,
+    overlayOpacity: 55,
     textAlignment: "left",
     isPublished: true,
     targetSlug: "places",
@@ -96,10 +98,11 @@ export const MOCK_HEROES: Record<string, HeroPayload> = {
     subtitle:
       "Discover curated offers and benefits available only to EliteSport members.",
     mediaType: "image",
+    // Luxurious spa and wellness setting with candles and relaxation
     imageUrl:
-      "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=2400&q=80",
+      "https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=2400&q=80",
     layoutVariant: "overlay",
-    overlayOpacity: 65,
+    overlayOpacity: 60,
     textAlignment: "left",
     isPublished: true,
     targetSlug: "promotions",
@@ -109,12 +112,12 @@ export const MOCK_HEROES: Record<string, HeroPayload> = {
     internalName: "Memberships Hero",
     title: "Unlock Elite Access",
     subtitle:
-      "Choose the membership level that fits your training needs and lifestyle.",
+      "Choose the membership level that complements your lifestyle and wellness journey.",
     mediaType: "image",
-    imageUrl:
-      "https://images.unsplash.com/photo-1549060279-7e168fcee0c2?auto=format&fit=crop&w=2400&q=80",
+    // Local brand illustration for growth theme
+    imageUrl: "/growth.png",
     layoutVariant: "overlay",
-    overlayOpacity: 65,
+    overlayOpacity: 60,
     textAlignment: "left",
     isPublished: true,
     targetSlug: "memberships",
@@ -126,10 +129,11 @@ export const MOCK_HEROES: Record<string, HeroPayload> = {
     subtitle:
       "Our concierge team is ready to assist with membership inquiries, partnerships, and more.",
     mediaType: "image",
+    // Sophisticated hotel concierge/reception area
     imageUrl:
-      "https://images.unsplash.com/photo-1521737711867-e3b97375f902?auto=format&fit=crop&w=2400&q=80",
+      "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?auto=format&fit=crop&w=2400&q=80",
     layoutVariant: "overlay",
-    overlayOpacity: 70,
+    overlayOpacity: 65,
     textAlignment: "center",
     isPublished: true,
     targetSlug: "contact",
@@ -139,12 +143,13 @@ export const MOCK_HEROES: Record<string, HeroPayload> = {
     internalName: "Partners Hero",
     title: "Our Partners & Clients",
     subtitle:
-      "World-renowned brands and tastemakers rely on EliteSport to curate elevated training experiences.",
+      "World-renowned brands and tastemakers rely on EliteSport to curate elevated lifestyle experiences.",
     mediaType: "image",
+    // Elegant rooftop lounge or upscale hospitality setting
     imageUrl:
-      "https://images.unsplash.com/photo-1600880292203-757bb62b4baf?auto=format&fit=crop&w=2400&q=80",
+      "https://images.unsplash.com/photo-1445019980597-93fa8acb246c?auto=format&fit=crop&w=2400&q=80",
     layoutVariant: "overlay",
-    overlayOpacity: 65,
+    overlayOpacity: 60,
     textAlignment: "left",
     isPublished: true,
     targetSlug: "partners-clients",
@@ -228,24 +233,25 @@ export const MOCK_PROMOTIONS: PromotionRecord[] = [
           {
             _type: "span",
             _key: "s1",
-            text: "Enjoy exclusive summer rates at our partner hotels with complimentary spa treatments and fitness classes.",
+            text: "Enjoy exclusive summer rates at our partner hotels with complimentary spa treatments and poolside service.",
           },
         ],
         markDefs: [],
       },
     ],
     overviewText:
-      "Enjoy exclusive summer rates at our partner hotels with complimentary spa treatments and fitness classes.",
+      "Enjoy exclusive summer rates at our partner hotels with complimentary spa treatments and poolside service.",
     benefits: [
       "20% off room rates",
       "Complimentary spa access",
-      "Free fitness classes",
+      "Priority pool cabana booking",
       "Welcome amenity",
     ],
     ctaLabel: "Book Now",
     ctaAction: "/contact",
+    // Luxury resort pool with sun loungers
     featuredImageUrl:
-      "https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=1400&q=80",
+      "https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?auto=format&fit=crop&w=1400&q=80",
     discountPercentage: 20,
     isPublished: true,
     publishStartDate: "2024-06-01",
@@ -253,7 +259,7 @@ export const MOCK_PROMOTIONS: PromotionRecord[] = [
   },
   {
     _id: "promo-2",
-    title: "Gym Partner Discount",
+    title: "Wellness Partner Discount",
     promotionType: "gym",
     overview: [
       {
@@ -280,8 +286,9 @@ export const MOCK_PROMOTIONS: PromotionRecord[] = [
     ],
     ctaLabel: "Learn More",
     ctaAction: "/contact",
+    // Elegant hotel terrace or lounge setting
     featuredImageUrl:
-      "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=1400&q=80",
+      "https://images.unsplash.com/photo-1584132967334-10e028bd69f7?auto=format&fit=crop&w=1400&q=80",
     discountPercentage: 15,
     isPublished: true,
     publishStartDate: "2024-01-01",
@@ -289,7 +296,7 @@ export const MOCK_PROMOTIONS: PromotionRecord[] = [
   },
   {
     _id: "promo-3",
-    title: "Ladies Night Special",
+    title: "Ladies Wellness Evening",
     promotionType: "female",
     overview: [
       {
@@ -300,31 +307,32 @@ export const MOCK_PROMOTIONS: PromotionRecord[] = [
           {
             _type: "span",
             _key: "s1",
-            text: "Every Thursday enjoy extended hours and exclusive classes at our women-only facilities.",
+            text: "Every Thursday enjoy extended spa hours and exclusive wellness experiences at our women-only facilities.",
           },
         ],
         markDefs: [],
       },
     ],
     overviewText:
-      "Every Thursday enjoy extended hours and exclusive classes at our women-only facilities.",
+      "Every Thursday enjoy extended spa hours and exclusive wellness experiences at our women-only facilities.",
     benefits: [
       "Extended hours until 11pm",
-      "Exclusive yoga sessions",
-      "Complimentary smoothies",
+      "Exclusive spa treatments",
+      "Complimentary refreshments",
       "Guest passes available",
     ],
     ctaLabel: "Join Now",
     ctaAction: "/contact",
+    // Elegant spa or wellness lounge setting
     featuredImageUrl:
-      "https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=1400&q=80",
+      "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?auto=format&fit=crop&w=1400&q=80",
     isPublished: true,
     publishStartDate: "2024-01-01",
     publishEndDate: "2025-12-31",
   },
   {
     _id: "promo-4",
-    title: "Kids Summer Camp",
+    title: "Kids Summer Resort",
     promotionType: "kids",
     overview: [
       {
@@ -335,24 +343,25 @@ export const MOCK_PROMOTIONS: PromotionRecord[] = [
           {
             _type: "span",
             _key: "s1",
-            text: "Keep your children active during school holidays with our multi-sport summer camps.",
+            text: "Keep your children entertained during school holidays with our curated resort experiences.",
           },
         ],
         markDefs: [],
       },
     ],
     overviewText:
-      "Keep your children active during school holidays with our multi-sport summer camps.",
+      "Keep your children entertained during school holidays with our curated resort experiences.",
     benefits: [
       "Weekly programs",
-      "Multi-sport activities",
-      "Certified coaches",
-      "Healthy lunch included",
+      "Beach and pool activities",
+      "Supervised adventures",
+      "Healthy meals included",
     ],
     ctaLabel: "Register",
     ctaAction: "/contact",
+    // Family-friendly resort pool or beach
     featuredImageUrl:
-      "https://images.unsplash.com/photo-1472745942893-4b9f730c7668?auto=format&fit=crop&w=1400&q=80",
+      "https://images.unsplash.com/photo-1573843981267-be1999ff37cd?auto=format&fit=crop&w=1400&q=80",
     discountPercentage: 10,
     isPublished: true,
     publishStartDate: "2024-06-01",
@@ -360,7 +369,7 @@ export const MOCK_PROMOTIONS: PromotionRecord[] = [
   },
   {
     _id: "promo-5",
-    title: "Tennis Coaching Package",
+    title: "Tennis & Leisure Package",
     promotionType: "tennisSquash",
     overview: [
       {
@@ -371,24 +380,25 @@ export const MOCK_PROMOTIONS: PromotionRecord[] = [
           {
             _type: "span",
             _key: "s1",
-            text: "10 private tennis lessons with our certified pros at a special member rate.",
+            text: "10 private tennis sessions at our resort courts with spa access included.",
           },
         ],
         markDefs: [],
       },
     ],
     overviewText:
-      "10 private tennis lessons with our certified pros at a special member rate.",
+      "10 private tennis sessions at our resort courts with spa access included.",
     benefits: [
-      "10 private lessons",
-      "Video analysis included",
-      "Court booking priority",
-      "Equipment discount",
+      "10 private sessions",
+      "Premium court access",
+      "Post-session spa treatment",
+      "Equipment provided",
     ],
     ctaLabel: "Book Sessions",
     ctaAction: "/contact",
+    // Luxury resort tennis court or club setting
     featuredImageUrl:
-      "https://images.unsplash.com/photo-1551773188-0801da12ddda?auto=format&fit=crop&w=1400&q=80",
+      "https://images.unsplash.com/photo-1622279457486-62dcc4a431d6?auto=format&fit=crop&w=1400&q=80",
     discountPercentage: 25,
     isPublished: true,
     publishStartDate: "2024-01-01",
@@ -570,24 +580,29 @@ export const MOCK_MEMBERSHIPS: MembershipInfo[] = [
     ],
     faq: [
       {
-        question: "How do I upgrade my membership?",
+        question: "What Is Elite Membership and How Does It Work?",
         answer:
-          "Contact our membership team via the app or website. Upgrades are prorated based on your remaining membership period.",
+          "Elite Membership gives you access to a curated network of premium hotels, gyms, and lifestyle partners across the UAE through one simple membership.",
       },
       {
-        question: "Can I freeze my membership?",
+        question: "What Benefits Do I Get With Elite Membership?",
         answer:
-          "Yes, members can freeze their membership for up to 3 months per year for medical or travel reasons.",
+          "Enjoy exclusive access, special privileges, and premium experiences across fitness, wellness, hospitality, and dining.",
       },
       {
-        question: "Are there family membership options?",
+        question: "Can I Use My Elite Membership Across the UAE?",
         answer:
-          "Gold and Silver tiers offer family benefits. Contact our team for family package pricing.",
+          "Yes. Elite Membership is valid across multiple partner locations throughout the UAE.",
       },
       {
-        question: "What happens if a partner location closes?",
+        question: "How Can I Activate, Renew, or Upgrade My Elite Membership?",
         answer:
-          "We continuously update our network. If a location closes, we'll direct you to the nearest alternative partner.",
+          "Activation is instant, and you can renew or upgrade easily whenever your needs change.",
+      },
+      {
+        question: "Why Should I Join Elite Membership Today?",
+        answer:
+          "One membership. Endless premium experiences—designed to elevate your lifestyle.",
       },
     ],
   },
@@ -636,13 +651,13 @@ export const MOCK_ABOUT: AboutInfo = {
   missionSectionEyebrow: "Our Purpose",
   missionSectionTitle: "Mission & Vision",
   missionStatement:
-    "To provide discerning individuals with seamless access to the world's finest fitness and wellness destinations, creating a global community united by the pursuit of excellence.",
+    "Encouraging children, families, and employees to have a healthy lifestyle by being active and avoiding chronic diseases.",
   missionImageUrl:
-    "https://images.unsplash.com/photo-1571902943202-507ec2618e8f?auto=format&fit=crop&w=1800&q=80",
+    "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=1800&q=80",
   vision:
-    "To become the definitive global platform connecting elite travelers with exceptional fitness experiences, transforming how the world's most ambitious individuals maintain their wellness routines wherever life takes them.",
+    "Spreading our delightful service and expanding it through the GCC countries, aiming for better health and an active lifestyle for our communities.",
   visionImageUrl:
-    "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=1800&q=80",
+    "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1800&q=80",
   valuesSectionEyebrow: "What We Stand For",
   valuesSectionTitle: "Our Values",
   valuesSectionDescription:
@@ -727,4 +742,3 @@ export const MOCK_CONTACT: ContactInfo = {
 export const getContactInfo = (): ContactInfo => {
   return MOCK_CONTACT;
 };
-

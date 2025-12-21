@@ -9,13 +9,14 @@ import { ButtonLink } from "@/components/ButtonLink";
 import { Container } from "@/components/Container";
 import { Hero } from "@/components/Hero";
 import { MembershipCard } from "@/components/MembershipCard";
+import { MembershipScrollSection } from "@/components/MembershipScrollSection";
 import {
   PlaceCard,
   usePlaceModal,
   type Place,
 } from "@/components/places";
 import {
-  PromotionCard,
+  PromotionMarquee,
   PromotionModal,
   type PromotionCardContent,
 } from "@/components/promotions";
@@ -147,6 +148,9 @@ export default function Home(
                 
                 {/* Text Content - Right Side */}
                 <div className="space-y-6 order-1 lg:order-2 text-center lg:text-left">
+                  <p className="text-xs uppercase tracking-[0.35em] text-brand-lightBlue">
+                    About Us
+                  </p>
                   {aboutHero.title && (
                     <h2 className="font-display text-3xl font-semibold leading-[1.1] tracking-[-0.02em] text-brand-ivory sm:text-4xl sm:leading-[1.08] lg:text-5xl lg:leading-[1.06]">
                       {aboutHero.title}
@@ -222,7 +226,7 @@ export default function Home(
         >
           {promotionCards.length > 0 ? (
             <>
-              <LatestPromotionsGrid
+              <PromotionMarquee
                 promotions={promotionCards}
                 onSelect={(promotion) => {
                   setSelectedPromotion(promotion);
@@ -253,45 +257,11 @@ export default function Home(
           }}
         />
 
-        <Section
-          eyebrow="Membership Tiers"
-          title="Unlock Elite Access"
-          description="Choose the membership level that fits your training needs and lifestyle."
-          className="bg-brand-deepBlue/20"
-        >
-          {tiers.length > 0 ? (
-            <>
-              <motion.div
-                className="grid gap-6 md:grid-cols-2 xl:grid-cols-3"
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true, amount: 0.2 }}
-                variants={{
-                  visible: {
-                    transition: { staggerChildren: 0.15 },
-                  },
-                }}
-              >
-                {tiers.map((tier, index) => (
-                  <div key={tier.name ?? index} className="h-full">
-                    <MembershipCard tier={tier} index={index} />
-                  </div>
-                ))}
-              </motion.div>
-              {allTiers.length > 3 && (
-                <div className="mt-10 flex justify-center">
-                  <ButtonLink href="/memberships" variant="secondary">
-                    View All Tiers
-                  </ButtonLink>
-                </div>
-              )}
-            </>
-          ) : (
-            <p className="glass-card border border-dashed border-white/25 px-6 py-8 text-center text-sm text-brand-gray">
-              Membership tiers coming soon.
-            </p>
-          )}
-        </Section>
+        {/* Premium Scroll-Controlled Membership Section */}
+        <MembershipScrollSection 
+          tiers={tiers} 
+          allTiersCount={allTiers.length} 
+        />
 
       </div>
     </>
@@ -353,43 +323,6 @@ const AboutHeroImage = ({
     </div>
   );
 };
-
-const LatestPromotionsGrid = ({
-  promotions,
-  onSelect,
-}: {
-  promotions: PromotionCardContent[];
-  onSelect?: (promotion: PromotionCardContent) => void;
-}) => {
-  return (
-    <motion.div
-      className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
-      variants={cardVariants}
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true, amount: 0.2 }}
-    >
-      {promotions.map((promotion, index) => (
-        <motion.div
-          key={promotion.id}
-          variants={cardVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.2 }}
-          transition={{ delay: index * 0.1 }}
-        >
-          <PromotionCard
-            promotion={promotion}
-            layout="grid"
-            showDescription={true}
-            onSelect={onSelect ? () => onSelect(promotion) : undefined}
-          />
-        </motion.div>
-      ))}
-    </motion.div>
-  );
-};
-
 
 export const getStaticProps: GetStaticProps<HomePageProps> = async () => {
   // Fetch promotions from API (sorted by date, newest first)

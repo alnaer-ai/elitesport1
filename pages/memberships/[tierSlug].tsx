@@ -1,4 +1,5 @@
 import Head from "next/head";
+import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import {
@@ -11,7 +12,6 @@ import { motion } from "framer-motion";
 import { ButtonLink, secondaryButtonClasses } from "@/components/ButtonLink";
 import { BusinessContactModal } from "@/components/BusinessContactModal";
 import { Container } from "@/components/Container";
-import { Hero } from "@/components/Hero";
 import { type HeroPayload } from "@/lib/hero";
 import {
   collectMembershipTiers,
@@ -28,7 +28,7 @@ const checkIconPath = "M20 6L9 17L4 12";
 type MembershipTierPageProps = {
   membership: MembershipInfo;
   tier: MembershipTier;
-  hero: HeroPayload | null;
+  aboutHero: HeroPayload | null;
 };
 
 const motionItem = {
@@ -43,7 +43,7 @@ const motionItem = {
 export default function MembershipTierPage({
   membership,
   tier,
-  hero,
+  aboutHero,
 }: InferGetStaticPropsType<typeof getStaticProps>) {
   const [isBusinessModalOpen, setIsBusinessModalOpen] = useState(false);
   const tierName = tier.name ?? "Membership tier";
@@ -89,7 +89,50 @@ export default function MembershipTierPage({
       </Head>
 
       <div className="space-y-14 pb-20">
-        <Hero hero={hero} customOverlayColor={currentTierColor} />
+        {aboutHero && aboutHero.isPublished !== false && (
+          <section className="py-10">
+            <Container>
+              <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
+                {aboutHero.imageUrl && (
+                  <div className="relative order-2 lg:order-1">
+                    <div className="glass-card premium-card overflow-hidden rounded-[32px]">
+                      <div className="relative aspect-[4/3] w-full overflow-hidden">
+                        <Image
+                          src={aboutHero.imageUrl}
+                          alt={aboutHero.title ?? "About EliteSport"}
+                          fill
+                          sizes="(max-width: 1024px) 100vw, 50vw"
+                          className="object-cover"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                <div className="order-1 space-y-6 text-center lg:order-2 lg:text-left">
+                  <p className="text-xs uppercase tracking-[0.35em] text-brand-lightBlue">
+                    About Us
+                  </p>
+                  {aboutHero.title && (
+                    <h2 className="font-display text-3xl font-semibold leading-[1.1] tracking-[-0.02em] text-brand-ivory sm:text-4xl sm:leading-[1.08] lg:text-5xl lg:leading-[1.06]">
+                      {aboutHero.title}
+                    </h2>
+                  )}
+                  {aboutHero.subtitle && (
+                    <p className="font-sans text-base font-light leading-[1.7] tracking-[0.01em] text-brand-ivory sm:text-lg sm:leading-[1.75] md:text-xl md:leading-[1.8]">
+                      {aboutHero.subtitle}
+                    </p>
+                  )}
+                  <div className="pt-4">
+                    <ButtonLink href="/about" variant="secondary">
+                      Learn More About Us
+                    </ButtonLink>
+                  </div>
+                </div>
+              </div>
+            </Container>
+          </section>
+        )}
         <section>
           <Container className="space-y-10">
             <div
@@ -450,13 +493,13 @@ export const getStaticProps: GetStaticProps<MembershipTierPageProps> = async ({
     };
   }
 
-  const hero = getPageHero("memberships");
+  const aboutHero = getPageHero("about");
 
   return {
     props: {
       membership: tierEntry.membership,
       tier: tierEntry.tier,
-      hero: hero ?? null,
+      aboutHero: aboutHero ?? null,
     },
     revalidate: 60,
   };

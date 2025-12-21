@@ -5,3 +5,5 @@ export * from "./Layout";
 export * from "./FamilyFriendlyIcon";
 export * from "./Hero";
 export * from "./promotions";
+export * from "./MembershipScrollSection";
+export * from "./SpecialFeatures";

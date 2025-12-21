@@ -1,10 +1,29 @@
 import Image from "next/image";
 import Link from "next/link";
+import { motion } from "framer-motion";
 
 import { cn } from "@/lib/cn";
 import { HeroPayload } from "@/lib/hero";
 
 import { Container } from "./Container";
+
+const ScrollIndicator = () => (
+  <motion.div 
+    className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10"
+    initial={{ opacity: 0, y: -10 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.6, delay: 1.2 }}
+  >
+    <div className="flex flex-col items-center gap-2 text-brand-ivory/40">
+      <span className="text-[0.65rem] uppercase tracking-[0.3em]">Scroll</span>
+      <motion.div 
+        className="h-8 w-px bg-gradient-to-b from-brand-ivory/40 to-transparent"
+        animate={{ scaleY: [1, 0.6, 1] }}
+        transition={{ duration: 1.5, repeat: Infinity }}
+      />
+    </div>
+  </motion.div>
+);
 
 const alignmentClasses: Record<string, string> = {
   left: "text-left",
@@ -33,7 +52,7 @@ const HeroTitle = ({ title }: { title: string }) => {
     line2 = oneMatch[2].trim(); // "One Membership"
   }
 
-  const highlightWords = ["one", "happiness"];
+  const highlightWords = ["one", "happiness", "happniess"];
 
   const renderText = (text: string) => {
     return text.split(/\s+/).map((word, index, words) => {
@@ -107,7 +126,9 @@ export const Hero = ({ hero, customOverlayColor }: HeroProps) => {
       )}
       {hero.ctaLabel && hero.ctaLink && (
         <div className="pt-2">
-          <HeroCta href={hero.ctaLink}>{hero.ctaLabel}</HeroCta>
+          <HeroCta href={hero.ctaLink} alignment={alignment}>
+            {hero.ctaLabel}
+          </HeroCta>
         </div>
       )}
     </div>
@@ -115,7 +136,7 @@ export const Hero = ({ hero, customOverlayColor }: HeroProps) => {
 
   if (layout === "split") {
     return (
-      <section className="border-b border-brand-deepBlue/60 bg-brand-black">
+      <section className="bg-brand-black">
         <Container className="py-20">
           <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
             {content}
@@ -128,7 +149,7 @@ export const Hero = ({ hero, customOverlayColor }: HeroProps) => {
 
   if (layout === "centered") {
     return (
-      <section className="border-b border-brand-deepBlue/60 bg-gradient-to-br from-brand-black via-brand-deepBlue/30 to-brand-black">
+      <section className="bg-gradient-to-br from-brand-black via-brand-deepBlue/30 to-brand-black">
         <Container className="py-20">
           {content}
           {hasMedia && (
@@ -142,7 +163,7 @@ export const Hero = ({ hero, customOverlayColor }: HeroProps) => {
   }
 
   return (
-    <section className="relative isolate overflow-hidden border-b border-brand-deepBlue/70">
+    <section className="relative isolate -mt-20 min-h-[85vh] overflow-hidden pt-20 sm:-mt-24 sm:pt-24">
       <div className="absolute inset-0">
         <HeroBackground hero={hero} />
         <div
@@ -152,10 +173,13 @@ export const Hero = ({ hero, customOverlayColor }: HeroProps) => {
             opacity: overlayOpacity,
           }}
         />
+        {/* Gradient fade overlay for consistent visual effect */}
+        <div className="hero-gradient-fade" />
       </div>
-      <Container className="relative z-10 py-24 sm:py-32">
+      <Container className="relative z-10 flex min-h-[85vh] flex-col justify-center py-24 sm:py-32">
         {content}
       </Container>
+      <ScrollIndicator />
     </section>
   );
 };
@@ -242,30 +266,99 @@ const HeroImage = ({ hero }: { hero: HeroPayload }) => {
   );
 };
 
-const HeroCta = ({ href, children }: { href: string; children: string }) => {
+const AppleStoreLogo = () => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    className="h-6 w-6"
+    aria-hidden="true"
+  >
+    <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />
+  </svg>
+);
+
+const GooglePlayLogo = () => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    className="h-6 w-6"
+    aria-hidden="true"
+  >
+    <path d="M3.609 1.814L13.792 12 3.61 22.186a.996.996 0 0 1-.61-.92V2.734a1 1 0 0 1 .609-.92zm10.89 10.893l2.302 2.302-10.937 6.333 8.635-8.635zm3.199-3.198l2.807 1.626a1 1 0 0 1 0 1.73l-2.808 1.626L15.206 12l2.492-2.491zM5.864 2.658L16.8 8.99l-2.302 2.302-8.634-8.634z" />
+  </svg>
+);
+
+const APP_STORE_URL = "https://apps.apple.com/ae/app/elite-sport/id1558697337";
+const PLAY_STORE_URL =
+  "https://play.google.com/store/apps/details?id=com.alrumaithyest.elitesport&pli=1";
+
+const StoreBadge = ({
+  href,
+  icon: Icon,
+  label,
+}: {
+  href: string;
+  icon: React.ComponentType;
+  label: string;
+}) => (
+  <a
+    href={href}
+    target="_blank"
+    rel="noopener noreferrer"
+    aria-label={label}
+    className="inline-flex items-center justify-center rounded-full p-3 text-brand-ivory transition-all duration-300 hover:text-brand-gold hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-lightBlue focus-visible:ring-offset-2 focus-visible:ring-offset-brand-black"
+  >
+    <Icon />
+  </a>
+);
+
+const HeroCta = ({
+  href,
+  children,
+  alignment = "left",
+}: {
+  href: string;
+  children: string;
+  alignment?: string;
+}) => {
   const isAnchor = href.startsWith("#");
   const isInternal = href.startsWith("/");
   const className = cn(heroButtonBase, heroButtonVariants.primary);
-  if (isInternal) {
-    return (
-      <Link href={href} className={className}>
-        {children}
-      </Link>
-    );
-  }
 
-  if (isAnchor) {
-    return (
-      <a href={href} className={className}>
-        {children}
-      </a>
-    );
-  }
-
-  return (
+  const ctaButton = isInternal ? (
+    <Link href={href} className={className}>
+      {children}
+    </Link>
+  ) : (
     <a href={href} className={className}>
       {children}
     </a>
+  );
+
+  const alignClass =
+    alignment === "center"
+      ? "items-center"
+      : alignment === "right"
+      ? "items-end"
+      : "items-start";
+
+  return (
+    <div className={cn("flex flex-col gap-6", alignClass)}>
+      {ctaButton}
+      <div className="flex items-center gap-4">
+        <span className="text-sm text-brand-ivory">Download our app</span>
+        <StoreBadge
+          href={APP_STORE_URL}
+          icon={AppleStoreLogo}
+          label="Download on the App Store"
+        />
+        <StoreBadge
+          href={PLAY_STORE_URL}
+          icon={GooglePlayLogo}
+          label="Get it on Google Play"
+        />
+      </div>
+    </div>
   );
 };
 

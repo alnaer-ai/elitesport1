@@ -51,6 +51,23 @@
 }
 
 @layer components {
+  /* Hero gradient fade overlay - smooth top-to-bottom transition from transparent to deep black */
+  .hero-gradient-fade {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to bottom,
+      transparent 0%,
+      transparent 20%,
+      rgba(5, 6, 9, 0.15) 35%,
+      rgba(5, 6, 9, 0.4) 50%,
+      rgba(5, 6, 9, 0.7) 70%,
+      rgba(5, 6, 9, 0.9) 85%,
+      rgb(5, 6, 9) 100%
+    );
+    pointer-events: none;
+  }
+
   .glass-card {
     --glass-border: rgba(255, 255, 255, 0.16);
     --glass-bg:
@@ -237,5 +254,27 @@
   .logo-card-clean.premium-card:hover {
     transform: translateY(-2px);
     box-shadow: none !important;
+  }
+
+  /* Marquee Animation */
+  @keyframes marquee {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(var(--marquee-distance, -100%));
+    }
+  }
+
+  .animate-marquee {
+    animation: marquee var(--marquee-speed, 30s) linear infinite;
+    will-change: transform;
+  }
+
+  /* Respect reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .animate-marquee {
+      animation: none;
+    }
   }
 }

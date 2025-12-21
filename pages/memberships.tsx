@@ -6,6 +6,7 @@ import { ButtonLink, secondaryButtonClasses } from "@/components/ButtonLink";
 import { Container } from "@/components/Container";
 import { Hero } from "@/components/Hero";
 import { MembershipCard } from "@/components/MembershipCard";
+import { SpecialFeaturesSection } from "@/components/SpecialFeatures";
 import { type HeroPayload } from "@/lib/hero";
 import {
   collectMembershipFaqs,
@@ -46,6 +47,7 @@ export default function MembershipsPage({
 
       <div className="space-y-10 pb-20">
         <Hero hero={hero} />
+        <SpecialFeaturesSection />
         <section id="membership-tiers">
           <Container className="space-y-12">
             <div className="space-y-4 text-center sm:text-left">
