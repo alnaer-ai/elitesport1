@@ -47,10 +47,12 @@ export const MOCK_HEROES: Record<string, HeroPayload> = {
     internalName: "Home Hero",
     title: "Fitness is Happniess",
     subtitle: null,
-    mediaType: "image",
-    // Premium infinity pool at luxury resort - no gym imagery
-    imageUrl:
-      "https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=2400&q=80",
+    mediaType: "video",
+    video: {
+      file: {
+        url: "/heroo.mp4",
+      },
+    },
     ctaLabel: "Explore Memberships",
     ctaLink: "/memberships",
     layoutVariant: "overlay",
