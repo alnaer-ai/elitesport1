@@ -73,12 +73,12 @@ export const PromotionMarquee = ({
     // Use requestAnimationFrame to ensure DOM is ready
     requestAnimationFrame(() => {
       calculateWidth();
-      
+
       // Also observe for resize changes
       resizeObserver = new ResizeObserver(() => {
         requestAnimationFrame(calculateWidth);
       });
-      
+
       if (trackRef.current) {
         resizeObserver.observe(trackRef.current);
       }
@@ -118,24 +118,27 @@ export const PromotionMarquee = ({
         ref={trackRef}
         className={cn(
           "flex gap-6 will-change-transform",
-          !prefersReducedMotion && singleSetWidth > 0 && "animate-marquee",
+          // Manual scroll on mobile, marquee on desktop
+          "overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide md:overflow-visible md:pb-0 md:snap-none",
+          "[-webkit-overflow-scrolling:touch]",
+          !prefersReducedMotion && singleSetWidth > 0 && "md:animate-marquee",
           prefersReducedMotion && "justify-center flex-wrap"
         )}
         style={
           !prefersReducedMotion && singleSetWidth > 0
             ? {
-                // CSS custom properties for dynamic animation
-                "--marquee-speed": `${speed}s`,
-                "--marquee-distance": `-${singleSetWidth}px`,
-                animationPlayState: isPaused ? "paused" : "running",
-              } as React.CSSProperties
+              // CSS custom properties for dynamic animation
+              "--marquee-speed": `${speed}s`,
+              "--marquee-distance": `-${singleSetWidth}px`,
+              animationPlayState: isPaused ? "paused" : "running",
+            } as React.CSSProperties
             : undefined
         }
       >
-        {duplicatedPromotions.map((promotion, index) => (
+        {(prefersReducedMotion ? promotions : duplicatedPromotions).map((promotion, index) => (
           <div
             key={`${promotion.id}-${index}`}
-            className="flex-shrink-0 w-[280px] sm:w-[300px] lg:w-[320px]"
+            className="flex-shrink-0 w-[280px] sm:w-[300px] lg:w-[320px] snap-center"
           >
             <PromotionCard
               promotion={promotion}

@@ -3,20 +3,19 @@ import { GetServerSideProps, InferGetServerSidePropsType } from "next";
 import { type MouseEvent } from "react";
 
 import { Container } from "@/components/Container";
-import { Hero } from "@/components/Hero";
+
 import {
   PlaceCard,
   usePlaceModal,
   type Place,
 } from "@/components/places";
 import { cn } from "@/lib/cn";
-import { type HeroPayload } from "@/lib/hero";
-import { getPageHero, type Place as MockPlace } from "@/lib/mockData";
+import { type Place as MockPlace } from "@/lib/mockData";
 import { getHotelsAsPlaces } from "@/lib/api/hotels";
 
 type PlacesPageProps = {
   places: Place[];
-  hero: HeroPayload | null;
+
 };
 
 const PLACE_SECTIONS = [
@@ -60,7 +59,6 @@ const PLACE_SECTIONS = [
 
 export default function PlacesPage({
   places,
-  hero,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const placesByCategory = PLACE_SECTIONS.map((section) => ({
     ...section,
@@ -96,7 +94,19 @@ export default function PlacesPage({
       </Head>
 
       <div className="space-y-10 pb-20">
-        <Hero hero={hero} />
+        <div className="pt-24 pb-8 md:pt-32 md:pb-12">
+          <Container>
+            <div className="max-w-3xl space-y-6">
+              <h1 className="text-5xl font-light text-brand-ivory md:text-6xl lg:text-7xl">
+                Elite Destinations
+              </h1>
+              <p className="max-w-2xl text-lg text-brand-gray md:text-xl leading-relaxed">
+                Curated residences and retreats where hospitality, wellness, and elevated living are seamlessly woven together.
+              </p>
+            </div>
+          </Container>
+        </div>
+
         {navigableSections.length > 0 && (
           <Container className="flex flex-wrap gap-3 border-b border-brand-deepBlue/50 pb-8">
             {navigableSections.map((section) => (
@@ -192,12 +202,11 @@ export const getServerSideProps: GetServerSideProps<PlacesPageProps> = async () 
 
   const places: Place[] = [...apiHotels];
 
-  const hero = getPageHero("places");
+
 
   return {
     props: {
       places,
-      hero: hero ?? null,
     },
   };
 };

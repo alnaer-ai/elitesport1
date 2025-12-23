@@ -1,45 +1,48 @@
 import Head from "next/head";
 import Image from "next/image";
+import path from "path";
+import fs from "fs";
 import { GetStaticProps, InferGetStaticPropsType } from "next";
-import { motion } from "framer-motion";
+import { motion, Variants } from "framer-motion";
+import Link from "next/link";
 
 import { Container } from "@/components/Container";
-import { Hero } from "@/components/Hero";
 import { cn } from "@/lib/cn";
-import { type HeroPayload } from "@/lib/hero";
-import {
-  getPageHero,
-} from "@/lib/mockData";
+
 
 type PartnersClientsPageProps = {
   entries: Array<{
     _id: string;
-    name?: string;
-    category?: "client" | "partner" | "sponsor";
-    logoUrl?: string;
-    logoAlt?: string;
+    name: string;
+    category: "client" | "partner" | "sponsor";
+    logoUrl: string;
+    logoAlt: string;
     website?: string;
   }>;
-  hero: HeroPayload | null;
 };
+
 
 const gridAnimation = {
   hidden: {},
   visible: {
     transition: {
-      staggerChildren: 0.08,
+      staggerChildren: 0.05,
     },
   },
 };
 
-const cardAnimation = {
-  hidden: { opacity: 0, y: 24 },
-  visible: { opacity: 1, y: 0 },
+const cardAnimation: Variants = {
+  hidden: { opacity: 0, scale: 0.95 },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    transition: { duration: 0.4, ease: [0.25, 0.4, 0.55, 1] }
+  },
 };
 
 export default function PartnersClientsPage({
   entries,
-  hero,
+
 }: InferGetStaticPropsType<typeof getStaticProps>) {
   const partners = entries.filter((entry) => entry.category === "partner");
   const clients = entries.filter((entry) => entry.category === "client");
@@ -54,23 +57,23 @@ export default function PartnersClientsPage({
         />
       </Head>
 
-      <div className="space-y-10 pb-20">
-        <Hero hero={hero} />
+      <div className="space-y-16 pb-24 md:space-y-24">
+
+
         <LogoGridSection
           title="Partners"
           eyebrow="Global Collaborators"
           description="Elite hospitality groups, wellness pioneers, and sport innovators partnering with us to craft elevated guest experiences."
           items={partners}
           emptyState="Partners will display here."
-          cardClassName="text-brand-ivory/90 [--glass-glow:rgba(125,190,220,0.12)]"
         />
+
         <LogoGridSection
           title="Clients"
           eyebrow="Trusted Clients"
           description="Members, private families, and executive teams who count on EliteSport to deliver seamless training itineraries."
           items={clients}
           emptyState="Client entries will display here."
-          cardClassName="text-brand-ivory/80 [--glass-glow:rgba(197,163,91,0.12)]"
         />
       </div>
     </>
@@ -83,7 +86,6 @@ const LogoGridSection = ({
   description,
   items,
   emptyState,
-  cardClassName,
 }: {
   title: string;
   eyebrow: string;
@@ -97,32 +99,38 @@ const LogoGridSection = ({
     website?: string;
   }>;
   emptyState: string;
-  cardClassName: string;
 }) => {
   return (
     <section>
-      <Container className="space-y-8">
-        <div className="space-y-3 text-center md:text-left">
-          <p className="text-xs uppercase tracking-[0.4em] text-brand-lightBlue">{eyebrow}</p>
-          <h2 className="text-3xl text-brand-ivory sm:text-4xl">{title}</h2>
-          <p className="text-base text-brand-gray/90 sm:max-w-3xl">{description}</p>
+      <Container className="space-y-12">
+        <div className="mx-auto max-w-3xl space-y-4 text-center">
+          <p className="text-xs font-medium uppercase tracking-[0.3em] text-brand-gold">
+            {eyebrow}
+          </p>
+          <h2 className="text-3xl font-light text-brand-ivory sm:text-4xl md:text-5xl">
+            {title}
+          </h2>
+          <p className="mx-auto max-w-2xl text-base leading-relaxed text-brand-gray/80 sm:text-lg">
+            {description}
+          </p>
         </div>
+
         {items.length > 0 ? (
           <motion.div
-            className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+            className="grid grid-cols-2 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3"
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true, amount: 0.2 }}
+            viewport={{ once: true, margin: "-50px" }}
             variants={gridAnimation}
           >
             {items.map((item) => (
-              <LogoCard key={item._id} item={item} cardClassName={cardClassName} />
+              <LogoCard key={item._id} item={item} />
             ))}
           </motion.div>
         ) : (
-          <p className="glass-card-minimal border border-dashed border-white/10 px-6 py-8 text-center text-sm text-brand-gray">
+          <div className="flex min-h-[200px] items-center justify-center rounded-2xl border border-dashed border-white/10 bg-white/5 p-8 text-center text-sm text-brand-gray/60">
             {emptyState}
-          </p>
+          </div>
         )}
       </Container>
     </section>
@@ -131,7 +139,6 @@ const LogoGridSection = ({
 
 const LogoCard = ({
   item,
-  cardClassName,
 }: {
   item: {
     _id: string;
@@ -141,80 +148,123 @@ const LogoCard = ({
     logoAlt?: string;
     website?: string;
   };
-  cardClassName: string;
 }) => {
   const logoUrl = item.logoUrl;
-  const Wrapper = item.website ? "a" : "div";
-  const wrapperProps = item.website
-    ? {
-        href: item.website,
-        target: "_blank",
-        rel: "noreferrer noopener",
-        "aria-label": item.name ? `Visit ${item.name}` : undefined,
-      }
-    : {};
+  const isPartner = item.category === "partner";
+
+  // Clean up filename for display: remove extension and replace hyphens/underscores with spaces
+  const displayName = item.name
+    ? item.name.replace(/[-_]/g, ' ').replace(/\.[^/.]+$/, "")
+    : "Brand";
+
+  const CardContent = (
+    <div className="aspect-[4/3] w-full overflow-hidden rounded-xl bg-white p-8 shadow-sm transition-all duration-500 hover:shadow-xl hover:shadow-brand-gold/10 lg:p-10">
+      <div className="relative h-full w-full">
+        {logoUrl ? (
+          <Image
+            src={logoUrl}
+            alt={item.logoAlt ?? displayName}
+            fill
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
+            className="object-contain transition-transform duration-500 ease-out will-change-transform group-hover:scale-110"
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center text-brand-black/20">
+            <span className="sr-only">{displayName}</span>
+          </div>
+        )}
+      </div>
+    </div>
+  );
 
   return (
-    <Wrapper
-      {...wrapperProps}
+    <motion.div
+      variants={cardAnimation}
       className={cn(
-        "block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-lightBlue focus-visible:ring-offset-2 focus-visible:ring-offset-brand-black",
-        item.website ? "group" : "cursor-default"
+        "group relative",
+        isPartner && "cursor-pointer"
       )}
+      whileHover={isPartner ? { y: -5 } : {}}
     >
-      <motion.article
-        className={cn(
-          "logo-card-clean premium-card flex min-h-[14rem] flex-col items-center justify-center gap-3.5 px-4 py-6 text-center text-sm font-semibold transition",
-          cardClassName
-        )}
-        variants={cardAnimation}
-        whileHover={item.website ? { scale: 1.02 } : undefined}
-      >
-        {logoUrl ? (
-          <div className="flex w-full justify-center">
-            <div className="relative h-40 w-40 overflow-hidden rounded-xl bg-white p-4 shadow-[inset_0_1px_2px_rgba(0,0,0,0.08)]">
-              <Image
-                src={logoUrl}
-                alt={item.logoAlt ?? item.name ?? "Brand logo"}
-                fill
-                sizes="176px"
-                className="object-contain"
-              />
-            </div>
-          </div>
-        ) : (
-          item.name ?? "Featured Brand"
-        )}
-        <div>
-          <p className="text-base text-brand-ivory">
-            {item.name ?? "EliteSport Brand"}
-          </p>
-          {item.website && (
-            <p className="mt-1 text-xs uppercase tracking-[0.3em] text-brand-gold">
-              Visit Site
-            </p>
-          )}
-        </div>
-      </motion.article>
-    </Wrapper>
+      {isPartner ? (
+        <Link href="/places" className="block h-full w-full">
+          {CardContent}
+        </Link>
+      ) : (
+        CardContent
+      )}
+    </motion.div>
   );
 };
 
 export const getStaticProps: GetStaticProps<PartnersClientsPageProps> = async () => {
   const entries: Array<{
     _id: string;
-    name?: string;
-    category?: "client" | "partner" | "sponsor";
-    logoUrl?: string;
-    logoAlt?: string;
-    website?: string;
+    name: string;
+    category: "client" | "partner" | "sponsor";
+    logoUrl: string;
+    logoAlt: string;
   }> = [];
-  const hero = getPageHero("partners-clients");
+
+  const publicDir = path.join(process.cwd(), "public");
+
+  // Helper to safely find directory ignoring exact spacing issues if possible
+  const findDir = (base: string, search: string) => {
+    try {
+      const files = fs.readdirSync(base);
+      const match = files.find(f => f.includes(search) && fs.statSync(path.join(base, f)).isDirectory());
+      return match ? path.join(base, match) : null;
+    } catch {
+      return null;
+    }
+  };
+
+  const rootDirName = "partner & clients";
+  const partnerClientsPath = findDir(publicDir, rootDirName);
+
+  if (partnerClientsPath) {
+    const clientsPath = findDir(partnerClientsPath, "clients");
+    const partnersPath = findDir(partnerClientsPath, "partener");
+
+    const processDir = (dirPath: string, category: "client" | "partner") => {
+      if (!dirPath) return;
+      try {
+        const files = fs.readdirSync(dirPath);
+        files.forEach((file) => {
+          if (file.startsWith(".") || file === ".DS_Store") return;
+
+          const relativeDir = path.relative(publicDir, dirPath);
+          // Ensure we use the raw path components for the URL to preserving spaces/encoding as needed for the browser, 
+          // but we must be careful. Next.js typically serves files from public as-is.
+          // If folder is "foo bar", url is "/foo%20bar/file.png".
+          const pathParts = relativeDir.split(path.sep);
+          const encodedPath = pathParts.map(part => encodeURIComponent(part)).join("/");
+          const encodedFile = encodeURIComponent(file);
+          const urlPath = `/${encodedPath}/${encodedFile}`;
+
+          // Use a decoded version closer to raw string if Next JS image component handles it, 
+          // but standard web practice is encoded.
+
+          entries.push({
+            _id: `${category}-${file}`,
+            name: file,
+            category,
+            logoUrl: urlPath.replace(/%20/g, " "), // Try simpler space handling first if Next handles it.
+            logoAlt: file.replace(/\.[^/.]+$/, ""),
+          });
+        });
+      } catch (e) {
+        console.error(`Error reading ${category} directory:`, e);
+      }
+    };
+
+    if (clientsPath) processDir(clientsPath, "client");
+    if (partnersPath) processDir(partnersPath, "partner");
+  }
 
   return {
     props: {
       entries,
-      hero: hero ?? null,
     },
     revalidate: 60,
   };

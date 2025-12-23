@@ -653,11 +653,10 @@ export const MOCK_ABOUT: AboutInfo = {
   missionStatement:
     "Encouraging children, families, and employees to have a healthy lifestyle by being active and avoiding chronic diseases.",
   missionImageUrl:
-    "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=1800&q=80",
+    "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?auto=format&fit=crop&w=1800&q=80",
   vision:
     "Spreading our delightful service and expanding it through the GCC countries, aiming for better health and an active lifestyle for our communities.",
-  visionImageUrl:
-    "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1800&q=80",
+  visionImageUrl: "/image.png",
   valuesSectionEyebrow: "What We Stand For",
   valuesSectionTitle: "Our Values",
   valuesSectionDescription:

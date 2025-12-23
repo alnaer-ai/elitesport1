@@ -233,7 +233,7 @@ export default function AboutPage({
                       <div className="relative aspect-[16/10] overflow-hidden">
                         <Image
                           src={missionImageUrl}
-                          alt="Luxury resort pool overlooking the ocean"
+                          alt="Wellness and fitness training in a luxury setting"
                           fill
                           sizes="(max-width: 1024px) 100vw, 50vw"
                           className="object-cover transition-transform duration-700 group-hover:scale-105"

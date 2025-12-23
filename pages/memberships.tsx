@@ -4,25 +4,23 @@ import { motion } from "framer-motion";
 
 import { ButtonLink, secondaryButtonClasses } from "@/components/ButtonLink";
 import { Container } from "@/components/Container";
-import { Hero } from "@/components/Hero";
 import { MembershipCard } from "@/components/MembershipCard";
-import { SpecialFeaturesSection } from "@/components/SpecialFeatures";
-import { type HeroPayload } from "@/lib/hero";
+
 import {
   collectMembershipFaqs,
   collectMembershipTiers,
   type MembershipInfo,
 } from "@/lib/membership";
-import { getPageHero, getMemberships } from "@/lib/mockData";
+
+import { getMemberships } from "@/lib/mockData";
 
 type MembershipsPageProps = {
   memberships: MembershipInfo[];
-  hero: HeroPayload | null;
+
 };
 
 export default function MembershipsPage({
   memberships,
-  hero,
 }: InferGetStaticPropsType<typeof getStaticProps>) {
   const primaryMembership = memberships[0] ?? null;
   const title = primaryMembership?.title ?? "Memberships";
@@ -46,8 +44,20 @@ export default function MembershipsPage({
       </Head>
 
       <div className="space-y-10 pb-20">
-        <Hero hero={hero} />
-        <SpecialFeaturesSection />
+        <div className="pt-24 pb-8 md:pt-32 md:pb-12">
+          <Container>
+            <div className="max-w-3xl space-y-6">
+              <h1 className="text-5xl font-light text-brand-ivory md:text-6xl lg:text-7xl">
+                Unlock Elite Access
+              </h1>
+              <p className="max-w-2xl text-lg text-brand-gray md:text-xl leading-relaxed">
+                Choose the membership level that complements your lifestyle and wellness journey.
+              </p>
+            </div>
+          </Container>
+        </div>
+
+
         <section id="membership-tiers">
           <Container className="space-y-12">
             <div className="space-y-4 text-center sm:text-left">
@@ -175,12 +185,11 @@ export default function MembershipsPage({
 
 export const getStaticProps: GetStaticProps<MembershipsPageProps> = async () => {
   const memberships = getMemberships();
-  const hero = getPageHero("memberships");
+
 
   return {
     props: {
       memberships,
-      hero: hero ?? null,
     },
     revalidate: 60,
   };

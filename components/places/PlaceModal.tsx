@@ -182,7 +182,7 @@ export const PlaceModal = ({
 
   return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-brand-black/70 backdrop-blur-md p-4"
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-brand-black/70 backdrop-blur-md p-4"
       role="dialog"
       aria-modal="true"
       aria-label={`Place details for ${place.name ?? "this place"}`}
@@ -190,7 +190,7 @@ export const PlaceModal = ({
     >
       <div className="glass-card mx-auto w-full max-w-2xl rounded-[32px] overflow-hidden">
         <div className="relative h-64 w-full group">
-          <div 
+          <div
             ref={scrollContainerRef}
             className="flex h-full w-full overflow-x-auto snap-x snap-mandatory [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           >

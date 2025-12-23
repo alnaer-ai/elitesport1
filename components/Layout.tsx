@@ -27,12 +27,13 @@ const NAV_LINKS = [
   { href: "/partners-clients", label: "Partners & Clients" },
 ];
 
-type SocialIconName = "facebook" | "instagram" | "linkedin";
+type SocialIconName = "facebook" | "instagram" | "linkedin" | "whatsapp";
 
 const SOCIAL_LINKS: { href: string; label: string; icon: SocialIconName }[] = [
   { href: "#", label: "Facebook", icon: "facebook" },
   { href: "#", label: "Instagram", icon: "instagram" },
   { href: "#", label: "LinkedIn", icon: "linkedin" },
+  { href: "#", label: "WhatsApp", icon: "whatsapp" },
 ];
 
 export const Layout = ({ children }: LayoutProps) => {
@@ -40,7 +41,7 @@ export const Layout = ({ children }: LayoutProps) => {
     <div className="flex min-h-screen flex-col bg-brand-black text-brand-ivory">
       <a
         href="#main-content"
-        className="sr-only absolute left-4 top-4 z-50 inline-flex items-center rounded-full bg-brand-gold px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-brand-black focus-visible:not-sr-only focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-lightBlue"
+        className="sr-only absolute left-4 top-4 z-[100] inline-flex items-center rounded-full bg-brand-gold px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-brand-black focus-visible:not-sr-only focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-lightBlue"
       >
         Skip to content
       </a>
@@ -71,7 +72,7 @@ const SiteHeader = () => {
   }, [router.events]);
 
   return (
-    <header className="relative z-40 text-brand-ivory">
+    <header className="sticky top-0 z-50 text-brand-ivory">
       <div
         className="pointer-events-none absolute inset-0 bg-gradient-to-b from-brand-black/75 via-brand-black/45 to-transparent backdrop-blur-md"
         aria-hidden
@@ -157,15 +158,15 @@ const SiteHeader = () => {
       {isMenuOpen && (
         <nav
           id={mobileMenuId}
-          className="border-t border-brand-deepBlue/60 bg-brand-black md:hidden"
+          className="fixed inset-x-0 top-[80px] z-[60] border-t border-brand-deepBlue/60 bg-brand-black/95 backdrop-blur-xl md:hidden h-[calc(100vh-80px)] overflow-y-auto"
           aria-label="Mobile primary navigation"
         >
-          <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-6 sm:px-6 lg:px-8">
+          <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-6 py-8">
             {NAV_LINKS.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
-                className="text-base font-medium text-brand-ivory/90 transition hover:text-brand-gold"
+                className="text-lg font-medium text-brand-ivory/90 transition hover:text-brand-gold border-b border-white/5 pb-4"
                 onClick={closeMenu}
               >
                 {link.label}
@@ -174,7 +175,7 @@ const SiteHeader = () => {
             <Link
               href="/contact"
               className={cn(
-                "mt-2 inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-3 text-xs font-semibold uppercase tracking-[0.2em] transition duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-lightBlue focus-visible:ring-offset-2 focus-visible:ring-offset-brand-black",
+                "mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-4 text-xs font-semibold uppercase tracking-[0.2em] transition duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-lightBlue focus-visible:ring-offset-2 focus-visible:ring-offset-brand-black",
                 "bg-brand-gold text-brand-black hover:bg-brand-lightBlue hover:text-brand-deepBlue shadow-glow"
               )}
               onClick={closeMenu}
@@ -234,7 +235,7 @@ const SiteFooter = () => {
         <div className="absolute left-1/2 top-[-30%] h-80 w-80 -translate-x-1/2 rounded-full bg-brand-lightBlue/5 blur-3xl" />
         <div className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-4">
-            <div className="space-y-5 p-6">
+            <div className="space-y-6 p-6">
               <div className="flex items-center gap-3">
                 <Image
                   src="/elitsportlogo-clear.png"
@@ -247,9 +248,21 @@ const SiteFooter = () => {
                   Membership
                 </span>
               </div>
-              <p className="text-base leading-relaxed text-brand-ivory/70">
+              <p className="hidden text-base leading-relaxed text-brand-ivory/70 md:block">
                 EliteSport is your gateway to elevated training destinations, curated access, and unforgettable experiences.
               </p>
+
+              {/* Mobile Download App Section */}
+              <div className="space-y-3 md:hidden">
+                <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-brand-gold">
+                  Download our app
+                </p>
+                <div className="flex items-center gap-3">
+                  <StoreBadge platform="apple" variant="icon" />
+                  <StoreBadge platform="google" variant="icon" />
+                </div>
+              </div>
+
               <div className="flex items-center gap-3">
                 {SOCIAL_LINKS.map((social) => (
                   <a
@@ -264,7 +277,7 @@ const SiteFooter = () => {
               </div>
             </div>
 
-            <div className="space-y-5">
+            <div className="hidden space-y-5 lg:block">
               <h3 className="text-xl font-semibold text-brand-ivory">Explore EliteSport</h3>
               <div className="grid gap-3 text-base font-medium text-brand-ivory/70">
                 <Link
@@ -339,7 +352,7 @@ const SiteFooter = () => {
               </div>
             </div>
 
-            <div className="space-y-5">
+            <div className="hidden space-y-5 lg:block">
               <h3 className="text-xl font-semibold text-brand-ivory">Get The App</h3>
               <p className="text-base leading-relaxed text-brand-ivory/70">
                 Enjoy faster access to concierge bookings and on-the-go member perks.
@@ -353,10 +366,7 @@ const SiteFooter = () => {
 
           <div className="mt-12 flex flex-col gap-4 border-t border-white/5 pt-6 text-xs text-brand-ivory/60 sm:flex-row sm:items-center sm:justify-between">
             <div>© 2025 EliteSport. All rights reserved.</div>
-            <div className="flex items-center gap-4 text-brand-ivory/70">
-              <span className="inline-flex h-2 w-2 rounded-full bg-brand-gold/80" />
-              <span className="text-xs uppercase tracking-[0.3em] text-brand-gold/80">Precision In Motion</span>
-            </div>
+
           </div>
         </div>
       </div>
@@ -393,6 +403,15 @@ const SocialIcon = ({ name }: { name: SocialIconName }) => {
           />
         </svg>
       );
+    case "whatsapp":
+      return (
+        <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5">
+          <path
+            fill="currentColor"
+            d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"
+          />
+        </svg>
+      );
     default:
       return null;
   }
@@ -425,11 +444,38 @@ const MailIcon = () => (
   </svg>
 );
 
-const StoreBadge = ({ platform }: { platform: "google" | "apple" }) => {
+const StoreBadge = ({
+  platform,
+  variant = "full",
+}: {
+  platform: "google" | "apple";
+  variant?: "full" | "icon";
+}) => {
   const isGoogle = platform === "google";
+  const APP_STORE_URL = "https://apps.apple.com/ae/app/elite-sport/id1558697337";
+  const PLAY_STORE_URL = "https://play.google.com/store/apps/details?id=com.alrumaithyest.elitesport&pli=1";
+
+  const href = isGoogle ? PLAY_STORE_URL : APP_STORE_URL;
+
+  if (variant === "icon") {
+    return (
+      <a
+        href={href}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label={isGoogle ? "Get it on Google Play" : "Download on the App Store"}
+        className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-brand-gold/30 bg-brand-gold/10 text-brand-gold shadow-[0_14px_24px_rgba(0,0,0,0.4)] ring-1 ring-brand-gold/20 transition duration-200 hover:-translate-y-0.5 hover:border-brand-gold hover:bg-brand-gold/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-lightBlue focus-visible:ring-offset-2 focus-visible:ring-offset-brand-black"
+      >
+        {isGoogle ? <GooglePlayLogo /> : <AppleStoreLogo />}
+      </a>
+    );
+  }
+
   return (
     <a
-      href="#"
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
       className="group relative inline-flex h-[72px] w-full max-w-[280px] items-center justify-between gap-3 rounded-2xl bg-gradient-to-br from-brand-gold/15 via-brand-gold/10 to-transparent px-4 py-3 text-sm font-semibold text-brand-ivory/90 shadow-[0_18px_40px_rgba(0,0,0,0.4)] ring-1 ring-brand-gold/25 transition hover:-translate-y-0.5 hover:text-brand-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-lightBlue focus-visible:ring-offset-2 focus-visible:ring-offset-brand-black"
     >
       <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-brand-black/75 text-brand-ivory shadow-[0_12px_25px_rgba(0,0,0,0.35)] ring-1 ring-brand-gold/30 transition duration-200 group-hover:ring-brand-gold/50 group-hover:shadow-[0_16px_28px_rgba(0,0,0,0.45)]">

@@ -3,7 +3,7 @@ import { GetStaticProps, InferGetStaticPropsType } from "next";
 import { useMemo, useState } from "react";
 
 import { Container } from "@/components/Container";
-import { Hero } from "@/components/Hero";
+// Hero import removed
 import {
   PromotionsGrid,
   PromoBadge,
@@ -81,7 +81,18 @@ export default function PromotionsPage({
       </Head>
 
       <div className="space-y-10 pb-20">
-        <Hero hero={hero} />
+        <Container className="pt-32 pb-8">
+          <div className="max-w-4xl space-y-6">
+            <h1 className="font-display text-4xl font-semibold leading-tight tracking-tight text-brand-ivory sm:text-5xl lg:text-6xl">
+              {hero?.title || "Promotions"}
+            </h1>
+            {hero?.subtitle && (
+              <p className="max-w-2xl text-lg font-light leading-relaxed text-brand-ivory/80 sm:text-xl">
+                {hero.subtitle}
+              </p>
+            )}
+          </div>
+        </Container>
         {promotionCategories.length > 0 && (
           <Container className="flex flex-wrap gap-2.5 border-b border-brand-deepBlue/40 pb-8">
             <PromoBadge label="Active Now" tone="outline" />

@@ -97,7 +97,7 @@ export const PromotionModal = ({
 
   return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-brand-black/70 backdrop-blur-md p-4"
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-brand-black/70 backdrop-blur-md p-4"
       role="dialog"
       aria-modal="true"
       aria-label={`Promotion details for ${promotion.title}`}
@@ -141,14 +141,14 @@ export const PromotionModal = ({
         </div>
         <div className="space-y-6 px-8 py-10">
           <div className="flex flex-wrap gap-2">
-             {promotion.promotionTypeLabel && (
-                <PromoBadge label={promotion.promotionTypeLabel} tone="accent" />
-             )}
-             <div className="text-xs uppercase tracking-[0.4em] text-brand-lightBlue py-1">
-                {dateLabel}
-             </div>
+            {promotion.promotionTypeLabel && (
+              <PromoBadge label={promotion.promotionTypeLabel} tone="accent" />
+            )}
+            <div className="text-xs uppercase tracking-[0.4em] text-brand-lightBlue py-1">
+              {dateLabel}
+            </div>
           </div>
-          
+
           {hasOverview && (
             <div className="space-y-3">
               <p className="text-xs uppercase tracking-[0.4em] text-brand-lightBlue">

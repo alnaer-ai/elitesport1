@@ -10,6 +10,8 @@ import { Container } from "@/components/Container";
 import { Hero } from "@/components/Hero";
 import { MembershipCard } from "@/components/MembershipCard";
 import { MembershipScrollSection } from "@/components/MembershipScrollSection";
+import { AboutTeaser } from "@/components/AboutTeaser";
+import { ValueHighlights } from "@/components/ValueHighlights";
 import {
   PlaceCard,
   usePlaceModal,
@@ -61,6 +63,12 @@ const sectionVariants = {
     transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] as const },
   },
 };
+
+const primaryButtonClass =
+  "inline-flex items-center justify-center gap-2 rounded-full bg-brand-gold px-8 py-4 text-xs font-semibold uppercase tracking-[0.28em] text-brand-black shadow-glow transition duration-300 hover:bg-brand-lightBlue hover:text-brand-deepBlue focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-lightBlue focus-visible:ring-offset-2 focus-visible:ring-offset-brand-black";
+
+const secondaryButtonClass =
+  "inline-flex items-center justify-center gap-2 rounded-full border border-brand-ivory/50 px-8 py-4 text-xs font-semibold uppercase tracking-[0.28em] text-brand-ivory transition duration-300 hover:border-brand-gold hover:text-brand-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-lightBlue focus-visible:ring-offset-2 focus-visible:ring-offset-brand-black";
 
 const cardVariants = {
   hidden: { opacity: 0, y: 30 },
@@ -127,50 +135,9 @@ export default function Home(
       <div className="space-y-12 pb-24">
         <Hero hero={hero} />
 
-        {aboutHero && aboutHero.isPublished !== false && (
-          <motion.section
-            className="py-10"
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.25 }}
-            variants={sectionVariants}
-          >
-            <Container>
-              <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
-                {/* Hero Image - Left Side */}
-                {aboutHero.imageUrl && (
-                  <div className="relative order-2 lg:order-1">
-                    <div className="glass-card premium-card overflow-hidden rounded-[32px]">
-                      <AboutHeroImage imageUrl={aboutHero.imageUrl} title={aboutHero.title} />
-                    </div>
-                  </div>
-                )}
-                
-                {/* Text Content - Right Side */}
-                <div className="space-y-6 order-1 lg:order-2 text-center lg:text-left">
-                  <p className="text-xs uppercase tracking-[0.35em] text-brand-lightBlue">
-                    About Us
-                  </p>
-                  {aboutHero.title && (
-                    <h2 className="font-display text-3xl font-semibold leading-[1.1] tracking-[-0.02em] text-brand-ivory sm:text-4xl sm:leading-[1.08] lg:text-5xl lg:leading-[1.06]">
-                      {aboutHero.title}
-                    </h2>
-                  )}
-                  {aboutHero.subtitle && (
-                    <p className="font-sans text-base font-light leading-[1.7] tracking-[0.01em] text-brand-ivory sm:text-lg sm:leading-[1.75] md:text-xl md:leading-[1.8]">
-                      {aboutHero.subtitle}
-                    </p>
-                  )}
-                  <div className="pt-4">
-                    <ButtonLink href="/about" variant="secondary">
-                      Learn More About Us
-                    </ButtonLink>
-                  </div>
-                </div>
-              </div>
-            </Container>
-          </motion.section>
-        )}
+        <AboutTeaser imageUrl={aboutHero?.imageUrl} />
+
+        <ValueHighlights />
 
         <Section
           eyebrow="Elite Destinations"
@@ -258,9 +225,9 @@ export default function Home(
         />
 
         {/* Premium Scroll-Controlled Membership Section */}
-        <MembershipScrollSection 
-          tiers={tiers} 
-          allTiersCount={allTiers.length} 
+        <MembershipScrollSection
+          tiers={tiers}
+          allTiersCount={allTiers.length}
         />
 
       </div>
@@ -304,30 +271,12 @@ const Section = ({
 };
 
 
-const AboutHeroImage = ({
-  imageUrl,
-  title,
-}: {
-  imageUrl: string;
-  title?: string;
-}) => {
-  return (
-    <div className="relative aspect-[4/3] w-full overflow-hidden">
-      <Image
-        src={imageUrl}
-        alt={title ?? "About EliteSport"}
-        fill
-        sizes="(max-width: 1024px) 100vw, 50vw"
-        className="object-cover"
-      />
-    </div>
-  );
-};
+
 
 export const getStaticProps: GetStaticProps<HomePageProps> = async () => {
   // Fetch promotions from API (sorted by date, newest first)
   const apiPromotions = await getPromotions();
-  
+
   // Fetch static mock data for other sections
   const hero = getPageHero("home");
   const aboutHero = getPageHero("about");

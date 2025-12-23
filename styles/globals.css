@@ -19,12 +19,14 @@
 
   html {
     @apply bg-brand-black text-brand-ivory scroll-smooth;
+    overscroll-behavior-y: none;
   }
 
   body {
     @apply min-h-screen bg-brand-black text-brand-gray font-sans antialiased;
     background-image: radial-gradient(circle at top, rgba(197, 163, 91, 0.1), transparent 55%),
       radial-gradient(circle at 20% 20%, rgba(111, 175, 206, 0.15), transparent 40%);
+    overscroll-behavior-y: none;
   }
 
   h1,

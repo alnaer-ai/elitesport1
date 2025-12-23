@@ -8,15 +8,15 @@ import { HeroPayload } from "@/lib/hero";
 import { Container } from "./Container";
 
 const ScrollIndicator = () => (
-  <motion.div 
-    className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10"
+  <motion.div
+    className="absolute bottom-8 left-0 right-0 z-10 w-full flex justify-center"
     initial={{ opacity: 0, y: -10 }}
     animate={{ opacity: 1, y: 0 }}
     transition={{ duration: 0.6, delay: 1.2 }}
   >
     <div className="flex flex-col items-center gap-2 text-brand-ivory/40">
-      <span className="text-[0.65rem] uppercase tracking-[0.3em]">Scroll</span>
-      <motion.div 
+      <span className="text-[0.65rem] uppercase tracking-[0.3em] pl-[0.3em]">Scroll</span>
+      <motion.div
         className="h-8 w-px bg-gradient-to-b from-brand-ivory/40 to-transparent"
         animate={{ scaleY: [1, 0.6, 1] }}
         transition={{ duration: 1.5, repeat: Infinity }}
@@ -43,10 +43,10 @@ const HeroTitle = ({ title }: { title: string }) => {
   // Split title at "One" to create two lines
   // Pattern: "Endless Choices One Membership" -> ["Endless Choices", "One Membership"]
   const oneMatch = title.match(/^(.+?)\s+(One\s+.+)$/i);
-  
+
   let line1 = title;
   let line2 = "";
-  
+
   if (oneMatch) {
     line1 = oneMatch[1].trim(); // "Endless Choices"
     line2 = oneMatch[2].trim(); // "One Membership"
@@ -58,11 +58,11 @@ const HeroTitle = ({ title }: { title: string }) => {
     return text.split(/\s+/).map((word, index, words) => {
       const cleanWord = word.replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
       const isHighlighted = highlightWords.includes(cleanWord);
-      
+
       if (isHighlighted) {
         return (
-          <span 
-            key={index} 
+          <span
+            key={index}
             className="text-brand-gold drop-shadow-[0_0_20px_rgba(197,163,91,0.8),0_0_40px_rgba(197,163,91,0.4)] [text-shadow:0_0_10px_rgba(197,163,91,0.9),0_0_20px_rgba(197,163,91,0.6)]"
           >
             {word}
@@ -105,8 +105,8 @@ export const Hero = ({ hero, customOverlayColor }: HeroProps) => {
     mediaType === "image"
       ? Boolean(hero.imageUrl)
       : mediaType === "video"
-      ? Boolean(hero.video?.file || hero.video?.url)
-      : false;
+        ? Boolean(hero.video?.file || hero.video?.url)
+        : false;
 
   const content = (
     <div
@@ -339,8 +339,8 @@ const HeroCta = ({
     alignment === "center"
       ? "items-center"
       : alignment === "right"
-      ? "items-end"
-      : "items-start";
+        ? "items-end"
+        : "items-start";
 
   return (
     <div className={cn("flex flex-col gap-6", alignClass)}>
