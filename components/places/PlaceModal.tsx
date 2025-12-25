@@ -1,12 +1,27 @@
 import Image from "next/image";
 import Link from "next/link";
-import { MouseEvent, useEffect, useRef, useState, type ReactNode } from "react";
+import { MouseEvent, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { PortableText } from "@portabletext/react";
+import {
+  Wifi,
+  Dumbbell,
+  Utensils,
+  Waves,
+  Sparkles,
+  Users,
+  Baby,
+  Trophy,
+  Coffee,
+  CheckCircle,
+  MapPin,
+  Clock,
+  Star
+} from "lucide-react";
 
 import { ButtonLink } from "@/components/ButtonLink";
 import { getPlaceCategoryLabel } from "@/lib/placePresentation";
 import type { Place } from "@/lib/placeTypes";
+import { cn } from "@/lib/cn";
 
 export type PlaceModalProps = {
   place: Place | null;
@@ -47,6 +62,20 @@ const ChevronRightIcon = ({ className }: { className?: string }) => (
     <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
   </svg>
 );
+
+const getServiceIcon = (name: string) => {
+  const n = name.toLowerCase();
+  if (n.includes("wifi")) return Wifi;
+  if (n.includes("gym") || n.includes("fitness") || n.includes("workout")) return Dumbbell;
+  if (n.includes("pool") || n.includes("swim") || n.includes("beach")) return Waves;
+  if (n.includes("spa") || n.includes("massage") || n.includes("sauna") || n.includes("steam")) return Sparkles;
+  if (n.includes("kid") || n.includes("child") || n.includes("baby")) return Baby;
+  if (n.includes("tennis") || n.includes("squash") || n.includes("padel") || n.includes("court")) return Trophy;
+  if (n.includes("restaurant") || n.includes("dining") || n.includes("food") || n.includes("bar")) return Utensils;
+  if (n.includes("coffee") || n.includes("cafe")) return Coffee;
+  if (n.includes("ladies") || n.includes("women") || n.includes("female")) return Users;
+  return CheckCircle;
+};
 
 const FALLBACK_PLACE_IMAGE =
   "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=1600&q=80";
@@ -156,29 +185,14 @@ export const PlaceModal = ({
   const hasImages = rawImages.length > 0;
 
   const displayCategoryLabel =
-    categoryLabel ?? place.location ?? getPlaceCategoryLabel(place.placeType);
+    categoryLabel ?? getPlaceCategoryLabel(place.placeType);
   const showAllPlacesLink =
     displayCategoryLabel?.toLowerCase() === "most popular places";
-  const overview = place.overview;
 
-  const portableTextComponents = {
-    block: {
-      normal: ({ children }: { children?: ReactNode }) => (
-        <p className="text-base text-brand-gray/90 leading-relaxed">{children}</p>
-      ),
-      h3: ({ children }: { children?: ReactNode }) => (
-        <h3 className="text-lg font-semibold text-brand-ivory">{children}</h3>
-      ),
-    },
-    list: {
-      bullet: ({ children }: { children?: ReactNode }) => (
-        <ul className="list-disc space-y-2 pl-6 text-brand-gray/90">{children}</ul>
-      ),
-    },
-    listItem: {
-      bullet: ({ children }: { children?: ReactNode }) => <li>{children}</li>,
-    },
-  };
+  // New: Use HTML fields with fallback
+  const descriptionHtml = place.description;
+  const offersHtml = place.offers;
+  const hasServices = place.services && place.services.length > 0;
 
   return createPortal(
     <div
@@ -188,8 +202,9 @@ export const PlaceModal = ({
       aria-label={`Place details for ${place.name ?? "this place"}`}
       onClick={handleOverlayClick}
     >
-      <div className="glass-card mx-auto w-full max-w-2xl rounded-[32px] overflow-hidden">
-        <div className="relative h-64 w-full group">
+      <div className="glass-card mx-auto w-full max-w-2xl rounded-[32px] overflow-hidden flex flex-col max-h-[90vh]">
+        {/* Gallery Section */}
+        <div className="relative h-64 w-full group flex-shrink-0">
           <div
             ref={scrollContainerRef}
             className="flex h-full w-full overflow-x-auto snap-x snap-mandatory [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
@@ -244,9 +259,18 @@ export const PlaceModal = ({
           </button>
           <div className="absolute bottom-6 left-6 right-6 space-y-3 pointer-events-none">
             <div className="pointer-events-auto">
-              <p className="text-xs uppercase tracking-[0.45em] text-brand-lightBlue">
-                {displayCategoryLabel}
-              </p>
+              <div className="flex items-center gap-3">
+                <p className="text-xs uppercase tracking-[0.45em] text-brand-lightBlue">
+                  {displayCategoryLabel}
+                </p>
+                {place.location && (
+                  <div className="flex items-center gap-1 text-brand-gray/80">
+                    <MapPin className="w-3 h-3" />
+                    <span className="text-[10px] uppercase tracking-wider">{place.location.split(',')[0]}</span>
+                  </div>
+                )}
+              </div>
+
               {showAllPlacesLink && (
                 <Link
                   href="/places"
@@ -261,36 +285,59 @@ export const PlaceModal = ({
             </div>
           </div>
         </div>
-        <div className="space-y-8 px-8 py-10">
+
+        {/* Content Section - Scrollable */}
+        <div className="flex-1 overflow-y-auto px-8 py-10 space-y-8 custom-scrollbar">
+
+          {/* Services / Facilities */}
+          {hasServices && (
+            <div className="flex flex-wrap gap-2 pb-2">
+              {place.services?.map((service) => {
+                const Icon = getServiceIcon(service.name);
+                return (
+                  <span key={service.id} className="inline-flex items-center gap-1.5 rounded-full border border-brand-lightBlue/20 bg-brand-lightBlue/5 px-3 py-1 text-xs text-brand-lightBlue">
+                    <Icon className="w-3 h-3" />
+                    {service.name}
+                  </span>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Overview */}
           <div className="space-y-3">
             <p className="text-sm font-semibold uppercase tracking-[0.35em] text-brand-gold">
               Overview
             </p>
-            {overview ? (
-              <PortableText value={overview ?? []} components={portableTextComponents} />
+            {descriptionHtml ? (
+              <div
+                className="prose prose-sm prose-invert max-w-none text-brand-gray/90 prose-p:leading-relaxed prose-headings:text-brand-ivory prose-a:text-brand-gold"
+                dangerouslySetInnerHTML={{ __html: descriptionHtml }}
+              />
             ) : (
-              <p className="text-base text-brand-gray/90">{FALLBACK_OVERVIEW}</p>
+              <p className="text-base text-brand-gray/90 leading-relaxed">{FALLBACK_OVERVIEW}</p>
             )}
           </div>
 
-          {place.benefits && place.benefits.length > 0 && (
-            <div className="space-y-3">
-              <p className="text-sm font-semibold uppercase tracking-[0.35em] text-brand-gold">
-                Benefits
-              </p>
-              <ul className="list-disc space-y-2 pl-6 text-brand-gray/90">
-                {place.benefits.map((benefit, index) => (
-                  <li key={index} className="text-base leading-relaxed">
-                    {benefit}
-                  </li>
-                ))}
-              </ul>
+          {/* Elite Benefits (Offers) */}
+          {offersHtml && (
+            <div className="space-y-3 pt-2 border-t border-brand-lightBlue/10">
+              <div className="flex items-center gap-2">
+                <Star className="w-4 h-4 text-brand-gold" />
+                <p className="text-sm font-semibold uppercase tracking-[0.35em] text-brand-gold">
+                  Elite Benefits
+                </p>
+              </div>
+              <div
+                className="prose prose-sm prose-invert max-w-none text-brand-gray/90 prose-li:marker:text-brand-gold"
+                dangerouslySetInnerHTML={{ __html: offersHtml }}
+              />
             </div>
           )}
 
-          <div className="pt-2">
+          <div className="pt-6">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <p className="text-base font-medium text-brand-ivory">Want to know more?</p>
+              <p className="text-base font-medium text-brand-ivory">Want to access this place?</p>
               <ButtonLink
                 href={storeUrl}
                 variant="primary"

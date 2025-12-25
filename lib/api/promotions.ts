@@ -40,7 +40,7 @@ export type PromotionsApiResult = {
 // =============================================================================
 
 const API_BASE_URL = "https://elitesport.online";
-const PROMOTIONS_API_URL = process.env.ELITESPORT_PROMOTIONS_API_URL;
+const PROMOTIONS_API_URL = process.env.ELITESPORT_GET_PROMOTIONS_WEB_URL;
 const API_TOKEN = process.env.ELITESPORT_API_TOKEN;
 
 // =============================================================================
@@ -59,7 +59,7 @@ const API_TOKEN = process.env.ELITESPORT_API_TOKEN;
 export async function fetchPromotions(): Promise<PromotionApiResponse[]> {
   if (!PROMOTIONS_API_URL) {
     throw new Error(
-      "[Promotions API] Missing ELITESPORT_PROMOTIONS_API_URL environment variable"
+      "[Promotions API] Missing ELITESPORT_GET_PROMOTIONS_WEB_URL environment variable"
     );
   }
 
