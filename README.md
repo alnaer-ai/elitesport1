@@ -66,12 +66,19 @@ Content from `lib/mockData.ts`:
 ### Environment Variables Required
 
 ```bash
-ELITESPORT_HOTELS_API_URL=https://elitesport.online/api/get-hotels-web
-ELITESPORT_PROMOTIONS_API_URL=https://elitesport.online/api/get-promo-web
+# Required for Places/Hotels API
+ELITESPORT_GET_HOTELS_WEB_URL=https://elitesport.online/api/get-hotels-web
+
+# Required for Promotions API
+ELITESPORT_GET_PROMOTIONS_WEB_URL=https://elitesport.online/api/get-promo-web
+
+# Required for all API calls - authentication token
 ELITESPORT_API_TOKEN=your_token_here
 ```
 
 **Note:** API tokens should never be committed to the repository. Use `.env.local` for local development.
+
+> ⚠️ **Vercel Deployment:** These environment variables must be configured in your Vercel project settings under Settings → Environment Variables. Add all three variables for Production, Preview, and Development environments.
 
 ## Migration from CMS to API
 
@@ -111,11 +118,15 @@ To add new sections/pages:
 Deploy the Next.js site (e.g., to Vercel) as usual. 
 
 **Required Environment Variables:**
-- `ELITESPORT_HOTELS_API_URL` - Hotels/places API endpoint
-- `ELITESPORT_PROMOTIONS_API_URL` - Promotions API endpoint
+- `ELITESPORT_GET_HOTELS_WEB_URL` - Hotels/places API endpoint (e.g., `https://elitesport.online/api/get-hotels-web`)
+- `ELITESPORT_GET_PROMOTIONS_WEB_URL` - Promotions API endpoint (e.g., `https://elitesport.online/api/get-promo-web`)
 - `ELITESPORT_API_TOKEN` - API authentication token
 
-Set these in your deployment platform's environment variable settings (e.g., Vercel Environment Variables).
+Set these in your deployment platform's environment variable settings:
+1. Go to Vercel Dashboard → Your Project → Settings → Environment Variables
+2. Add each variable with the correct value
+3. Make sure to enable for Production, Preview, and Development environments
+4. Redeploy the application for changes to take effect
 
 **ISR Configuration:**
 - Pages revalidate every 60 seconds to fetch fresh API data
