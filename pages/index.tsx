@@ -26,7 +26,8 @@ import { cn } from "@/lib/cn";
 import { type HeroPayload } from "@/lib/hero";
 import {
   collectMembershipTiers,
-  type MembershipInfo,
+  getMemberships,
+  type MembershipTier,
 } from "@/lib/membership";
 import {
   PROMOTION_FALLBACK_IMAGE,
@@ -35,9 +36,9 @@ import {
 } from "@/lib/promotionContent";
 import {
   getPageHero,
-  getMemberships,
 } from "@/lib/mockData";
 import { getPromotions } from "@/lib/api/promotions";
+import { fetchPlaces } from "@/lib/api/places";
 
 const PLACE_CATEGORY_LABELS: Record<string, string> = {
   hotel: "Hotel",
@@ -84,7 +85,7 @@ type Promotion = PromotionRecord;
 type HomePageProps = {
   popularPlaces: Place[];
   promotions: Promotion[];
-  memberships: MembershipInfo[];
+  tiers: MembershipTier[];
   hero: HeroPayload | null;
   aboutHero: HeroPayload | null;
 };
@@ -105,7 +106,7 @@ export default function Home(
     aboutHero,
     popularPlaces,
     promotions,
-    memberships,
+    tiers,
   } = props;
   const promotionCards: PromotionCardContent[] = promotions
     .slice(0, HOME_LATEST_PROMOTIONS_LIMIT)
@@ -115,10 +116,7 @@ export default function Home(
     useState<PromotionCardContent | null>(null);
   const [isPromotionOpen, setIsPromotionOpen] = useState(false);
 
-  const allTiers = collectMembershipTiers(memberships).filter(
-    (tier) => tier?.name
-  );
-  const tiers = allTiers.slice(0, 3);
+  const displayedTiers = tiers.slice(0, 3);
 
   return (
     <>
@@ -186,6 +184,14 @@ export default function Home(
           )}
         </Section>
 
+        {/* Premium Scroll-Controlled Membership Section */}
+        {displayedTiers.length > 0 && (
+          <MembershipScrollSection
+            tiers={displayedTiers}
+            allTiersCount={tiers.length}
+          />
+        )}
+
         <Section
           eyebrow="Member Exclusives"
           title="Latest Promotions"
@@ -222,12 +228,6 @@ export default function Home(
             setIsPromotionOpen(false);
             setSelectedPromotion(null);
           }}
-        />
-
-        {/* Premium Scroll-Controlled Membership Section */}
-        <MembershipScrollSection
-          tiers={tiers}
-          allTiersCount={allTiers.length}
         />
 
       </div>
@@ -277,18 +277,34 @@ export const getStaticProps: GetStaticProps<HomePageProps> = async () => {
   // Fetch promotions from API (sorted by date, newest first)
   const apiPromotions = await getPromotions();
 
+  // Fetch places from API
+  const allPlaces = await fetchPlaces();
+
+  // Display up to 6 places in the "Most Popular Places" section
+  // Prioritize hotels first, then others
+  const popularPlaces = allPlaces
+    .sort((a, b) => {
+      // Prioritize hotels
+      if (a.category === "hotel" && b.category !== "hotel") return -1;
+      if (b.category === "hotel" && a.category !== "hotel") return 1;
+      return 0;
+    })
+    .slice(0, 6);
+
   // Fetch static mock data for other sections
   const hero = getPageHero("home");
   const aboutHero = getPageHero("about");
-  const popularPlaces: Place[] = [];
+
+  // Get membership tiers from mock data
   const memberships = getMemberships();
+  const tiers = collectMembershipTiers(memberships);
 
   return {
     props: {
       popularPlaces,
       // API promotions are already sorted by date (newest first)
       promotions: apiPromotions,
-      memberships,
+      tiers,
       hero: hero ?? null,
       aboutHero: aboutHero ?? null,
     },

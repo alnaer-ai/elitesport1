@@ -319,8 +319,8 @@ export const PlaceModal = ({
             )}
           </div>
 
-          {/* Elite Benefits (Offers) */}
-          {offersHtml && (
+          {/* Elite Benefits (Offers) - Hidden for gym and wellness places */}
+          {offersHtml && place.category !== "gym" && place.category !== "wellness" && (
             <div className="space-y-3 pt-2 border-t border-brand-lightBlue/10">
               <div className="flex items-center gap-2">
                 <Star className="w-4 h-4 text-brand-gold" />

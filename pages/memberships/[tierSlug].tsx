@@ -16,10 +16,11 @@ import {
   getTierColor,
   getTierSlug,
   mapMembershipTierEntries,
+  planCategoriesToMembershipInfo,
   type MembershipInfo,
   type MembershipTier,
 } from "@/lib/membership";
-import { getMemberships } from "@/lib/mockData";
+import { fetchPlans } from "@/lib/api/plans";
 
 const checkIconPath = "M20 6L9 17L4 12";
 
@@ -46,7 +47,14 @@ export default function MembershipTierPage({
   const membershipTitle = membership.title ?? "Memberships";
   const tierSlug = getTierSlug(tier.name) ?? "";
   const benefits = (tier.benefits ?? []).filter((benefit): benefit is string => Boolean(benefit));
-  const familyBenefits = (tier.familyBenefits ?? []).filter((benefit): benefit is string => Boolean(benefit));
+  // Filter out "family member" benefits unless explicitly provided
+  const familyBenefits = (tier.familyBenefits ?? [])
+    .filter((benefit): benefit is string => Boolean(benefit))
+    .filter((benefit) => {
+      const lowerBenefit = benefit.toLowerCase();
+      // Remove benefits that mention "family member" unless explicitly provided
+      return !lowerBenefit.includes("family member");
+    });
   const hotelsGyms = (tier.hotelsGyms ?? []).filter((venue): venue is string => Boolean(venue));
   const benefitsCount = benefits.length;
   const familyBenefitsCount = familyBenefits.length;
@@ -69,6 +77,32 @@ export default function MembershipTierPage({
   const tierIndex = tierOrderMap.get(tierSlug);
   const currentTierColor = getTierColor(tier, tierIndex);
 
+  // Check if this is a gym-related tier (hide benefits section)
+  const normalizedTierName = tierName.toLowerCase().trim();
+  const normalizedCategoryName = tier.categoryName?.toLowerCase().trim() ?? "";
+  const normalizedSlug = tierSlug.toLowerCase().trim();
+  
+  const isGymTier = 
+    normalizedTierName.includes("gym") || 
+    normalizedCategoryName.includes("gym") ||
+    normalizedCategoryName === "gym only" ||
+    tier.categoryName === "Gym Only" ||
+    normalizedSlug.includes("gym") ||
+    normalizedSlug === "gym";
+
+  // Check if this is a "She" tier (hide benefits section)
+  const isSheTier =
+    normalizedTierName === "she" ||
+    normalizedTierName.includes("she") ||
+    normalizedCategoryName === "she" ||
+    normalizedCategoryName === "SHE" ||
+    tier.categoryName === "SHE" ||
+    normalizedSlug === "she" ||
+    normalizedSlug.includes("she");
+
+  // Hide benefits section for gym and she tiers
+  const shouldHideBenefits = isGymTier || isSheTier;
+
   return (
     <>
       <BusinessContactModal
@@ -84,7 +118,7 @@ export default function MembershipTierPage({
         />
       </Head>
 
-      <div className="space-y-14 pb-20 pt-10">
+      <div className="space-y-14 pb-20">
         <section>
           <Container className="space-y-10">
             <div
@@ -125,11 +159,6 @@ export default function MembershipTierPage({
                     <h1 className="text-4xl font-semibold text-brand-ivory">
                       {tierName}
                     </h1>
-                    {tier.isPopular && (
-                      <span className="rounded-full border border-brand-gold/50 bg-brand-gold/10 px-3 py-1 text-xs uppercase tracking-[0.3em] text-brand-gold">
-                        Popular
-                      </span>
-                    )}
                   </div>
                   {tier.price && (
                     <p className="text-sm uppercase tracking-[0.3em] text-brand-gold">
@@ -172,19 +201,20 @@ export default function MembershipTierPage({
               }}
               className="space-y-7"
             >
-              {/* Benefits Cards - Dynamic Grid */}
-              <motion.div
-                variants={motionItem}
-                className="grid gap-6"
-                style={{
-                  gridTemplateColumns:
-                    tier.isFamilyFriendly && (familyBenefits.length > 0 || benefits.length > 0)
-                      ? "repeat(auto-fit, minmax(min(100%, 320px), 1fr))"
-                      : "1fr",
-                }}
-              >
-                {/* Single Benefits Card */}
-                {tier.isFamilyFriendly && (familyBenefits.length > 0 || benefits.length > 0) ? (
+              {/* Benefits Cards - Dynamic Grid - Hidden for gym and she tiers */}
+              {!shouldHideBenefits && (
+                <motion.div
+                  variants={motionItem}
+                  className="grid gap-6"
+                  style={{
+                    gridTemplateColumns:
+                      tier.isFamilyFriendly && (familyBenefits.length > 0 || benefits.length > 0)
+                        ? "repeat(auto-fit, minmax(min(100%, 320px), 1fr))"
+                        : "1fr",
+                  }}
+                >
+                  {/* Single Benefits Card */}
+                  {tier.isFamilyFriendly && (familyBenefits.length > 0 || benefits.length > 0) ? (
                   <div className="glass-card space-y-5 p-7">
                     <div className="flex items-center justify-between gap-4">
                       <p className="text-xs uppercase tracking-[0.5em] text-brand-lightBlue">
@@ -197,13 +227,13 @@ export default function MembershipTierPage({
                       )}
                     </div>
                     {benefits.length > 0 ? (
-                      <ul className="space-y-3 text-sm text-brand-gray">
+                      <ul className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-brand-gray">
                         {benefits.map((benefit, index) => (
                           <li
                             key={`single-${benefit}-${index}`}
                             className="flex items-start gap-3"
                           >
-                            <span className="mt-1 inline-flex h-5 w-5 items-center justify-center rounded-full bg-brand-deepBlue/60 text-brand-gold">
+                            <span className="mt-1 inline-flex h-5 w-5 items-center justify-center rounded-full bg-brand-deepBlue/60 text-brand-gold flex-shrink-0">
                               <svg
                                 viewBox="0 0 24 24"
                                 fill="none"
@@ -242,13 +272,13 @@ export default function MembershipTierPage({
                       )}
                     </div>
                     {benefits.length > 0 ? (
-                      <ul className="space-y-3 text-sm text-brand-gray">
+                      <ul className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-brand-gray">
                         {benefits.map((benefit, index) => (
                           <li
                             key={`${benefit}-${index}`}
                             className="flex items-start gap-3"
                           >
-                            <span className="mt-1 inline-flex h-5 w-5 items-center justify-center rounded-full bg-brand-deepBlue/60 text-brand-gold">
+                            <span className="mt-1 inline-flex h-5 w-5 items-center justify-center rounded-full bg-brand-deepBlue/60 text-brand-gold flex-shrink-0">
                               <svg
                                 viewBox="0 0 24 24"
                                 fill="none"
@@ -290,13 +320,13 @@ export default function MembershipTierPage({
                       )}
                     </div>
                     {familyBenefits.length > 0 ? (
-                      <ul className="space-y-3 text-sm text-brand-gray">
+                      <ul className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-brand-gray">
                         {familyBenefits.map((benefit, index) => (
                           <li
                             key={`family-${benefit}-${index}`}
                             className="flex items-start gap-3"
                           >
-                            <span className="mt-1 inline-flex h-5 w-5 items-center justify-center rounded-full bg-brand-deepBlue/60 text-brand-gold">
+                            <span className="mt-1 inline-flex h-5 w-5 items-center justify-center rounded-full bg-brand-deepBlue/60 text-brand-gold flex-shrink-0">
                               <svg
                                 viewBox="0 0 24 24"
                                 fill="none"
@@ -323,7 +353,8 @@ export default function MembershipTierPage({
                     )}
                   </div>
                 )}
-              </motion.div>
+                </motion.div>
+              )}
 
               {/* Hotels & Gyms Section - Bullet Points */}
               {hotelsGyms.length > 0 && (
@@ -356,30 +387,6 @@ export default function MembershipTierPage({
                   </ul>
                 </motion.div>
               )}
-
-              {membership.ctaUrl && membership.ctaLabel && (
-                <motion.div
-                  variants={motionItem}
-                  className="glass-card p-7 text-center"
-                >
-                  <p className="text-xs uppercase tracking-[0.5em] text-brand-lightBlue">
-                    Need Concierge Support
-                  </p>
-                  <p className="mt-3 text-base text-brand-ivory">
-                    Share your goals with our membership team. They will craft
-                    a tailored plan, confirm benefit allocations, and secure
-                    your preferred experiences.
-                  </p>
-                  <div className="mt-6 flex flex-wrap justify-center gap-3">
-                    <ButtonLink href={membership.ctaUrl}>
-                      {membership.ctaLabel}
-                    </ButtonLink>
-                    <Link href="/contact" className={secondaryButtonClasses}>
-                      Contact Concierge
-                    </Link>
-                  </div>
-                </motion.div>
-              )}
             </motion.div>
           </Container>
         </section>
@@ -389,7 +396,15 @@ export default function MembershipTierPage({
 }
 
 export const getStaticPaths: GetStaticPaths = async () => {
-  const memberships = getMemberships();
+  const categories = await fetchPlans();
+  let memberships = planCategoriesToMembershipInfo(categories);
+
+  // Fallback to mock data if API returns empty results
+  if (!memberships || memberships.length === 0 || collectMembershipTiers(memberships).length === 0) {
+    const { getMemberships } = await import("@/lib/membership");
+    memberships = getMemberships();
+  }
+
   const tiers = collectMembershipTiers(memberships);
 
   const tierSlugs = tiers
@@ -424,8 +439,16 @@ export const getStaticProps: GetStaticProps<MembershipTierPageProps> = async ({
     };
   }
 
-  const memberships = getMemberships();
+  const categories = await fetchPlans();
+  let memberships = planCategoriesToMembershipInfo(categories);
 
+  // Fallback to mock data if API returns empty results
+  if (!memberships || memberships.length === 0 || collectMembershipTiers(memberships).length === 0) {
+    const { getMemberships } = await import("@/lib/membership");
+    memberships = getMemberships();
+  }
+
+  // Still no memberships after fallback
   if (memberships.length === 0) {
     return {
       notFound: true,

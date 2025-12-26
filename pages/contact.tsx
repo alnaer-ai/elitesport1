@@ -3,25 +3,15 @@ import { GetStaticProps, InferGetStaticPropsType } from "next";
 import { ChangeEvent, FormEvent, useState } from "react";
 
 import { Container } from "@/components/Container";
-import { Hero } from "@/components/Hero";
-import { type HeroPayload } from "@/lib/hero";
 import { MembershipSelect, type MembershipTier } from "@/components/contact/MembershipSelect";
 import { PlanTypeSelect, type PlanType } from "@/components/contact/PlanTypeSelect";
-import { getPageHero, getContactInfo, type ContactInfo } from "@/lib/mockData";
+import { getPageHero, type HeroPayload } from "@/lib/mockData";
 
 type ContactPageProps = {
-  contact: ContactInfo | null;
   hero: HeroPayload | null;
 };
 
-const defaultIntro =
-  "We would love to hear from you. Please reach out with any questions or collaboration ideas.";
-
-const sanitizePhone = (phone?: string) =>
-  phone ? phone.replace(/[^+\d]/g, "") : undefined;
-
 export default function ContactPage({
-  contact,
   hero,
 }: InferGetStaticPropsType<typeof getStaticProps>) {
   const [formData, setFormData] = useState({
@@ -33,12 +23,6 @@ export default function ContactPage({
     planType: "Single" as PlanType,
   });
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
-
-  const introText = contact?.introText || defaultIntro;
-  const address = contact?.address || "EliteSport Headquarters";
-  const phoneHref = sanitizePhone(contact?.phone);
-  const emailAddress = contact?.email;
-  const hours = contact?.hours?.filter((item) => item?.label && item?.value) ?? [];
 
   const handleInputChange = (
     event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -88,68 +72,18 @@ export default function ContactPage({
         />
       </Head>
 
-      <Hero hero={hero} />
       <Container className="space-y-12">
-        <p className="mx-auto max-w-3xl text-center text-base text-brand-gray sm:mx-0 sm:text-left">
-          {introText}
-        </p>
-
-        <div className="glass-card premium-card p-8">
-          <div className="space-y-8">
-            <div>
-              <h2 className="text-xl font-semibold text-brand-ivory">
-                Contact Details
-              </h2>
-              <p className="mt-3 whitespace-pre-line text-brand-gray">{address}</p>
-            </div>
-
-            <dl className="space-y-5 text-sm">
-              {contact?.phone && phoneHref && (
-                <div>
-                  <dt className="text-xs uppercase tracking-[0.35em] text-brand-lightBlue">
-                    Phone
-                  </dt>
-                  <dd>
-                    <a
-                      href={`tel:${phoneHref}`}
-                      className="text-base text-brand-ivory transition hover:text-brand-gold"
-                    >
-                      {contact.phone}
-                    </a>
-                  </dd>
-                </div>
-              )}
-
-              {emailAddress && (
-                <div>
-                  <dt className="text-xs uppercase tracking-[0.35em] text-brand-lightBlue">
-                    Email
-                  </dt>
-                  <dd>
-                    <a
-                      href={`mailto:${emailAddress}`}
-                      className="text-base text-brand-ivory transition hover:text-brand-gold"
-                    >
-                      {emailAddress}
-                    </a>
-                  </dd>
-                </div>
-              )}
-
-              {hours.length > 0 && (
-                <div>
-                  <dt className="text-xs uppercase tracking-[0.35em] text-brand-lightBlue">
-                    Hours
-                  </dt>
-                  <dd className="mt-3 space-y-2 text-base text-brand-gray">
-                    {hours.map((hour) => (
-                      <div key={`${hour.label}-${hour.value}`}>{hour.label}: {hour.value}</div>
-                    ))}
-                  </dd>
-                </div>
-              )}
-            </dl>
-          </div>
+        <div className="space-y-5 text-center">
+          {hero?.title && (
+            <h1 className="font-display text-3xl font-semibold leading-[1.1] tracking-[-0.02em] text-brand-ivory sm:text-4xl sm:leading-[1.08] sm:tracking-[-0.025em] lg:text-5xl lg:leading-[1.06] lg:tracking-[-0.03em]">
+              {hero.title}
+            </h1>
+          )}
+          {hero?.subtitle && (
+            <p className="font-sans text-base font-light leading-[1.7] tracking-[0.01em] text-brand-ivory sm:text-lg sm:leading-[1.75] sm:tracking-[0.015em] md:text-xl md:leading-[1.8]">
+              {hero.subtitle}
+            </p>
+          )}
         </div>
 
         <div className="glass-card premium-card p-8">
@@ -265,12 +199,10 @@ export default function ContactPage({
 }
 
 export const getStaticProps: GetStaticProps<ContactPageProps> = async () => {
-  const contact = getContactInfo();
   const hero = getPageHero("contact");
 
   return {
     props: {
-      contact,
       hero: hero ?? null,
     },
     revalidate: 60,
