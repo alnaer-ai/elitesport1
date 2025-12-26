@@ -6,31 +6,32 @@ import { Container } from "@/components/Container";
 import { MembershipCard } from "@/components/MembershipCard";
 import { TierCardShell } from "@/components/TierCardShell";
 import {
-    type PlanCategoryWithVariants,
     type MembershipTier,
     getAvailablePlanTypes,
     buildTiersForPlanType,
-    getCategorySlug,
+    getMemberships,
+    collectMembershipTiers,
+    getTierSlug,
+    getTierColor,
 } from "@/lib/membership";
-import { fetchPlans } from "@/lib/api/plans";
 import { cn } from "@/lib/cn";
 
 type PlanPageProps = {
-    category: PlanCategoryWithVariants | null;
+    tier: MembershipTier | null;
     slug: string;
+    tierColor: string;
 };
 
-// Allowed slugs mapping to likely API category names
+// Allowed slugs mapping to tier names
 const ALLOWED_SLUGS = ["bronze", "silver", "gold", "she", "gym"];
 
 export default function PlanPage({
-    category,
+    tier,
     slug,
+    tierColor,
 }: InferGetStaticPropsType<typeof getStaticProps>) {
-    const [activePlanType, setActivePlanType] = useState<"single" | "family">("single");
-
-    // If no category found (e.g. API didn't return it), show empty state
-    if (!category) {
+    // If no tier found, show empty state
+    if (!tier) {
         return (
             <Container className="py-32">
                 <div className="glass-card flex flex-col items-center justify-center border border-dashed border-white/10 py-20 text-center">
@@ -43,14 +44,7 @@ export default function PlanPage({
         );
     }
 
-    const availableTypes = getAvailablePlanTypes([category]);
-    // Re-verify default active type based on availability
-    const currentPlanType = availableTypes.includes(activePlanType)
-        ? activePlanType
-        : availableTypes[0] || "single";
-
-    const tiers = buildTiersForPlanType([category], currentPlanType);
-    const activeTier = tiers[0]; // Should only be one tier for this specific category
+    const activeTier = tier;
 
     // Parse descriptionHtml to extract hotels/gyms and services
     const parseDescriptionContent = (html?: string) => {
@@ -120,10 +114,10 @@ export default function PlanPage({
     return (
         <>
             <Head>
-                <title>{`${category.categoryName} Membership | EliteSport`}</title>
+                <title>{`${tier.name} Membership | EliteSport`}</title>
                 <meta
                     name="description"
-                    content={`Discover the benefits of the ${category.categoryName} membership tier at EliteSport.`}
+                    content={`Discover the benefits of the ${tier.name} membership tier at EliteSport.`}
                 />
             </Head>
 
@@ -137,32 +131,12 @@ export default function PlanPage({
                                     Membership Tier
                                 </p>
                                 <h1 className="text-4xl font-light text-brand-ivory md:text-5xl lg:text-6xl">
-                                    {category.categoryName} Plan
+                                    {tier.name} Plan
                                 </h1>
                                 <p className="max-w-xl text-lg text-brand-gray">
-                                    {category.heroDescription}
+                                    {tier.description}
                                 </p>
                             </div>
-
-                            {/* Plan Type Toggles */}
-                            {availableTypes.length > 1 && (
-                                <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 p-1 self-start md:self-auto">
-                                    {availableTypes.map((type) => (
-                                        <button
-                                            key={type}
-                                            onClick={() => setActivePlanType(type)}
-                                            className={cn(
-                                                "rounded-full px-6 py-2 text-sm font-medium transition-all",
-                                                currentPlanType === type
-                                                    ? "bg-brand-gold text-brand-dark"
-                                                    : "text-brand-gray hover:text-white"
-                                            )}
-                                        >
-                                            {type === "single" ? "Individual" : "Family"}
-                                        </button>
-                                    ))}
-                                </div>
-                            )}
                         </div>
                     </Container>
                 </div>
@@ -272,20 +246,20 @@ export const getStaticPaths: GetStaticPaths = async () => {
 export const getStaticProps: GetStaticProps<PlanPageProps> = async ({ params }) => {
     const slug = params?.slug as string;
 
-    // 1. Fetch all plans
-    const categories = await fetchPlans();
+    // Use static mock data
+    const memberships = getMemberships();
+    const tiers = collectMembershipTiers(memberships);
 
-    // 2. Find matching category strictly by name/slug logic
-    const category = categories.find((cat) => {
-        const catSlug = getCategorySlug(cat.categoryName);
-        return catSlug === slug;
-    });
+    // Find matching tier by slug
+    const tierIndex = tiers.findIndex((t) => getTierSlug(t.name) === slug);
+    const tier = tierIndex >= 0 ? tiers[tierIndex] : null;
+    const tierColor = tier ? getTierColor(tier, tierIndex) : "#f4b942";
 
     return {
         props: {
-            category: category || null,
+            tier,
             slug,
+            tierColor,
         },
-        revalidate: 60,
     };
 };

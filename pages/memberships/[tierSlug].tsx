@@ -16,11 +16,10 @@ import {
   getTierColor,
   getTierSlug,
   mapMembershipTierEntries,
-  planCategoriesToMembershipInfo,
+  getMemberships,
   type MembershipInfo,
   type MembershipTier,
 } from "@/lib/membership";
-import { fetchPlans } from "@/lib/api/plans";
 
 const checkIconPath = "M20 6L9 17L4 12";
 
@@ -81,9 +80,9 @@ export default function MembershipTierPage({
   const normalizedTierName = tierName.toLowerCase().trim();
   const normalizedCategoryName = tier.categoryName?.toLowerCase().trim() ?? "";
   const normalizedSlug = tierSlug.toLowerCase().trim();
-  
-  const isGymTier = 
-    normalizedTierName.includes("gym") || 
+
+  const isGymTier =
+    normalizedTierName.includes("gym") ||
     normalizedCategoryName.includes("gym") ||
     normalizedCategoryName === "gym only" ||
     tier.categoryName === "Gym Only" ||
@@ -215,144 +214,144 @@ export default function MembershipTierPage({
                 >
                   {/* Single Benefits Card */}
                   {tier.isFamilyFriendly && (familyBenefits.length > 0 || benefits.length > 0) ? (
-                  <div className="glass-card space-y-5 p-7">
-                    <div className="flex items-center justify-between gap-4">
-                      <p className="text-xs uppercase tracking-[0.5em] text-brand-lightBlue">
-                        Single
-                      </p>
-                      {benefitsCount > 0 && (
-                        <span className="text-xs text-brand-gray">
-                          {benefitsCount} benefit{benefitsCount === 1 ? "" : "s"}
-                        </span>
+                    <div className="glass-card space-y-5 p-7">
+                      <div className="flex items-center justify-between gap-4">
+                        <p className="text-xs uppercase tracking-[0.5em] text-brand-lightBlue">
+                          Single
+                        </p>
+                        {benefitsCount > 0 && (
+                          <span className="text-xs text-brand-gray">
+                            {benefitsCount} benefit{benefitsCount === 1 ? "" : "s"}
+                          </span>
+                        )}
+                      </div>
+                      {benefits.length > 0 ? (
+                        <ul className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-brand-gray">
+                          {benefits.map((benefit, index) => (
+                            <li
+                              key={`single-${benefit}-${index}`}
+                              className="flex items-start gap-3"
+                            >
+                              <span className="mt-1 inline-flex h-5 w-5 items-center justify-center rounded-full bg-brand-deepBlue/60 text-brand-gold flex-shrink-0">
+                                <svg
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth={1.6}
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  className="h-3 w-3"
+                                >
+                                  <path d={checkIconPath} />
+                                </svg>
+                              </span>
+                              <span className="text-sm text-brand-gray">
+                                {benefit}
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p className="text-sm text-brand-gray">
+                          Additional benefits are being curated. Check back soon
+                          for a full breakdown.
+                        </p>
                       )}
                     </div>
-                    {benefits.length > 0 ? (
-                      <ul className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-brand-gray">
-                        {benefits.map((benefit, index) => (
-                          <li
-                            key={`single-${benefit}-${index}`}
-                            className="flex items-start gap-3"
-                          >
-                            <span className="mt-1 inline-flex h-5 w-5 items-center justify-center rounded-full bg-brand-deepBlue/60 text-brand-gold flex-shrink-0">
-                              <svg
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth={1.6}
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                className="h-3 w-3"
-                              >
-                                <path d={checkIconPath} />
-                              </svg>
-                            </span>
-                            <span className="text-sm text-brand-gray">
-                              {benefit}
-                            </span>
-                          </li>
-                        ))}
-                      </ul>
-                    ) : (
-                      <p className="text-sm text-brand-gray">
-                        Additional benefits are being curated. Check back soon
-                        for a full breakdown.
-                      </p>
-                    )}
-                  </div>
-                ) : (
-                  <div className="glass-card space-y-5 p-7">
-                    <div className="flex items-center justify-between gap-4">
-                      <p className="text-xs uppercase tracking-[0.5em] text-brand-lightBlue">
-                        Benefits
-                      </p>
-                      {benefitsCount > 0 && (
-                        <span className="text-xs text-brand-gray">
-                          {benefitsCount} benefit{benefitsCount === 1 ? "" : "s"}
-                        </span>
+                  ) : (
+                    <div className="glass-card space-y-5 p-7">
+                      <div className="flex items-center justify-between gap-4">
+                        <p className="text-xs uppercase tracking-[0.5em] text-brand-lightBlue">
+                          Benefits
+                        </p>
+                        {benefitsCount > 0 && (
+                          <span className="text-xs text-brand-gray">
+                            {benefitsCount} benefit{benefitsCount === 1 ? "" : "s"}
+                          </span>
+                        )}
+                      </div>
+                      {benefits.length > 0 ? (
+                        <ul className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-brand-gray">
+                          {benefits.map((benefit, index) => (
+                            <li
+                              key={`${benefit}-${index}`}
+                              className="flex items-start gap-3"
+                            >
+                              <span className="mt-1 inline-flex h-5 w-5 items-center justify-center rounded-full bg-brand-deepBlue/60 text-brand-gold flex-shrink-0">
+                                <svg
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth={1.6}
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  className="h-3 w-3"
+                                >
+                                  <path d={checkIconPath} />
+                                </svg>
+                              </span>
+                              <span className="text-sm text-brand-gray">
+                                {benefit}
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p className="text-sm text-brand-gray">
+                          Additional benefits are being curated. Check back soon
+                          for a full breakdown.
+                        </p>
                       )}
                     </div>
-                    {benefits.length > 0 ? (
-                      <ul className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-brand-gray">
-                        {benefits.map((benefit, index) => (
-                          <li
-                            key={`${benefit}-${index}`}
-                            className="flex items-start gap-3"
-                          >
-                            <span className="mt-1 inline-flex h-5 w-5 items-center justify-center rounded-full bg-brand-deepBlue/60 text-brand-gold flex-shrink-0">
-                              <svg
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth={1.6}
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                className="h-3 w-3"
-                              >
-                                <path d={checkIconPath} />
-                              </svg>
-                            </span>
-                            <span className="text-sm text-brand-gray">
-                              {benefit}
-                            </span>
-                          </li>
-                        ))}
-                      </ul>
-                    ) : (
-                      <p className="text-sm text-brand-gray">
-                        Additional benefits are being curated. Check back soon
-                        for a full breakdown.
-                      </p>
-                    )}
-                  </div>
-                )}
+                  )}
 
-                {/* Family Benefits Card - Only shown when family-friendly tier */}
-                {tier.isFamilyFriendly && (familyBenefits.length > 0 || benefits.length > 0) && (
-                  <div className="glass-card space-y-5 p-7">
-                    <div className="flex items-center justify-between gap-4">
-                      <p className="text-xs uppercase tracking-[0.5em] text-brand-lightBlue">
-                        Family
-                      </p>
-                      {familyBenefitsCount > 0 && (
-                        <span className="text-xs text-brand-gray">
-                          {familyBenefitsCount} benefit{familyBenefitsCount === 1 ? "" : "s"}
-                        </span>
+                  {/* Family Benefits Card - Only shown when family-friendly tier */}
+                  {tier.isFamilyFriendly && (familyBenefits.length > 0 || benefits.length > 0) && (
+                    <div className="glass-card space-y-5 p-7">
+                      <div className="flex items-center justify-between gap-4">
+                        <p className="text-xs uppercase tracking-[0.5em] text-brand-lightBlue">
+                          Family
+                        </p>
+                        {familyBenefitsCount > 0 && (
+                          <span className="text-xs text-brand-gray">
+                            {familyBenefitsCount} benefit{familyBenefitsCount === 1 ? "" : "s"}
+                          </span>
+                        )}
+                      </div>
+                      {familyBenefits.length > 0 ? (
+                        <ul className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-brand-gray">
+                          {familyBenefits.map((benefit, index) => (
+                            <li
+                              key={`family-${benefit}-${index}`}
+                              className="flex items-start gap-3"
+                            >
+                              <span className="mt-1 inline-flex h-5 w-5 items-center justify-center rounded-full bg-brand-deepBlue/60 text-brand-gold flex-shrink-0">
+                                <svg
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth={1.6}
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  className="h-3 w-3"
+                                >
+                                  <path d={checkIconPath} />
+                                </svg>
+                              </span>
+                              <span className="text-sm text-brand-gray">
+                                {benefit}
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p className="text-sm text-brand-gray">
+                          Family benefits are being curated. Check back soon
+                          for a full breakdown.
+                        </p>
                       )}
                     </div>
-                    {familyBenefits.length > 0 ? (
-                      <ul className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-brand-gray">
-                        {familyBenefits.map((benefit, index) => (
-                          <li
-                            key={`family-${benefit}-${index}`}
-                            className="flex items-start gap-3"
-                          >
-                            <span className="mt-1 inline-flex h-5 w-5 items-center justify-center rounded-full bg-brand-deepBlue/60 text-brand-gold flex-shrink-0">
-                              <svg
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth={1.6}
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                className="h-3 w-3"
-                              >
-                                <path d={checkIconPath} />
-                              </svg>
-                            </span>
-                            <span className="text-sm text-brand-gray">
-                              {benefit}
-                            </span>
-                          </li>
-                        ))}
-                      </ul>
-                    ) : (
-                      <p className="text-sm text-brand-gray">
-                        Family benefits are being curated. Check back soon
-                        for a full breakdown.
-                      </p>
-                    )}
-                  </div>
-                )}
+                  )}
                 </motion.div>
               )}
 
@@ -396,14 +395,8 @@ export default function MembershipTierPage({
 }
 
 export const getStaticPaths: GetStaticPaths = async () => {
-  const categories = await fetchPlans();
-  let memberships = planCategoriesToMembershipInfo(categories);
-
-  // Fallback to mock data if API returns empty results
-  if (!memberships || memberships.length === 0 || collectMembershipTiers(memberships).length === 0) {
-    const { getMemberships } = await import("@/lib/membership");
-    memberships = getMemberships();
-  }
+  // Use static mock data
+  const memberships = getMemberships();
 
   const tiers = collectMembershipTiers(memberships);
 
@@ -439,20 +432,13 @@ export const getStaticProps: GetStaticProps<MembershipTierPageProps> = async ({
     };
   }
 
-  const categories = await fetchPlans();
-  let memberships = planCategoriesToMembershipInfo(categories);
+  // Use static mock data
+  const memberships = getMemberships();
 
-  // Fallback to mock data if API returns empty results
-  if (!memberships || memberships.length === 0 || collectMembershipTiers(memberships).length === 0) {
-    const { getMemberships } = await import("@/lib/membership");
-    memberships = getMemberships();
-  }
-
-  // Still no memberships after fallback
+  // Still no memberships
   if (memberships.length === 0) {
     return {
       notFound: true,
-      revalidate: 60,
     };
   }
 
@@ -464,7 +450,6 @@ export const getStaticProps: GetStaticProps<MembershipTierPageProps> = async ({
   if (!tierEntry?.tier?.name) {
     return {
       notFound: true,
-      revalidate: 60,
     };
   }
 
@@ -473,6 +458,5 @@ export const getStaticProps: GetStaticProps<MembershipTierPageProps> = async ({
       membership: tierEntry.membership,
       tier: tierEntry.tier,
     },
-    revalidate: 60,
   };
 };

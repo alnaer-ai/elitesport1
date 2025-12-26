@@ -9,11 +9,9 @@ import { MembershipCard } from "@/components/MembershipCard";
 import {
   collectMembershipFaqs,
   collectMembershipTiers,
+  getMemberships,
   type MembershipInfo,
-  planCategoriesToMembershipInfo,
 } from "@/lib/membership";
-
-import { fetchPlans } from "@/lib/api/plans";
 
 type MembershipsPageProps = {
   memberships: MembershipInfo[];
@@ -185,19 +183,12 @@ export default function MembershipsPage({
 }
 
 export const getStaticProps: GetStaticProps<MembershipsPageProps> = async () => {
-  const categories = await fetchPlans();
-  let memberships = planCategoriesToMembershipInfo(categories);
-
-  // Fallback to mock data if API returns empty results
-  if (!memberships || memberships.length === 0 || collectMembershipTiers(memberships).length === 0) {
-    const { getMemberships } = await import("@/lib/membership");
-    memberships = getMemberships();
-  }
+  // Use static mock data for memberships
+  const memberships = getMemberships();
 
   return {
     props: {
       memberships,
     },
-    revalidate: 60,
   };
 };
