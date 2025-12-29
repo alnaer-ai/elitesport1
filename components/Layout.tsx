@@ -30,9 +30,9 @@ const NAV_LINKS = [
 type SocialIconName = "facebook" | "instagram" | "linkedin" | "whatsapp";
 
 const SOCIAL_LINKS: { href: string; label: string; icon: SocialIconName }[] = [
-  { href: "#", label: "Facebook", icon: "facebook" },
-  { href: "#", label: "Instagram", icon: "instagram" },
-  { href: "#", label: "LinkedIn", icon: "linkedin" },
+  { href: "https://www.facebook.com/Elitesport.ae/", label: "Facebook", icon: "facebook" },
+  { href: "https://www.instagram.com/elitesport.ae/", label: "Instagram", icon: "instagram" },
+  { href: "https://ae.linkedin.com/company/theelitesport", label: "LinkedIn", icon: "linkedin" },
   { href: "#", label: "WhatsApp", icon: "whatsapp" },
 ];
 
@@ -331,10 +331,10 @@ const SiteFooter = () => {
                   <div className="space-y-1">
                     <p className="font-semibold text-brand-ivory">Call / WhatsApp</p>
                     <a
-                      href={`tel:${contactInfo?.phone ?? "+97121234567"}`}
+                      href={`tel:${contactInfo?.phone ?? "+971244444499"}`}
                       className="transition hover:text-brand-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-lightBlue focus-visible:ring-offset-2 focus-visible:ring-offset-brand-black"
                     >
-                      {contactInfo?.phone ?? "+971 2 123 4567"}
+                      {contactInfo?.phone ?? "+971 2 44444 99"}
                     </a>
                   </div>
                 </div>
