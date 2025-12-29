@@ -130,7 +130,7 @@ export default function Home(
         <meta property="og:image" content={HOME_SEO.image} />
       </Head>
 
-      <div className="space-y-12 pb-24">
+      <div className="space-y-6 pb-24">
         <Hero hero={hero} />
 
         <AboutTeaser imageUrl={aboutHero?.imageUrl} />
@@ -148,13 +148,13 @@ export default function Home(
                 className="grid gap-8 md:grid-cols-2 xl:grid-cols-3"
                 initial="hidden"
                 whileInView="visible"
-                viewport={{ once: true, amount: 0.2 }}
+                viewport={{ once: true, amount: 0.15 }}
                 variants={{
                   hidden: {},
-                  visible: { transition: { staggerChildren: 0.12 } },
+                  visible: { transition: { staggerChildren: 0.06 } },
                 }}
               >
-                {popularPlaces.map((place) => {
+                {popularPlaces.map((place, index) => {
                   const placeCategory = place.placeType ?? undefined;
                   const locationLabel = place.location ?? getCategoryLabel(placeCategory);
 
@@ -164,6 +164,7 @@ export default function Home(
                       place={place}
                       categoryLabel={locationLabel}
                       onSelect={(place) => openPlaceModal(place, locationLabel)}
+                      priority={index < 3}
                     />
                   );
                 })}
@@ -250,7 +251,7 @@ const Section = ({
 }) => {
   return (
     <motion.section
-      className={cn("py-10", className)}
+      className={cn("py-6", className)}
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, amount: 0.25 }}

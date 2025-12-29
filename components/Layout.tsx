@@ -33,7 +33,7 @@ const SOCIAL_LINKS: { href: string; label: string; icon: SocialIconName }[] = [
   { href: "https://www.facebook.com/Elitesport.ae/", label: "Facebook", icon: "facebook" },
   { href: "https://www.instagram.com/elitesport.ae/", label: "Instagram", icon: "instagram" },
   { href: "https://ae.linkedin.com/company/theelitesport", label: "LinkedIn", icon: "linkedin" },
-  { href: "#", label: "WhatsApp", icon: "whatsapp" },
+  { href: "https://wa.me/971507789900", label: "WhatsApp", icon: "whatsapp" },
 ];
 
 export const Layout = ({ children }: LayoutProps) => {

@@ -27,7 +27,7 @@ const items = [
 
 export const ValueHighlights = () => {
     return (
-        <section className="relative overflow-hidden py-24">
+        <section className="relative overflow-hidden py-12">
             <Container>
                 <div className="grid grid-cols-1 gap-12 md:grid-cols-3 md:gap-8">
                     {items.map((item, idx) => (

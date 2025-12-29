@@ -172,6 +172,26 @@ export default function MembershipTierPage({
                       {tier.description ??
                         "Membership specialists will update this tier description soon."}
                     </p>
+                    {tier.isBusinessOnly && (
+                      <div className="mt-4 flex justify-center">
+                        <span className="inline-flex items-center gap-2 rounded-full border border-brand-gold/40 bg-brand-gold/10 px-4 py-2 text-xs uppercase tracking-[0.3em] text-brand-gold backdrop-blur-sm">
+                          <svg
+                            className="h-4 w-4"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            strokeWidth={2}
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+                            />
+                          </svg>
+                          For Businesses Only
+                        </span>
+                      </div>
+                    )}
                   </div>
                   <div className="flex flex-wrap items-center justify-center gap-3">
                     {isBusinessTier ? (
@@ -226,7 +246,7 @@ export default function MembershipTierPage({
                         )}
                       </div>
                       {benefits.length > 0 ? (
-                        <ul className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-brand-gray">
+                        <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 text-sm text-brand-gray">
                           {benefits.map((benefit, index) => (
                             <li
                               key={`single-${benefit}-${index}`}
@@ -271,7 +291,7 @@ export default function MembershipTierPage({
                         )}
                       </div>
                       {benefits.length > 0 ? (
-                        <ul className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-brand-gray">
+                        <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 text-sm text-brand-gray">
                           {benefits.map((benefit, index) => (
                             <li
                               key={`${benefit}-${index}`}
@@ -319,7 +339,7 @@ export default function MembershipTierPage({
                         )}
                       </div>
                       {familyBenefits.length > 0 ? (
-                        <ul className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-brand-gray">
+                        <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 text-sm text-brand-gray">
                           {familyBenefits.map((benefit, index) => (
                             <li
                               key={`family-${benefit}-${index}`}
@@ -355,7 +375,7 @@ export default function MembershipTierPage({
                 </motion.div>
               )}
 
-              {/* Hotels & Gyms Section - Bullet Points */}
+              {/* Hotels & Gyms Section - Dynamic Columns */}
               {hotelsGyms.length > 0 && (
                 <motion.div
                   variants={motionItem}
@@ -369,13 +389,13 @@ export default function MembershipTierPage({
                       {hotelsGyms.length} venue{hotelsGyms.length === 1 ? "" : "s"}
                     </span>
                   </div>
-                  <ul className="space-y-3 text-sm text-brand-gray">
+                  <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-sm text-brand-gray">
                     {hotelsGyms.map((venue, index) => (
                       <li
                         key={`venue-${venue}-${index}`}
                         className="flex items-start gap-3"
                       >
-                        <span className="mt-1 text-brand-gold" aria-hidden="true">
+                        <span className="mt-1 text-brand-gold flex-shrink-0" aria-hidden="true">
                           •
                         </span>
                         <span className="text-sm text-brand-gray">

@@ -12,13 +12,15 @@ export type PlaceCardProps = {
   imageWidth?: number;
   imageHeight?: number;
   motionProps?: typeof cardMotionProps;
+  /** Enable priority loading for above-the-fold images */
+  priority?: boolean;
 };
 
 const cardMotionProps = {
-  initial: { opacity: 0, y: 24 },
+  initial: { opacity: 0, y: 16 },
   whileInView: { opacity: 1, y: 0 },
-  viewport: { once: true, amount: 0.2 },
-  transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] as const },
+  viewport: { once: true, amount: 0.15 },
+  transition: { duration: 0.35, ease: [0.25, 0.1, 0.25, 1] as const },
 };
 
 const FALLBACK_PLACE_IMAGE =
@@ -29,6 +31,7 @@ export const PlaceCard = ({
   categoryLabel: _providedLabel,
   onSelect,
   motionProps = cardMotionProps,
+  priority = false,
 }: PlaceCardProps) => {
   const imageUrl = place.featuredImageUrl ?? FALLBACK_PLACE_IMAGE;
   const placeCategory = place.placeType;
@@ -46,18 +49,18 @@ export const PlaceCard = ({
   return (
     <motion.article
       {...motionProps}
-      className="glass-card premium-card overflow-hidden cursor-pointer group flex flex-col h-full"
+      className="glass-card premium-card overflow-hidden cursor-pointer group flex flex-col h-full transform-gpu"
       onClick={handleClick}
       role={onSelect ? "button" : "article"}
       tabIndex={onSelect ? 0 : undefined}
       onKeyDown={
         onSelect
           ? (event) => {
-              if (event.key === "Enter" || event.key === " ") {
-                event.preventDefault();
-                onSelect(place);
-              }
+            if (event.key === "Enter" || event.key === " ") {
+              event.preventDefault();
+              onSelect(place);
             }
+          }
           : undefined
       }
       aria-label={onSelect ? `View details for ${place.name ?? "this place"}` : undefined}
@@ -69,7 +72,9 @@ export const PlaceCard = ({
           alt={place.imageAlt ?? place.name ?? "EliteSport place"}
           fill
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-          className="object-cover transition-transform duration-700 hover:scale-105"
+          className="object-cover transition-transform duration-500 group-hover:scale-105"
+          priority={priority}
+          loading={priority ? "eager" : "lazy"}
         />
         <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors duration-500" />
       </div>

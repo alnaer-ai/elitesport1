@@ -8,6 +8,7 @@ export type MembershipTier = {
   hotelsGyms?: string[];
   isPopular?: boolean;
   isFamilyFriendly?: boolean;
+  isBusinessOnly?: boolean;
   cardColor?: string;
   ctaLabel?: string;
   ctaUrl?: string;
@@ -51,7 +52,7 @@ export const MOCK_MEMBERSHIPS: MembershipInfo[] = [
       {
         name: "Gold",
         description:
-          "This plan includes premium hotels, resorts, and gyms in Abu Dhabi, offering wide access to high-end hospitality and fitness facilities.",
+          "This plan includes premium hotels, resorts, and gyms across the UAE, offering wide access to high-end hospitality and fitness facilities.",
         benefits: [
           "Beach",
           "Swimming",
@@ -94,6 +95,7 @@ export const MOCK_MEMBERSHIPS: MembershipInfo[] = [
         ],
         isPopular: true,
         isFamilyFriendly: false,
+        isBusinessOnly: true,
         cardColor: "#f4b942",
         ctaLabel: "Contact Business Team",
         ctaUrl: "/contact",

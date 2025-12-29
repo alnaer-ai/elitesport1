@@ -201,7 +201,7 @@ export default function AboutPage({
 
         {/* Mission & Vision Section */}
         {(about.missionStatement || about.vision || missionImageUrl || visionImageUrl) && (
-          <motion.section {...motionSectionProps} className="py-32 lg:py-40">
+          <motion.section {...motionSectionProps} className="py-16 lg:py-20">
             <Container>
               <div className="mb-20 text-center">
                 {about.missionSectionEyebrow && (
@@ -310,7 +310,7 @@ export default function AboutPage({
         )}
 
         {/* Luxury Escapes Gallery */}
-        <motion.section {...motionSectionProps} className="py-24 lg:py-28">
+        <motion.section {...motionSectionProps} className="py-12 lg:py-16">
           <Container>
             <div className="mb-16 flex flex-col items-center text-center">
               <motion.div {...fadeInUp} className="flex items-center gap-4 mb-6">

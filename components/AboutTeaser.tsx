@@ -10,7 +10,7 @@ type AboutTeaserProps = {
 
 export const AboutTeaser = ({ imageUrl }: AboutTeaserProps) => {
     return (
-        <section className="py-24 lg:py-32 overflow-hidden">
+        <section className="py-12 lg:py-16 overflow-hidden">
             <Container>
                 <div className="grid gap-12 lg:grid-cols-2 lg:gap-20 items-center">
                     {/* Image Column */}
