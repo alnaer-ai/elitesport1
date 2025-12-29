@@ -169,10 +169,10 @@ export default function MembershipsPage({
             <div className="mt-8 flex flex-wrap justify-center gap-4">
               <ButtonLink href={ctaHref}>{ctaLabel}</ButtonLink>
               <a
-                href="mailto:concierge@elitesport.com"
+                href="mailto:info@theelitesport.com"
                 className={secondaryButtonClasses}
               >
-                concierge@elitesport.com
+                info@theelitesport.com
               </a>
             </div>
           </Container>

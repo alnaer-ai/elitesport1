@@ -23,6 +23,7 @@ export default function ContactPage({
     planType: "Single" as PlanType,
   });
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleInputChange = (
     event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -49,7 +50,7 @@ export default function ContactPage({
     setStatusMessage(null);
   };
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (!formData.membership) {
@@ -57,9 +58,40 @@ export default function ContactPage({
       return;
     }
 
-    // In a real app, you'd send formData.planType too
-    console.log("Submitting:", formData);
-    setStatusMessage("Thank you for reaching out! We will respond shortly.");
+    setIsSubmitting(true);
+    setStatusMessage(null);
+
+    try {
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setStatusMessage(data.message);
+        // Reset form on success
+        setFormData({
+          name: "",
+          email: "",
+          phone: "",
+          message: "",
+          membership: "" as MembershipTier | "",
+          planType: "Single" as PlanType,
+        });
+      } else {
+        setStatusMessage(data.message || "Something went wrong. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      setStatusMessage("Failed to send message. Please try again later.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -180,9 +212,10 @@ export default function ContactPage({
             <div className="md:col-span-2">
               <button
                 type="submit"
-                className="inline-flex w-full items-center justify-center rounded-full bg-brand-gold px-8 py-3 text-sm font-semibold uppercase tracking-[0.3em] text-brand-black transition hover:bg-brand-lightBlue hover:text-brand-ivory md:w-auto"
+                disabled={isSubmitting}
+                className="inline-flex w-full items-center justify-center rounded-full bg-brand-gold px-8 py-3 text-sm font-semibold uppercase tracking-[0.3em] text-brand-black transition hover:bg-brand-lightBlue hover:text-brand-ivory disabled:opacity-50 disabled:cursor-not-allowed md:w-auto"
               >
-                Send Message
+                {isSubmitting ? "Sending..." : "Send Message"}
               </button>
             </div>
           </form>

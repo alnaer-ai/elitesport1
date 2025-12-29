@@ -536,7 +536,7 @@ export const MOCK_CONTACT: ContactInfo = {
   address:
     "EliteSport Headquarters\nAl Maryah Island, Abu Dhabi\nUnited Arab Emirates",
   phone: "+971 2 44444 99",
-  email: "concierge@elitesport.com",
+  email: "info@theelitesport.com",
   introText:
     "We would love to hear from you. Whether you're interested in membership, partnerships, or have questions about our services, our team is here to help.",
   mapLocation: {

@@ -343,10 +343,10 @@ const SiteFooter = () => {
                     <MailIcon />
                   </span>
                   <a
-                    href={`mailto:${contactInfo?.email ?? "concierge@elitesport.com"}`}
+                    href={`mailto:${contactInfo?.email ?? "info@theelitesport.com"}`}
                     className="font-medium transition hover:text-brand-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-lightBlue focus-visible:ring-offset-2 focus-visible:ring-offset-brand-black"
                   >
-                    {contactInfo?.email ?? "concierge@elitesport.com"}
+                    {contactInfo?.email ?? "info@theelitesport.com"}
                   </a>
                 </div>
               </div>

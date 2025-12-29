@@ -74,9 +74,21 @@ ELITESPORT_GET_PROMOTIONS_WEB_URL=https://elitesport.online/api/get-promo-web
 
 # Required for all API calls - authentication token
 ELITESPORT_API_TOKEN=your_token_here
+
+# Email Configuration (for Contact Form)
+# SMTP settings for sending contact form emails
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_SECURE=false
+SMTP_USER=your-email@gmail.com
+SMTP_PASSWORD=your-app-password
+CONTACT_EMAIL=info@theelitesport.com
 ```
 
-**Note:** API tokens should never be committed to the repository. Use `.env.local` for local development.
+**Note:** 
+- API tokens should never be committed to the repository. Use `.env.local` for local development.
+- For Gmail, you'll need to use an [App Password](https://support.google.com/accounts/answer/185833) instead of your regular password.
+- If email credentials are not configured, the contact form will still work but will log submissions to the console instead of sending emails.
 
 > ⚠️ **Vercel Deployment:** These environment variables must be configured in your Vercel project settings under Settings → Environment Variables. Add all three variables for Production, Preview, and Development environments.
 
