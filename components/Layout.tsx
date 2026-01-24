@@ -244,13 +244,7 @@ const SiteFooter = () => {
                   height={80}
                   className="h-12 w-auto drop-shadow-[0_10px_25px_rgba(0,0,0,0.4)]"
                 />
-                <span className="text-[11px] font-semibold uppercase tracking-[0.3em] text-brand-gold/80">
-                  Membership
-                </span>
               </div>
-              <p className="hidden text-base leading-relaxed text-brand-ivory/70 md:block">
-                EliteSport is your gateway to elevated training destinations, curated access, and unforgettable experiences.
-              </p>
 
               {/* Mobile Download App Section */}
               <div className="space-y-3 md:hidden">
@@ -275,31 +269,34 @@ const SiteFooter = () => {
                   </a>
                 ))}
               </div>
+
+              {/* Payment Methods */}
+              <div className="flex items-center gap-3">
+                <VisaLogo />
+                <MastercardLogo />
+              </div>
             </div>
 
             <div className="hidden space-y-5 lg:block">
-              <h3 className="text-xl font-semibold text-brand-ivory">Explore EliteSport</h3>
+              <h3 className="text-xl font-semibold text-brand-ivory">Quick Links</h3>
               <div className="grid gap-3 text-base font-medium text-brand-ivory/70">
                 <Link
-                  href="/"
+                  href="/about"
                   className="rounded-lg px-2 py-1 transition hover:text-brand-gold hover:underline hover:underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-lightBlue focus-visible:ring-offset-2 focus-visible:ring-offset-brand-black"
                 >
-                  Home
+                  About Us
                 </Link>
-                {NAV_LINKS.map((link) => (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    className="rounded-lg px-2 py-1 transition hover:text-brand-gold hover:underline hover:underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-lightBlue focus-visible:ring-offset-2 focus-visible:ring-offset-brand-black"
-                  >
-                    {link.label}
-                  </Link>
-                ))}
+                <Link
+                  href="/memberships"
+                  className="rounded-lg px-2 py-1 transition hover:text-brand-gold hover:underline hover:underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-lightBlue focus-visible:ring-offset-2 focus-visible:ring-offset-brand-black"
+                >
+                  Memberships
+                </Link>
                 <Link
                   href="/contact"
                   className="rounded-lg px-2 py-1 transition hover:text-brand-gold hover:underline hover:underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-lightBlue focus-visible:ring-offset-2 focus-visible:ring-offset-brand-black"
                 >
-                  Contact Us
+                  Contact
                 </Link>
               </div>
             </div>
@@ -354,9 +351,6 @@ const SiteFooter = () => {
 
             <div className="hidden space-y-5 lg:block">
               <h3 className="text-xl font-semibold text-brand-ivory">Get The App</h3>
-              <p className="text-base leading-relaxed text-brand-ivory/70">
-                Enjoy faster access to concierge bookings and on-the-go member perks.
-              </p>
               <div className="flex flex-wrap gap-3">
                 <StoreBadge platform="google" />
                 <StoreBadge platform="apple" />
@@ -366,7 +360,20 @@ const SiteFooter = () => {
 
           <div className="mt-12 flex flex-col gap-4 border-t border-white/5 pt-6 text-xs text-brand-ivory/60 sm:flex-row sm:items-center sm:justify-between">
             <div>© 2025 EliteSport. All rights reserved.</div>
-
+            <div className="flex gap-4">
+              <Link
+                href="/terms"
+                className="transition hover:text-brand-gold"
+              >
+                Terms &amp; Conditions
+              </Link>
+              <Link
+                href="/privacy"
+                className="transition hover:text-brand-gold"
+              >
+                Privacy Policy
+              </Link>
+            </div>
           </div>
         </div>
       </div>
@@ -543,4 +550,28 @@ const MapPinIcon = () => (
     />
     <circle cx="12" cy="8.8" r="1.2" fill="#0b1422" />
   </svg>
+);
+
+const VisaLogo = () => (
+  <div className="flex h-8 w-14 items-center justify-center rounded bg-white px-1">
+    <svg viewBox="0 0 48 16" aria-label="Visa" className="h-4 w-full">
+      <path
+        fill="#1A1F71"
+        d="M19.5 1.5L17 14.5H13.8L16.3 1.5H19.5ZM32.7 9.8L34.3 5.4L35.2 9.8H32.7ZM36.2 14.5H39L36.6 1.5H34C33.2 1.5 32.5 2 32.2 2.7L26.9 14.5H30.4L31.1 12.5H35.4L35.8 14.5H36.2ZM28.5 10C28.5 6.5 23.6 6.3 23.6 4.7C23.6 4.2 24.1 3.6 25.2 3.5C25.7 3.5 27.2 3.4 28.8 4.1L29.4 1.8C28.5 1.5 27.4 1.2 26 1.2C22.7 1.2 20.4 2.9 20.4 5.4C20.4 7.2 22 8.2 23.3 8.8C24.6 9.5 25 9.9 25 10.5C25 11.3 24 11.7 23.1 11.7C21.3 11.7 20.3 11.3 19.4 10.8L18.8 13.2C19.8 13.6 21.3 14 22.8 14C26.3 14 28.5 12.4 28.5 10ZM15.3 1.5L10 14.5H6.5L3.8 4C3.7 3.4 3.5 3.2 3 3C2.1 2.6 0.7 2.2 0 2L0.1 1.5H5.6C6.3 1.5 6.9 2 7.1 2.8L8.4 9.8L11.8 1.5H15.3Z"
+      />
+    </svg>
+  </div>
+);
+
+const MastercardLogo = () => (
+  <div className="flex h-8 w-14 items-center justify-center rounded bg-[#1a1f2e] px-1">
+    <svg viewBox="0 0 48 30" aria-label="Mastercard" className="h-6 w-full">
+      <circle cx="18" cy="15" r="12" fill="#EB001B" />
+      <circle cx="30" cy="15" r="12" fill="#F79E1B" />
+      <path
+        fill="#FF5F00"
+        d="M24 5.5C26.4 7.4 28 10 28 13S26.4 18.6 24 20.5C21.6 18.6 20 16 20 13S21.6 7.4 24 5.5Z"
+      />
+    </svg>
+  </div>
 );
