@@ -95,7 +95,7 @@ export const MOCK_MEMBERSHIPS: MembershipInfo[] = [
         isFamilyFriendly: false,
         isBusinessOnly: true,
         cardColor: "#f4b942",
-        ctaLabel: "Contact Business Team",
+        ctaLabel: "Contact Us",
         ctaUrl: "/contact",
       },
       {

@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/cn";
-import { FamilyFriendlyIcon } from "./FamilyFriendlyIcon";
 import {
   getTierColor,
   getTierHref,
@@ -84,11 +83,7 @@ export function MembershipCard({
 
         <div className="relative z-10 flex h-full flex-col gap-5 text-white drop-shadow-md">
           <div className="relative flex flex-col items-center gap-4">
-            {tier.isFamilyFriendly && (
-              <span className="absolute top-0 left-0 -ml-4 rounded-full border border-white/40 bg-white/10 p-1.5 text-white shadow-sm backdrop-blur-sm" title="Family Friendly">
-                <FamilyFriendlyIcon className="h-4 w-4" />
-              </span>
-            )}
+
             {tier.isBusinessOnly && (
               <span className="absolute top-0 left-0 -ml-4 rounded-full border border-white/40 bg-white/10 px-3 py-1 text-xs uppercase tracking-[0.2em] text-white shadow-sm backdrop-blur-sm" title="For Corporate Only">
                 Corporate

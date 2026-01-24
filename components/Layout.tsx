@@ -234,30 +234,68 @@ const SiteFooter = () => {
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_10%,rgba(111,175,206,0.12),transparent_35%),radial-gradient(circle_at_80%_10%,rgba(197,163,91,0.14),transparent_35%),radial-gradient(circle_at_50%_80%,rgba(16,54,87,0.18),transparent_45%)]" />
         <div className="absolute left-1/2 top-[-30%] h-80 w-80 -translate-x-1/2 rounded-full bg-brand-lightBlue/5 blur-3xl" />
         <div className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-4">
-            <div className="space-y-6 p-6">
-              <div className="flex items-center gap-3">
-                <Image
-                  src="/elitsportlogo-clear.png"
-                  alt="EliteSport logo"
-                  width={220}
-                  height={80}
-                  className="h-12 w-auto drop-shadow-[0_10px_25px_rgba(0,0,0,0.4)]"
-                />
-              </div>
 
-              {/* Mobile Download App Section */}
-              <div className="space-y-3 md:hidden">
-                <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-brand-gold">
-                  Download our app
-                </p>
-                <div className="flex items-center gap-3">
-                  <StoreBadge platform="apple" variant="icon" />
-                  <StoreBadge platform="google" variant="icon" />
-                </div>
-              </div>
+          {/* Mobile Footer Layout */}
+          <div className="flex flex-col items-center text-center space-y-10 md:hidden">
+            {/* Logo */}
+            <Image
+              src="/elitsportlogo-clear.png"
+              alt="EliteSport logo"
+              width={220}
+              height={80}
+              className="h-14 w-auto drop-shadow-[0_10px_25px_rgba(0,0,0,0.4)]"
+            />
 
-              <div className="flex items-center gap-3">
+            {/* Contact Info Section */}
+            <div className="space-y-5 w-full">
+              <h3 className="text-lg font-semibold text-brand-gold uppercase tracking-wider">Contact Us</h3>
+              <div className="space-y-4 text-sm text-brand-ivory/80">
+                <a
+                  href={`tel:${contactInfo?.phone ?? "+971244444499"}`}
+                  className="flex items-center justify-center gap-2 transition hover:text-brand-gold"
+                >
+                  <PhoneIcon />
+                  <span>{contactInfo?.phone ?? "+971 2 44444 99"}</span>
+                </a>
+                <a
+                  href={`mailto:${contactInfo?.email ?? "info@theelitesport.com"}`}
+                  className="flex items-center justify-center gap-2 transition hover:text-brand-gold"
+                >
+                  <MailIcon />
+                  <span>{contactInfo?.email ?? "info@theelitesport.com"}</span>
+                </a>
+                <a
+                  href={googleMapsUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2 text-brand-gold transition hover:text-brand-lightBlue"
+                >
+                  <LocationIcon />
+                  <span>View on Google Maps</span>
+                </a>
+              </div>
+            </div>
+
+            {/* Divider */}
+            <div className="w-24 h-px bg-brand-gold/30" />
+
+            {/* Download App Section */}
+            <div className="space-y-4">
+              <p className="text-xs font-bold uppercase tracking-[0.25em] text-brand-gold">
+                Download Our App
+              </p>
+              <div className="flex items-center justify-center gap-4">
+                <StoreBadge platform="apple" variant="icon" />
+                <StoreBadge platform="google" variant="icon" />
+              </div>
+            </div>
+
+            {/* Social Links */}
+            <div className="space-y-4">
+              <p className="text-xs font-bold uppercase tracking-[0.25em] text-brand-ivory/60">
+                Follow Us
+              </p>
+              <div className="flex items-center justify-center gap-3">
                 {SOCIAL_LINKS.map((social) => (
                   <a
                     key={social.label}
@@ -269,96 +307,151 @@ const SiteFooter = () => {
                   </a>
                 ))}
               </div>
+            </div>
 
-              {/* Payment Methods */}
+            {/* Payment Methods */}
+            <div className="flex items-center justify-center gap-4">
+              <VisaLogo />
+              <MastercardLogo />
+            </div>
+          </div>
+
+          {/* Desktop Footer Layout */}
+          <div className="hidden md:grid grid-cols-2 lg:grid-cols-4 gap-12 items-start">
+            {/* Brand Column */}
+            <div className="space-y-6 lg:col-span-1">
+              <Image
+                src="/elitsportlogo-clear.png"
+                alt="EliteSport logo"
+                width={220}
+                height={80}
+                className="h-14 w-auto drop-shadow-[0_10px_25px_rgba(0,0,0,0.4)]"
+              />
+              <p className="text-sm text-brand-ivory/70 leading-relaxed">
+                Your gateway to premium sports and wellness experiences across the UAE.
+              </p>
               <div className="flex items-center gap-3">
-                <VisaLogo />
-                <MastercardLogo />
+                {SOCIAL_LINKS.map((social) => (
+                  <a
+                    key={social.label}
+                    href={social.href}
+                    aria-label={social.label}
+                    className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-brand-ivory/80 transition duration-200 hover:-translate-y-0.5 hover:border-brand-gold/70 hover:bg-brand-gold/15 hover:text-brand-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-lightBlue focus-visible:ring-offset-2 focus-visible:ring-offset-brand-black"
+                  >
+                    <SocialIcon name={social.icon} />
+                  </a>
+                ))}
               </div>
             </div>
 
-            <div className="hidden space-y-5 lg:block">
-              <h3 className="text-xl font-semibold text-brand-ivory">Quick Links</h3>
-              <div className="grid gap-3 text-base font-medium text-brand-ivory/70">
+            {/* Quick Links Column */}
+            <div className="space-y-5">
+              <h3 className="text-sm font-bold uppercase tracking-[0.2em] text-brand-gold">Quick Links</h3>
+              <div className="grid gap-2 text-sm text-brand-ivory/70">
                 <Link
                   href="/about"
-                  className="rounded-lg px-2 py-1 transition hover:text-brand-gold hover:underline hover:underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-lightBlue focus-visible:ring-offset-2 focus-visible:ring-offset-brand-black"
+                  className="w-fit py-1 transition hover:text-brand-gold hover:translate-x-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-lightBlue focus-visible:ring-offset-2 focus-visible:ring-offset-brand-black"
                 >
                   About Us
                 </Link>
                 <Link
                   href="/memberships"
-                  className="rounded-lg px-2 py-1 transition hover:text-brand-gold hover:underline hover:underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-lightBlue focus-visible:ring-offset-2 focus-visible:ring-offset-brand-black"
+                  className="w-fit py-1 transition hover:text-brand-gold hover:translate-x-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-lightBlue focus-visible:ring-offset-2 focus-visible:ring-offset-brand-black"
                 >
                   Memberships
                 </Link>
                 <Link
+                  href="/places"
+                  className="w-fit py-1 transition hover:text-brand-gold hover:translate-x-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-lightBlue focus-visible:ring-offset-2 focus-visible:ring-offset-brand-black"
+                >
+                  Places
+                </Link>
+                <Link
+                  href="/promotions"
+                  className="w-fit py-1 transition hover:text-brand-gold hover:translate-x-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-lightBlue focus-visible:ring-offset-2 focus-visible:ring-offset-brand-black"
+                >
+                  Promotions
+                </Link>
+                <Link
                   href="/contact"
-                  className="rounded-lg px-2 py-1 transition hover:text-brand-gold hover:underline hover:underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-lightBlue focus-visible:ring-offset-2 focus-visible:ring-offset-brand-black"
+                  className="w-fit py-1 transition hover:text-brand-gold hover:translate-x-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-lightBlue focus-visible:ring-offset-2 focus-visible:ring-offset-brand-black"
                 >
                   Contact
                 </Link>
               </div>
             </div>
 
+            {/* Contact Column */}
             <div className="space-y-5">
-              <h3 className="text-xl font-semibold text-brand-ivory">Get In Touch</h3>
-              <div className="space-y-4 text-[15px] text-brand-ivory/80">
-                <div className="flex gap-3">
-                  <span className="mt-1 text-brand-ivory/60">
-                    <LocationIcon />
-                  </span>
-                  <div className="space-y-1">
-                    <p className="font-semibold text-brand-ivory">Head Office</p>
-                    <a
-                      href={googleMapsUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 text-sm font-medium text-brand-gold transition hover:text-brand-lightBlue focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-lightBlue focus-visible:ring-offset-2 focus-visible:ring-offset-brand-black"
-                    >
-                      View on Google Maps
-                    </a>
-                  </div>
-                </div>
-                <MapPreview googleMapsUrl={googleMapsUrl} />
-                <div className="flex gap-3">
-                  <span className="mt-1 text-brand-ivory/60">
+              <h3 className="text-sm font-bold uppercase tracking-[0.2em] text-brand-gold">Contact Us</h3>
+              <div className="space-y-4 text-sm text-brand-ivory/70">
+                <div className="flex gap-3 items-start">
+                  <span className="mt-0.5 text-brand-gold/80">
                     <PhoneIcon />
                   </span>
-                  <div className="space-y-1">
-                    <p className="font-semibold text-brand-ivory">Call / WhatsApp</p>
+                  <div>
+                    <p className="text-xs uppercase tracking-wider text-brand-ivory/50 mb-1">Call / WhatsApp</p>
                     <a
                       href={`tel:${contactInfo?.phone ?? "+971244444499"}`}
-                      className="transition hover:text-brand-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-lightBlue focus-visible:ring-offset-2 focus-visible:ring-offset-brand-black"
+                      className="text-brand-ivory transition hover:text-brand-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-lightBlue focus-visible:ring-offset-2 focus-visible:ring-offset-brand-black"
                     >
                       {contactInfo?.phone ?? "+971 2 44444 99"}
                     </a>
                   </div>
                 </div>
-                <div className="flex gap-3">
-                  <span className="mt-1 text-brand-ivory/60">
+                <div className="flex gap-3 items-start">
+                  <span className="mt-0.5 text-brand-gold/80">
                     <MailIcon />
                   </span>
-                  <a
-                    href={`mailto:${contactInfo?.email ?? "info@theelitesport.com"}`}
-                    className="font-medium transition hover:text-brand-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-lightBlue focus-visible:ring-offset-2 focus-visible:ring-offset-brand-black"
-                  >
-                    {contactInfo?.email ?? "info@theelitesport.com"}
-                  </a>
+                  <div>
+                    <p className="text-xs uppercase tracking-wider text-brand-ivory/50 mb-1">Email</p>
+                    <a
+                      href={`mailto:${contactInfo?.email ?? "info@theelitesport.com"}`}
+                      className="text-brand-ivory transition hover:text-brand-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-lightBlue focus-visible:ring-offset-2 focus-visible:ring-offset-brand-black"
+                    >
+                      {contactInfo?.email ?? "info@theelitesport.com"}
+                    </a>
+                  </div>
+                </div>
+                <div className="flex gap-3 items-start">
+                  <span className="mt-0.5 text-brand-gold/80">
+                    <LocationIcon />
+                  </span>
+                  <div>
+                    <p className="text-xs uppercase tracking-wider text-brand-ivory/50 mb-1">Location</p>
+                    <a
+                      href={googleMapsUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-brand-ivory transition hover:text-brand-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-lightBlue focus-visible:ring-offset-2 focus-visible:ring-offset-brand-black"
+                    >
+                      View on Google Maps →
+                    </a>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <div className="hidden space-y-5 lg:block">
-              <h3 className="text-xl font-semibold text-brand-ivory">Get The App</h3>
-              <div className="flex flex-wrap gap-3">
-                <StoreBadge platform="google" />
-                <StoreBadge platform="apple" />
+            {/* App & Payment Column */}
+            <div className="space-y-6">
+              <div className="space-y-4">
+                <h3 className="text-sm font-bold uppercase tracking-[0.2em] text-brand-gold">Get The App</h3>
+                <div className="flex flex-col gap-3">
+                  <StoreBadge platform="apple" />
+                  <StoreBadge platform="google" />
+                </div>
+              </div>
+              <div className="space-y-3 pt-2">
+                <p className="text-xs uppercase tracking-wider text-brand-ivory/50">We Accept</p>
+                <div className="flex items-center gap-3">
+                  <VisaLogo />
+                  <MastercardLogo />
+                </div>
               </div>
             </div>
           </div>
 
-          <div className="mt-12 flex flex-col gap-4 border-t border-white/5 pt-6 text-xs text-brand-ivory/60 sm:flex-row sm:items-center sm:justify-between">
+          <div className="mt-12 flex flex-col items-center gap-4 border-t border-white/5 pt-6 text-xs text-brand-ivory/60 md:flex-row md:justify-between">
             <div>© 2025 EliteSport. All rights reserved.</div>
             <div className="flex gap-4">
               <Link
