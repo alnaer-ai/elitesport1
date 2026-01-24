@@ -3,8 +3,6 @@ import { GetStaticProps, InferGetStaticPropsType } from "next";
 import { ChangeEvent, FormEvent, useState } from "react";
 
 import { Container } from "@/components/Container";
-import { MembershipSelect, type MembershipTier } from "@/components/contact/MembershipSelect";
-import { PlanTypeSelect, type PlanType } from "@/components/contact/PlanTypeSelect";
 import { getPageHero, type HeroPayload } from "@/lib/mockData";
 
 type ContactPageProps = {
@@ -18,9 +16,8 @@ export default function ContactPage({
     name: "",
     email: "",
     phone: "",
+    subject: "",
     message: "",
-    membership: "" as MembershipTier | "",
-    planType: "Single" as PlanType,
   });
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -33,28 +30,16 @@ export default function ContactPage({
     setStatusMessage(null);
   };
 
-  const handleMembershipChange = (value: MembershipTier) => {
-    setFormData((prev) => {
-      const isRestricted = value === "Gym" || value === "She";
-      return {
-        ...prev,
-        membership: value,
-        planType: isRestricted ? "Single" : prev.planType,
-      };
-    });
-    setStatusMessage(null);
-  };
-
-  const handlePlanTypeChange = (value: PlanType) => {
-    setFormData((prev) => ({ ...prev, planType: value }));
-    setStatusMessage(null);
-  };
-
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (!formData.membership) {
-      setStatusMessage("Please select a membership option.");
+    if (!formData.name) {
+      setStatusMessage("Please enter your name.");
+      return;
+    }
+
+    if (!formData.email) {
+      setStatusMessage("Please enter your email address.");
       return;
     }
 
@@ -79,9 +64,8 @@ export default function ContactPage({
           name: "",
           email: "",
           phone: "",
+          subject: "",
           message: "",
-          membership: "" as MembershipTier | "",
-          planType: "Single" as PlanType,
         });
       } else {
         setStatusMessage(data.message || "Something went wrong. Please try again.");
@@ -126,12 +110,12 @@ export default function ContactPage({
 
           <form
             onSubmit={handleSubmit}
-            className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-2"
+            className="mt-8 flex flex-col gap-6"
             noValidate
           >
             <div className="space-y-2">
               <label htmlFor="name" className="text-xs uppercase tracking-[0.3em] text-brand-lightBlue">
-                Name
+                Name <span className="text-brand-gold">*</span>
               </label>
               <input
                 id="name"
@@ -141,13 +125,13 @@ export default function ContactPage({
                 required
                 autoComplete="name"
                 className="w-full rounded-xl border border-brand-deepBlue/60 bg-brand-black/40 px-4 py-3 text-brand-ivory placeholder:text-brand-gray focus:border-brand-gold focus:outline-none"
-                placeholder="Your full name"
+                placeholder="Your name"
               />
             </div>
 
             <div className="space-y-2">
               <label htmlFor="email" className="text-xs uppercase tracking-[0.3em] text-brand-lightBlue">
-                Email
+                Email <span className="text-brand-gold">*</span>
               </label>
               <input
                 id="email"
@@ -158,13 +142,13 @@ export default function ContactPage({
                 required
                 autoComplete="email"
                 className="w-full rounded-xl border border-brand-deepBlue/60 bg-brand-black/40 px-4 py-3 text-brand-ivory placeholder:text-brand-gray focus:border-brand-gold focus:outline-none"
-                placeholder="name@company.com"
+                placeholder="name@example.com"
               />
             </div>
 
             <div className="space-y-2">
               <label htmlFor="phone" className="text-xs uppercase tracking-[0.3em] text-brand-lightBlue">
-                Phone (Optional)
+                Phone Number
               </label>
               <input
                 id="phone"
@@ -173,24 +157,25 @@ export default function ContactPage({
                 onChange={handleInputChange}
                 autoComplete="tel"
                 className="w-full rounded-xl border border-brand-deepBlue/60 bg-brand-black/40 px-4 py-3 text-brand-ivory placeholder:text-brand-gray focus:border-brand-gold focus:outline-none"
-                placeholder="+1 (555) 000-0000"
+                placeholder="+971 2 000 0000"
               />
             </div>
 
-            <div className="md:col-span-2 space-y-8 border-y border-brand-deepBlue/30 py-8">
-              <MembershipSelect
-                selected={formData.membership}
-                onChange={handleMembershipChange}
-              />
-
-              <PlanTypeSelect
-                selected={formData.planType}
-                onChange={handlePlanTypeChange}
-                isFamilyDisabled={
-                  formData.membership === "Gym" || formData.membership === "She"
-                }
+            <div className="space-y-2 md:col-span-2">
+              <label htmlFor="subject" className="text-xs uppercase tracking-[0.3em] text-brand-lightBlue">
+                Subject
+              </label>
+              <input
+                id="subject"
+                name="subject"
+                value={formData.subject}
+                onChange={handleInputChange}
+                autoComplete="off"
+                className="w-full rounded-xl border border-brand-deepBlue/60 bg-brand-black/40 px-4 py-3 text-brand-ivory placeholder:text-brand-gray focus:border-brand-gold focus:outline-none"
+                placeholder="What is this regarding?"
               />
             </div>
+
 
             <div className="space-y-2 md:col-span-2">
               <label htmlFor="message" className="text-xs uppercase tracking-[0.3em] text-brand-lightBlue">
