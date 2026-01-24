@@ -61,8 +61,6 @@ export const MOCK_MEMBERSHIPS: MembershipInfo[] = [
           "Steam",
           "Jacuzzi",
           "Gym",
-          "Tennis court",
-          "Squash court",
           "Kids play area",
         ],
         familyBenefits: [
@@ -112,8 +110,6 @@ export const MOCK_MEMBERSHIPS: MembershipInfo[] = [
           "Steam",
           "Jacuzzi",
           "Gym",
-          "Tennis court",
-          "Squash court",
           "Kids play area",
         ],
         familyBenefits: [
@@ -160,8 +156,6 @@ export const MOCK_MEMBERSHIPS: MembershipInfo[] = [
           "Steam",
           "Jacuzzi",
           "Gym",
-          "Tennis court",
-          "Squash court",
           "Kids play area",
         ],
         familyBenefits: [

@@ -8,6 +8,8 @@ export type PromotionCardContent = {
   imageAlt?: string;
   discountPercentage?: number;
   promotionTypeLabel?: string;
+  promotionCategoryId?: number;
+  promotionCategoryIcon?: string;
   metaLabel?: string;
   overview?: PortableTextBlock[];
   benefits?: string[];

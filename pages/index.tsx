@@ -12,6 +12,7 @@ import { MembershipCard } from "@/components/MembershipCard";
 import { MembershipScrollSection } from "@/components/MembershipScrollSection";
 import { AboutTeaser } from "@/components/AboutTeaser";
 import { ValueHighlights } from "@/components/ValueHighlights";
+import { HowToSubscribe } from "@/components/HowToSubscribe";
 import {
   PlaceCard,
   usePlaceModal,
@@ -230,6 +231,8 @@ export default function Home(
             setSelectedPromotion(null);
           }}
         />
+
+        <HowToSubscribe />
 
       </div>
     </>

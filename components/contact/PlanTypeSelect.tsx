@@ -37,7 +37,7 @@ export function PlanTypeSelect({ selected, onChange, isFamilyDisabled }: PlanTyp
           onClick={() => !isFamilyDisabled && onChange("Family")}
           disabled={isFamilyDisabled}
           className={cn(
-            "group relative flex items-center justify-center rounded-xl border px-4 py-4 transition-all duration-300",
+            "group relative flex flex-col items-center justify-center rounded-xl border px-4 py-4 transition-all duration-300",
             isFamilyDisabled
               ? "cursor-not-allowed border-brand-deepBlue/30 bg-brand-black/20 text-brand-gray/30 opacity-50"
               : selected === "Family"
@@ -49,6 +49,12 @@ export function PlanTypeSelect({ selected, onChange, isFamilyDisabled }: PlanTyp
           aria-disabled={isFamilyDisabled}
         >
           <span className="text-sm font-semibold tracking-wide uppercase">Family</span>
+          <span className="flex items-center gap-1 mt-1 text-xs text-brand-gold/80">
+            <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+            </svg>
+            Kids under 16
+          </span>
         </button>
       </div>
     </div>

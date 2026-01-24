@@ -14,6 +14,15 @@ import type { PromotionRecord } from "@/lib/promotionContent";
 // =============================================================================
 
 /**
+ * Promotion category object from the API.
+ */
+export type PromotionCategoryApiResponse = {
+  id: number;
+  name: string;
+  icon: string;
+};
+
+/**
  * Raw promotion data from the EliteSport API.
  * Endpoint: POST https://elitesport.online/api/get-promo-web
  */
@@ -25,6 +34,7 @@ export type PromotionApiResponse = {
   description: string;
   start_date: string;
   end_date: string;
+  promotion_category?: PromotionCategoryApiResponse;
 };
 
 /**
@@ -226,10 +236,17 @@ export function mapApiPromotionToRecord(
   const cleanedDescription = cleanDescription(apiPromotion.description);
   const overviewBlocks = descriptionToPortableText(cleanedDescription);
 
+  // Extract promotion category data
+  const category = apiPromotion.promotion_category;
+  const categoryName = category?.name || null;
+  const categoryIconUrl = category?.icon ? getFullImageUrl(category.icon) : null;
+
   return {
     _id: `promo-${apiPromotion.id}`,
     title: apiPromotion.name || null,
-    promotionType: null, // Not available from API
+    promotionType: categoryName, // Now available from API via promotion_category.name
+    promotionCategoryId: category?.id || null,
+    promotionCategoryIcon: categoryIconUrl,
     overview: overviewBlocks,
     overviewText: truncateDescription(cleanedDescription, 200),
     benefits: null, // Not structured in API descriptions

@@ -139,28 +139,35 @@ export const PromotionModal = ({
             </h2>
           </div>
         </div>
-        <div className="space-y-6 px-8 py-10">
-          <div className="flex flex-wrap gap-2">
-            {promotion.promotionTypeLabel && (
-              <PromoBadge label={promotion.promotionTypeLabel} tone="accent" />
-            )}
-            <div className="text-xs uppercase tracking-[0.4em] text-brand-lightBlue py-1">
+        <div className="space-y-6 px-8 py-8">
+          {/* Category and Dates Row */}
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-white/10 pb-5">
+            <div className="flex items-center gap-3">
+              {promotion.promotionTypeLabel && (
+                <PromoBadge label={promotion.promotionTypeLabel} tone="accent" />
+              )}
+            </div>
+            <div className="text-xs uppercase tracking-[0.35em] text-brand-lightBlue/80">
               {dateLabel}
             </div>
           </div>
 
+          {/* Overview Section */}
           {hasOverview && (
-            <div className="space-y-3">
-              <p className="text-xs uppercase tracking-[0.4em] text-brand-lightBlue">
+            <div className="space-y-4">
+              <p className="text-xs font-semibold uppercase tracking-[0.4em] text-brand-gold">
                 Overview
               </p>
-              <PortableText value={overview ?? []} components={portableTextComponents} />
+              <div className="prose-sm text-brand-gray/90 leading-relaxed space-y-3">
+                <PortableText value={overview ?? []} components={portableTextComponents} />
+              </div>
             </div>
           )}
 
+          {/* Benefits Section */}
           {benefits.length > 0 && (
-            <div className="space-y-3">
-              <p className="text-xs uppercase tracking-[0.4em] text-brand-lightBlue">
+            <div className="space-y-4">
+              <p className="text-xs font-semibold uppercase tracking-[0.4em] text-brand-gold">
                 Benefits
               </p>
               <ul className="list-disc space-y-2 pl-6 text-brand-gray/90">
@@ -171,8 +178,9 @@ export const PromotionModal = ({
             </div>
           )}
 
+          {/* CTA Button */}
           {promotion.ctaAction && (
-            <div className="pt-2">
+            <div className="pt-4 border-t border-white/10">
               <ButtonLink href={promotion.ctaAction} variant="secondary">
                 {promotion.ctaLabel ?? "Learn More"}
               </ButtonLink>

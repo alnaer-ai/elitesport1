@@ -12,6 +12,8 @@ export type PromotionRecord = {
   _id: string;
   title?: string | null;
   promotionType?: string | null;
+  promotionCategoryId?: number | null;
+  promotionCategoryIcon?: string | null;
   overview?: PortableTextBlock[] | null;
   overviewText?: string | null;
   benefits?: string[] | null;
@@ -57,6 +59,8 @@ export const mapPromotionRecordToCardContent = (
     imageAlt,
     discountPercentage,
     promotionTypeLabel,
+    promotionCategoryId: promotion.promotionCategoryId ?? undefined,
+    promotionCategoryIcon: promotion.promotionCategoryIcon ?? undefined,
     metaLabel,
     overview: promotion.overview ?? undefined,
     benefits: promotion.benefits ?? undefined,

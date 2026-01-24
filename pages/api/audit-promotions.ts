@@ -74,7 +74,7 @@ type AuditResult = {
 // CONFIGURATION
 // =============================================================================
 
-const PROMOTIONS_API_URL = process.env.ELITESPORT_PROMOTIONS_API_URL;
+const PROMOTIONS_API_URL = process.env.ELITESPORT_GET_PROMOTIONS_WEB_URL;
 const API_TOKEN = process.env.ELITESPORT_API_TOKEN;
 
 // =============================================================================
@@ -84,7 +84,7 @@ const API_TOKEN = process.env.ELITESPORT_API_TOKEN;
 async function fetchPromotions(): Promise<PromotionApiResponse[]> {
   if (!PROMOTIONS_API_URL) {
     throw new Error(
-      "[Promotions API] Missing ELITESPORT_PROMOTIONS_API_URL environment variable"
+      "[Promotions API] Missing ELITESPORT_GET_PROMOTIONS_WEB_URL environment variable"
     );
   }
 
@@ -181,13 +181,13 @@ function analyzeCategoryField(
 ): CategoryFieldStatus {
   const analysis = analyzeFieldCoverage(records, fieldName);
   const uniqueValues = [...new Set(analysis.values)];
-  
+
   return {
     found: analysis.present,
     fieldName: analysis.present ? fieldName : null,
     exampleValues: uniqueValues.slice(0, 10), // Limit to 10 examples
     coverage: analysis.coverage,
-    notes: analysis.present 
+    notes: analysis.present
       ? `Field "${fieldName}" found with ${uniqueValues.length} unique value(s)`
       : `Field "${fieldName}" not found in API response`,
   };
@@ -267,8 +267,8 @@ export default async function handler(
         uniqueValues:
           fieldName === "discount"
             ? [...new Set(analysis.values)].sort((a, b) =>
-                Number(a) - Number(b)
-              )
+              Number(a) - Number(b)
+            )
             : undefined,
       };
     });
@@ -277,52 +277,52 @@ export default async function handler(
     const placeRelationStatus =
       hotelAnalysis.present || hotelIdAnalysis.present
         ? {
-            present: true,
-            coverage: hotelAnalysis.present
-              ? hotelAnalysis.coverage
-              : hotelIdAnalysis.coverage,
-            apiField: hotelAnalysis.present ? "hotel" : "hotel_id",
-          }
+          present: true,
+          coverage: hotelAnalysis.present
+            ? hotelAnalysis.coverage
+            : hotelIdAnalysis.coverage,
+          apiField: hotelAnalysis.present ? "hotel" : "hotel_id",
+        }
         : placeAnalysis.present || placeIdAnalysis.present
           ? {
-              present: true,
-              coverage: placeAnalysis.present
-                ? placeAnalysis.coverage
-                : placeIdAnalysis.coverage,
-              apiField: placeAnalysis.present ? "place" : "place_id",
-            }
+            present: true,
+            coverage: placeAnalysis.present
+              ? placeAnalysis.coverage
+              : placeIdAnalysis.coverage,
+            apiField: placeAnalysis.present ? "place" : "place_id",
+          }
           : venueAnalysis.present
             ? {
-                present: true,
-                coverage: venueAnalysis.coverage,
-                apiField: "venue",
-              }
+              present: true,
+              coverage: venueAnalysis.coverage,
+              apiField: "venue",
+            }
             : locationAnalysis.present
               ? {
-                  present: true,
-                  coverage: locationAnalysis.coverage,
-                  apiField: "location",
-                }
+                present: true,
+                coverage: locationAnalysis.coverage,
+                apiField: "location",
+              }
               : { present: false, coverage: "0/0 (0%)", apiField: "N/A" };
 
     // Validity status (start/end dates)
     const validityStatus =
       startDateAnalysis.present || endDateAnalysis.present
         ? {
-            present: true,
-            coverage:
-              startDateAnalysis.present && endDateAnalysis.present
-                ? `start_date: ${startDateAnalysis.coverage}, end_date: ${endDateAnalysis.coverage}`
-                : startDateAnalysis.present
-                  ? startDateAnalysis.coverage
-                  : endDateAnalysis.coverage,
-            apiField:
-              startDateAnalysis.present && endDateAnalysis.present
-                ? "start_date + end_date"
-                : startDateAnalysis.present
-                  ? "start_date"
-                  : "end_date",
-          }
+          present: true,
+          coverage:
+            startDateAnalysis.present && endDateAnalysis.present
+              ? `start_date: ${startDateAnalysis.coverage}, end_date: ${endDateAnalysis.coverage}`
+              : startDateAnalysis.present
+                ? startDateAnalysis.coverage
+                : endDateAnalysis.coverage,
+          apiField:
+            startDateAnalysis.present && endDateAnalysis.present
+              ? "start_date + end_date"
+              : startDateAnalysis.present
+                ? "start_date"
+                : "end_date",
+        }
         : { present: false, coverage: "0/0 (0%)", apiField: "N/A" };
 
     const result: AuditResult = {
