@@ -163,7 +163,7 @@ export const getPageHero = (slug: string): HeroPayload | null => {
 };
 
 // =============================================================================
-// PLACES DATA
+// PLACES DATA (Now fetched from API - see lib/api/places.ts)
 // =============================================================================
 
 export type PlaceCategory =
@@ -174,6 +174,7 @@ export type PlaceCategory =
   | "tennisSquash"
   | "wellness";
 
+// Note: Place data is now fetched from API. Type definition kept for reference.
 export type Place = {
   _id: string;
   name?: string | null;
@@ -190,248 +191,10 @@ export type Place = {
   tags?: string[];
 };
 
-export const MOCK_PLACES: Place[] = [];
-
-export const getPopularPlaces = (): Place[] => {
-  return [];
-};
-
-export const getAllPlaces = (): Place[] => {
-  return [];
-};
-
 // =============================================================================
-// PROMOTIONS DATA
+// PROMOTIONS DATA (Now fetched from API - see lib/api/promotions.ts)
+// Type definitions are in lib/promotionContent.ts
 // =============================================================================
-
-export type PromotionRecord = {
-  _id: string;
-  title?: string;
-  promotionType?: string;
-  overview?: PortableTextBlock[];
-  overviewText?: string;
-  benefits?: string[];
-  ctaLabel?: string;
-  ctaAction?: string;
-  featuredImageUrl?: string;
-  imageAlt?: string;
-  discountPercentage?: number;
-  isPublished?: boolean;
-  publishStartDate?: string;
-  publishEndDate?: string;
-};
-
-export const MOCK_PROMOTIONS: PromotionRecord[] = [
-  {
-    _id: "promo-1",
-    title: "Summer Wellness Package",
-    promotionType: "hotel",
-    overview: [
-      {
-        _type: "block",
-        _key: "b1",
-        style: "normal",
-        children: [
-          {
-            _type: "span",
-            _key: "s1",
-            text: "Enjoy exclusive summer rates at our partner hotels with complimentary spa treatments and poolside service.",
-          },
-        ],
-        markDefs: [],
-      },
-    ],
-    overviewText:
-      "Enjoy exclusive summer rates at our partner hotels with complimentary spa treatments and poolside service.",
-    benefits: [
-      "20% off room rates",
-      "Complimentary spa access",
-      "Priority pool cabana booking",
-      "Welcome amenity",
-    ],
-    ctaLabel: "Book Now",
-    ctaAction: "/contact",
-    // Luxury resort pool with sun loungers
-    featuredImageUrl:
-      "https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?auto=format&fit=crop&w=1400&q=80",
-    discountPercentage: 20,
-    isPublished: true,
-    publishStartDate: "2024-06-01",
-    publishEndDate: "2025-12-31",
-  },
-  {
-    _id: "promo-2",
-    title: "Wellness Partner Discount",
-    promotionType: "gym",
-    overview: [
-      {
-        _type: "block",
-        _key: "b1",
-        style: "normal",
-        children: [
-          {
-            _type: "span",
-            _key: "s1",
-            text: "Bring a friend and both enjoy 15% off your membership fees for the next 3 months.",
-          },
-        ],
-        markDefs: [],
-      },
-    ],
-    overviewText:
-      "Bring a friend and both enjoy 15% off your membership fees for the next 3 months.",
-    benefits: [
-      "15% off for both members",
-      "3-month duration",
-      "No commitment required",
-      "Stackable with other offers",
-    ],
-    ctaLabel: "Learn More",
-    ctaAction: "/contact",
-    // Elegant hotel terrace or lounge setting
-    featuredImageUrl:
-      "https://images.unsplash.com/photo-1584132967334-10e028bd69f7?auto=format&fit=crop&w=1400&q=80",
-    discountPercentage: 15,
-    isPublished: true,
-    publishStartDate: "2024-01-01",
-    publishEndDate: "2025-12-31",
-  },
-  {
-    _id: "promo-3",
-    title: "Ladies Wellness Evening",
-    promotionType: "female",
-    overview: [
-      {
-        _type: "block",
-        _key: "b1",
-        style: "normal",
-        children: [
-          {
-            _type: "span",
-            _key: "s1",
-            text: "Every Thursday enjoy extended spa hours and exclusive wellness experiences at our women-only facilities.",
-          },
-        ],
-        markDefs: [],
-      },
-    ],
-    overviewText:
-      "Every Thursday enjoy extended spa hours and exclusive wellness experiences at our women-only facilities.",
-    benefits: [
-      "Extended hours until 11pm",
-      "Exclusive spa treatments",
-      "Complimentary refreshments",
-      "Guest passes available",
-    ],
-    ctaLabel: "Join Now",
-    ctaAction: "/contact",
-    // Elegant spa or wellness lounge setting
-    featuredImageUrl:
-      "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?auto=format&fit=crop&w=1400&q=80",
-    isPublished: true,
-    publishStartDate: "2024-01-01",
-    publishEndDate: "2025-12-31",
-  },
-  {
-    _id: "promo-4",
-    title: "Kids Summer Resort",
-    promotionType: "kids",
-    overview: [
-      {
-        _type: "block",
-        _key: "b1",
-        style: "normal",
-        children: [
-          {
-            _type: "span",
-            _key: "s1",
-            text: "Keep your children entertained during school holidays with our curated resort experiences.",
-          },
-        ],
-        markDefs: [],
-      },
-    ],
-    overviewText:
-      "Keep your children entertained during school holidays with our curated resort experiences.",
-    benefits: [
-      "Weekly programs",
-      "Beach and pool activities",
-      "Supervised adventures",
-      "Healthy meals included",
-    ],
-    ctaLabel: "Register",
-    ctaAction: "/contact",
-    // Family-friendly resort pool or beach
-    featuredImageUrl:
-      "https://images.unsplash.com/photo-1573843981267-be1999ff37cd?auto=format&fit=crop&w=1400&q=80",
-    discountPercentage: 10,
-    isPublished: true,
-    publishStartDate: "2024-06-01",
-    publishEndDate: "2025-12-31",
-  },
-  {
-    _id: "promo-5",
-    title: "Tennis & Leisure Package",
-    promotionType: "tennisSquash",
-    overview: [
-      {
-        _type: "block",
-        _key: "b1",
-        style: "normal",
-        children: [
-          {
-            _type: "span",
-            _key: "s1",
-            text: "10 private tennis sessions at our resort courts with spa access included.",
-          },
-        ],
-        markDefs: [],
-      },
-    ],
-    overviewText:
-      "10 private tennis sessions at our resort courts with spa access included.",
-    benefits: [
-      "10 private sessions",
-      "Premium court access",
-      "Post-session spa treatment",
-      "Equipment provided",
-    ],
-    ctaLabel: "Book Sessions",
-    ctaAction: "/contact",
-    // Luxury resort tennis court or club setting
-    featuredImageUrl:
-      "https://images.unsplash.com/photo-1622279457486-62dcc4a431d6?auto=format&fit=crop&w=1400&q=80",
-    discountPercentage: 25,
-    isPublished: true,
-    publishStartDate: "2024-01-01",
-    publishEndDate: "2025-12-31",
-  },
-];
-
-export const getActivePromotions = (): PromotionRecord[] => {
-  const now = Date.now();
-  return MOCK_PROMOTIONS.filter((promo) => {
-    if (promo.isPublished === false) return false;
-    if (promo.publishStartDate) {
-      const start = Date.parse(promo.publishStartDate);
-      if (!Number.isNaN(start) && start > now) return false;
-    }
-    if (promo.publishEndDate) {
-      const end = Date.parse(promo.publishEndDate);
-      if (!Number.isNaN(end) && end <= now) return false;
-    }
-    return true;
-  });
-};
-
-export const getLatestPromotions = (limit = 5): PromotionRecord[] => {
-  return getActivePromotions().slice(0, limit);
-};
-
-/*
-  MOCK_MEMBERSHIPS and getMemberships have been removed.
-  We now fetch strictly from the live API via lib/api/plans.ts
-*/
 
 
 // =============================================================================

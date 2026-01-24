@@ -1,5 +1,4 @@
 import Head from "next/head";
-import Image from "next/image";
 import Link from "next/link";
 import { GetStaticProps, InferGetStaticPropsType } from "next";
 import { ReactNode, useState } from "react";
@@ -66,26 +65,11 @@ const sectionVariants = {
   },
 };
 
-const primaryButtonClass =
-  "inline-flex items-center justify-center gap-2 rounded-full bg-brand-gold px-8 py-4 text-xs font-semibold uppercase tracking-[0.28em] text-brand-black shadow-glow transition duration-300 hover:bg-brand-lightBlue hover:text-brand-deepBlue focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-lightBlue focus-visible:ring-offset-2 focus-visible:ring-offset-brand-black";
 
-const secondaryButtonClass =
-  "inline-flex items-center justify-center gap-2 rounded-full border border-brand-ivory/50 px-8 py-4 text-xs font-semibold uppercase tracking-[0.28em] text-brand-ivory transition duration-300 hover:border-brand-gold hover:text-brand-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-lightBlue focus-visible:ring-offset-2 focus-visible:ring-offset-brand-black";
-
-const cardVariants = {
-  hidden: { opacity: 0, y: 30 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] as const },
-  },
-};
-
-type Promotion = PromotionRecord;
 
 type HomePageProps = {
   popularPlaces: Place[];
-  promotions: Promotion[];
+  promotions: PromotionRecord[];
   tiers: MembershipTier[];
   hero: HeroPayload | null;
   aboutHero: HeroPayload | null;
