@@ -34,7 +34,7 @@ export const PromotionCard = ({
   onSelect,
 }: PromotionCardProps) => {
   const [imageError, setImageError] = useState(false);
-  
+
   const {
     title,
     imageUrl,
@@ -48,7 +48,7 @@ export const PromotionCard = ({
     "glass-card premium-card group relative flex min-w-0 w-full flex-col overflow-hidden text-left transition-all duration-300 ease-out hover:scale-[1.02] transform-gpu",
     layoutClasses[layout],
     onSelect &&
-      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-lightBlue focus-visible:ring-offset-2 focus-visible:ring-offset-brand-black cursor-pointer"
+    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-lightBlue focus-visible:ring-offset-2 focus-visible:ring-offset-brand-black cursor-pointer"
   );
 
   const badgeSizes: Record<CardLayout, "sm" | "md" | "lg"> = {
@@ -85,25 +85,14 @@ export const PromotionCard = ({
           </div>
         )}
         <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors duration-500" />
-        
+
         {/* Discount Badge - Top Right */}
         <PromotionDiscountBadge
           percentage={discountPercentage}
           size={badgeSizes[layout]}
           className="absolute right-4 top-4 z-10"
         />
-        
-        {/* Optional: Type Badge if needed on image, but we are moving to text below */}
-        {/* Keeping PromoBadge if it distinguishes the type (e.g. "Limited Time") */}
-         <div className="absolute left-4 top-4 flex flex-wrap gap-2 pr-16">
-          {promotionTypeLabel && (
-            <PromoBadge
-              label={promotionTypeLabel}
-              tone="accent"
-              className="text-[0.55rem]"
-            />
-          )}
-        </div>
+
       </div>
 
       {/* Content Section - Below Image */}
@@ -113,12 +102,12 @@ export const PromotionCard = ({
           layout === "grid" && "px-5 py-5"
         )}
       >
-        {metaLabel && (
+        {promotionTypeLabel && (
           <p className="text-[0.6rem] uppercase tracking-[0.45em] text-brand-lightBlue">
-            {metaLabel}
+            {promotionTypeLabel}
           </p>
         )}
-        
+
         <h3
           className={cn(
             "font-semibold text-brand-ivory leading-tight",
@@ -127,7 +116,7 @@ export const PromotionCard = ({
         >
           {title}
         </h3>
-        
+
       </div>
     </>
   );

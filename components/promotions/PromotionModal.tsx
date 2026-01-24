@@ -131,9 +131,11 @@ export const PromotionModal = ({
           </div>
 
           <div className="absolute bottom-6 left-6 right-6 space-y-3">
-            <p className="text-xs uppercase tracking-[0.45em] text-brand-lightBlue">
-              {promotion.metaLabel ?? "Member Exclusive"}
-            </p>
+            {promotion.promotionTypeLabel && (
+              <p className="text-xs uppercase tracking-[0.45em] text-brand-lightBlue">
+                {promotion.promotionTypeLabel}
+              </p>
+            )}
             <h2 className="text-3xl font-semibold text-brand-ivory">
               {promotion.title}
             </h2>
@@ -142,11 +144,6 @@ export const PromotionModal = ({
         <div className="space-y-6 px-8 py-8">
           {/* Category and Dates Row */}
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-white/10 pb-5">
-            <div className="flex items-center gap-3">
-              {promotion.promotionTypeLabel && (
-                <PromoBadge label={promotion.promotionTypeLabel} tone="accent" />
-              )}
-            </div>
             <div className="text-xs uppercase tracking-[0.35em] text-brand-lightBlue/80">
               {dateLabel}
             </div>

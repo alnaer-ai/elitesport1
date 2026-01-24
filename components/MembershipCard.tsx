@@ -90,8 +90,8 @@ export function MembershipCard({
               </span>
             )}
             {tier.isBusinessOnly && (
-              <span className="absolute top-0 left-0 -ml-4 rounded-full border border-brand-gold/40 bg-brand-gold/10 px-3 py-1 text-xs uppercase tracking-[0.2em] text-brand-gold shadow-sm backdrop-blur-sm" title="For Businesses Only">
-                Business
+              <span className="absolute top-0 left-0 -ml-4 rounded-full border border-white/40 bg-white/10 px-3 py-1 text-xs uppercase tracking-[0.2em] text-white shadow-sm backdrop-blur-sm" title="For Corporate Only">
+                Corporate
               </span>
             )}
             {tier.isPopular && (

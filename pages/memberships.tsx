@@ -153,30 +153,7 @@ export default function MembershipsPage({
           </Container>
         </section>
 
-        <section>
-          <Container className="glass-card premium-card py-14 text-center">
-            <p className="text-xs uppercase tracking-[0.5em] text-brand-lightBlue">
-              Begin your membership
-            </p>
-            <h3 className="mt-4 text-3xl font-semibold text-brand-ivory">
-              Ready to elevate your performance rituals?
-            </h3>
-            <p className="mt-3 text-base text-brand-gray sm:text-lg">
-              Share your goals with our membership directors. We will craft a
-              program blueprint, confirm benefit allocations, and secure your
-              preferred destinations.
-            </p>
-            <div className="mt-8 flex flex-wrap justify-center gap-4">
-              <ButtonLink href={ctaHref}>{ctaLabel}</ButtonLink>
-              <a
-                href="mailto:info@theelitesport.com"
-                className={secondaryButtonClasses}
-              >
-                info@theelitesport.com
-              </a>
-            </div>
-          </Container>
-        </section>
+
       </div>
     </>
   );

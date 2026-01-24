@@ -91,7 +91,7 @@ export const MOCK_MEMBERSHIPS: MembershipInfo[] = [
           "Workout Gym Al Ain",
           "Millennium Downtown Abu Dhabi",
         ],
-        isPopular: true,
+        isPopular: false,
         isFamilyFriendly: false,
         isBusinessOnly: true,
         cardColor: "#f4b942",

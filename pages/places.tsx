@@ -57,7 +57,7 @@ export default function PlacesPage({
     },
     {
       value: "female",
-      label: "For women",
+      label: "Females",
       anchor: "ladies",
       description:
         "Women-only sanctuaries featuring guided classes, spa-grade recovery, and privacy-first amenities.",
@@ -65,7 +65,7 @@ export default function PlacesPage({
     },
     {
       value: "kids",
-      label: "Family & Kids",
+      label: "Kids",
       anchor: "kids",
       description:
         "Play-forward clubs where junior members explore sport safely with age-smart coaching staff.",
