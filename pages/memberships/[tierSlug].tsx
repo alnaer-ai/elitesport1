@@ -20,6 +20,7 @@ import {
   type MembershipInfo,
   type MembershipTier,
 } from "@/lib/membership";
+import { fetchMembershipPlans } from "@/lib/api/memberships";
 
 const checkIconPath = "M20 6L9 17L4 12";
 
@@ -415,8 +416,17 @@ export default function MembershipTierPage({
 }
 
 export const getStaticPaths: GetStaticPaths = async () => {
-  // Use static mock data
-  const memberships = getMemberships();
+  // Try to fetch memberships from API, fallback to mock data
+  let memberships;
+  try {
+    memberships = await fetchMembershipPlans();
+    if (memberships.length === 0) {
+      memberships = getMemberships();
+    }
+  } catch (error) {
+    console.error("[MembershipTierPage] Failed to fetch from API, using mock data:", error);
+    memberships = getMemberships();
+  }
 
   const tiers = collectMembershipTiers(memberships);
 
@@ -452,8 +462,17 @@ export const getStaticProps: GetStaticProps<MembershipTierPageProps> = async ({
     };
   }
 
-  // Use static mock data
-  const memberships = getMemberships();
+  // Try to fetch memberships from API, fallback to mock data
+  let memberships;
+  try {
+    memberships = await fetchMembershipPlans();
+    if (memberships.length === 0) {
+      memberships = getMemberships();
+    }
+  } catch (error) {
+    console.error("[MembershipTierPage] Failed to fetch from API, using mock data:", error);
+    memberships = getMemberships();
+  }
 
   // Still no memberships
   if (memberships.length === 0) {
@@ -478,5 +497,7 @@ export const getStaticProps: GetStaticProps<MembershipTierPageProps> = async ({
       membership: tierEntry.membership,
       tier: tierEntry.tier,
     },
+    revalidate: 60,
   };
 };
+

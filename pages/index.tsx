@@ -1,4 +1,4 @@
-  import Head from "next/head";
+import Head from "next/head";
 import Link from "next/link";
 import { GetStaticProps, InferGetStaticPropsType } from "next";
 import { ReactNode, useState } from "react";
@@ -29,6 +29,7 @@ import {
   getMemberships,
   type MembershipTier,
 } from "@/lib/membership";
+import { fetchMembershipPlans } from "@/lib/api/memberships";
 import {
   PROMOTION_FALLBACK_IMAGE,
   mapPromotionRecordToCardContent,
@@ -283,9 +284,22 @@ export const getStaticProps: GetStaticProps<HomePageProps> = async () => {
   const hero = getPageHero("home");
   const aboutHero = getPageHero("about");
 
-  // Get membership tiers from mock data
-  const memberships = getMemberships();
-  const tiers = collectMembershipTiers(memberships);
+  // Try to fetch membership plans from API, fallback to mock data
+  let tiers: MembershipTier[] = [];
+  try {
+    const apiMemberships = await fetchMembershipPlans();
+    if (apiMemberships.length > 0) {
+      tiers = collectMembershipTiers(apiMemberships);
+    } else {
+      // Fallback to mock data if API returns empty
+      const memberships = getMemberships();
+      tiers = collectMembershipTiers(memberships);
+    }
+  } catch (error) {
+    console.error("[Home] Failed to fetch membership plans from API, using mock data:", error);
+    const memberships = getMemberships();
+    tiers = collectMembershipTiers(memberships);
+  }
 
   return {
     props: {
@@ -299,3 +313,4 @@ export const getStaticProps: GetStaticProps<HomePageProps> = async () => {
     revalidate: 60,
   };
 };
+

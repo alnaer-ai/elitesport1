@@ -63,7 +63,7 @@ const PLANS_API_URL = process.env.ELITESPORT_GET_PLANS_WEB_URL;
 const API_TOKEN = process.env.ELITESPORT_API_TOKEN;
 
 // Target categories to display on membership page
-const TARGET_CATEGORIES = ["Gold", "Silver", "Gym Only"];
+const TARGET_CATEGORIES = ["Gold", "Silver", "Bronze", "Gym Only", "SHE"];
 
 // =============================================================================
 // API CLIENT
@@ -185,32 +185,107 @@ function extractShortDescription(description: string): string {
 }
 
 /**
+ * Extracts the list of hotels and gyms from the HTML description.
+ * Looks for lines starting with "- " or "_" which indicate venue names.
+ *
+ * @param html - HTML description from API
+ * @returns Array of hotel/gym names
+ */
+function extractHotelsAndGyms(html: string | undefined | null): string[] {
+    if (!html) return [];
+
+    const venues: string[] = [];
+
+    // Split by HTML tags and line breaks
+    const lines = html
+        .replace(/<br\s*\/?>/gi, "\n")
+        .replace(/<\/div>/gi, "\n")
+        .replace(/<\/li>/gi, "\n")
+        .replace(/<[^>]*>/g, "")
+        .replace(/&nbsp;/g, " ")
+        .replace(/&amp;/g, "&")
+        .split("\n");
+
+    for (const line of lines) {
+        const trimmed = line.trim();
+
+        // Match lines starting with "- " or "_" (venue indicators)
+        if (trimmed.startsWith("- ") || trimmed.startsWith("_ ")) {
+            const venue = trimmed.substring(2).trim();
+            if (venue && venue.length > 2) {
+                venues.push(venue);
+            }
+        }
+        // Also match lines starting with just "_" followed by text
+        else if (trimmed.startsWith("_") && trimmed.length > 1) {
+            const venue = trimmed.substring(1).trim();
+            if (venue && venue.length > 2) {
+                venues.push(venue);
+            }
+        }
+    }
+
+    return venues;
+}
+
+/**
  * Maps a raw plan API response to the MembershipTier type used by UI components.
  *
  * @param plan - Raw plan data from API
  * @returns MembershipTier compatible with UI components
  */
+// Standard benefits for Gold, Silver, and Bronze tiers
+const STANDARD_BENEFITS = [
+    "Beach",
+    "Swimming",
+    "Pool",
+    "Sauna",
+    "Steam",
+    "Jacuzzi",
+    "Gym",
+    "Kids play area",
+];
+
 function mapPlanToMembershipTier(plan: PlanApiResponse): MembershipTier {
     const category = plan.plan_category;
     const plancard = category.plancard;
+    const categoryLower = category.name.toLowerCase();
 
     // Use plan card primary color, or default based on category name
     let cardColor = plancard?.primary_color || "#f4b942";
     if (!plancard?.primary_color) {
-        const categoryLower = category.name.toLowerCase();
         if (categoryLower.includes("gold")) {
             cardColor = "#f4b942";
         } else if (categoryLower.includes("silver")) {
             cardColor = "#e8e8e8";
+        } else if (categoryLower.includes("bronze")) {
+            cardColor = "#CD7F32";
         } else if (categoryLower.includes("gym")) {
             cardColor = "#6fafce";
+        } else if (categoryLower === "she") {
+            cardColor = "#A081C4";
         }
     }
 
+    // Special description for SHE category
+    const sheDescription = "This category is for ladies only and includes access to multiple women-only fitness clubs across the UAE.";
+    const finalDescription = categoryLower === "she"
+        ? sheDescription
+        : extractShortDescription(category.description);
+
+    // Extract hotels and gyms list from description
+    const hotelsGyms = extractHotelsAndGyms(category.description);
+
+    // Add standard benefits for Gold, Silver, and Bronze tiers
+    const hasBenefits = categoryLower === "gold" || categoryLower === "silver" || categoryLower === "bronze";
+    const benefits = hasBenefits ? STANDARD_BENEFITS : [];
+
     return {
         name: category.name,
-        description: extractShortDescription(category.description),
-        descriptionHtml: category.description,
+        description: finalDescription,
+        descriptionHtml: categoryLower === "she" ? sheDescription : category.description,
+        benefits,
+        hotelsGyms,
         cardColor,
         ctaLabel: "Learn More",
         ctaUrl: "/contact",
@@ -225,22 +300,23 @@ function mapPlanToMembershipTier(plan: PlanApiResponse): MembershipTier {
 // =============================================================================
 
 /**
- * Filters plans to get only Gold, Silver, and Gym memberships.
- * For Gold, returns only one (single type preferred).
+ * Filters plans to get Gold, Silver, Bronze, Gym Only, and SHE memberships.
+ * For each category, returns only one (single type preferred).
  *
  * @param plans - All plans from API
  * @returns Filtered array of plans
  */
 function filterTargetMemberships(plans: PlanApiResponse[]): PlanApiResponse[] {
     const result: PlanApiResponse[] = [];
-    let hasGold = false;
+    const addedCategories = new Set<string>();
 
     for (const plan of plans) {
         const categoryName = plan.plan_category.name;
+        const categoryLower = categoryName.toLowerCase();
 
         // Check if this is a target category
         const isTargetCategory = TARGET_CATEGORIES.some(
-            (target) => categoryName.toLowerCase() === target.toLowerCase()
+            (target) => categoryLower === target.toLowerCase()
         );
 
         if (!isTargetCategory) {
@@ -248,37 +324,55 @@ function filterTargetMemberships(plans: PlanApiResponse[]): PlanApiResponse[] {
         }
 
         // For Gold: only take one, prefer single type
-        if (categoryName.toLowerCase() === "gold") {
-            if (!hasGold) {
-                // Prefer single over family
+        if (categoryLower === "gold") {
+            if (!addedCategories.has("gold")) {
                 if (plan.plan_type === "single") {
                     result.push(plan);
-                    hasGold = true;
+                    addedCategories.add("gold");
                 }
             }
             continue;
         }
 
-        // For Silver: take both single and family if available
-        // But to avoid duplicates, only take single type
-        if (categoryName.toLowerCase() === "silver") {
-            if (plan.plan_type === "single") {
+        // For Silver: only take single type, one instance
+        if (categoryLower === "silver") {
+            if (!addedCategories.has("silver") && plan.plan_type === "single") {
                 result.push(plan);
+                addedCategories.add("silver");
+            }
+            continue;
+        }
+
+        // For Bronze: only take single type, one instance
+        if (categoryLower === "bronze") {
+            if (!addedCategories.has("bronze") && plan.plan_type === "single") {
+                result.push(plan);
+                addedCategories.add("bronze");
             }
             continue;
         }
 
         // For Gym Only: take single type
-        if (categoryName.toLowerCase() === "gym only") {
-            if (plan.plan_type === "single") {
+        if (categoryLower === "gym only") {
+            if (!addedCategories.has("gym only") && plan.plan_type === "single") {
                 result.push(plan);
+                addedCategories.add("gym only");
+            }
+            continue;
+        }
+
+        // For SHE: take single type (ladies only plan)
+        if (categoryLower === "she") {
+            if (!addedCategories.has("she") && plan.plan_type === "single") {
+                result.push(plan);
+                addedCategories.add("she");
             }
             continue;
         }
     }
 
-    // If we didn't find a single Gold, try family
-    if (!hasGold) {
+    // Fallback: If we didn't find a single Gold, try family
+    if (!addedCategories.has("gold")) {
         const goldFamily = plans.find(
             (p) =>
                 p.plan_category.name.toLowerCase() === "gold" &&
@@ -293,7 +387,7 @@ function filterTargetMemberships(plans: PlanApiResponse[]): PlanApiResponse[] {
 }
 
 /**
- * Sorts memberships in a preferred order: Gold first, then Silver, then Gym.
+ * Sorts memberships in a preferred order: Gold, Silver, Bronze, Gym Only, SHE.
  *
  * @param tiers - Array of membership tiers
  * @returns Sorted array
@@ -302,7 +396,9 @@ function sortMembershipTiers(tiers: MembershipTier[]): MembershipTier[] {
     const order: Record<string, number> = {
         gold: 0,
         silver: 1,
-        "gym only": 2,
+        bronze: 2,
+        "gym only": 3,
+        she: 4,
     };
 
     return [...tiers].sort((a, b) => {
