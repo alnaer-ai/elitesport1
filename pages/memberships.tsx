@@ -12,6 +12,7 @@ import {
   getMemberships,
   type MembershipInfo,
 } from "@/lib/membership";
+import { fetchMembershipPlans } from "@/lib/api/memberships";
 
 type MembershipsPageProps = {
   memberships: MembershipInfo[];
@@ -160,12 +161,21 @@ export default function MembershipsPage({
 }
 
 export const getStaticProps: GetStaticProps<MembershipsPageProps> = async () => {
-  // Use static mock data for memberships
-  const memberships = getMemberships();
+  // Fetch membership plans from the API (Gold, Silver, Gym)
+  // Falls back to mock data if API fails
+  let memberships = await fetchMembershipPlans();
+
+  // Use mock data as fallback if API returns empty
+  if (!memberships || memberships.length === 0) {
+    console.log("[Memberships Page] Using fallback mock data");
+    memberships = getMemberships();
+  }
 
   return {
     props: {
       memberships,
     },
+    // Revalidate every hour to fetch fresh data
+    revalidate: 3600,
   };
 };

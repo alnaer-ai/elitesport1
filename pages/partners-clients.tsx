@@ -1,24 +1,18 @@
 import Head from "next/head";
 import Image from "next/image";
-import path from "path";
-import fs from "fs";
 import { GetStaticProps, InferGetStaticPropsType } from "next";
 import { motion, Variants } from "framer-motion";
 import Link from "next/link";
 
 import { Container } from "@/components/Container";
 import { cn } from "@/lib/cn";
-
+import {
+  getPartnersAndClients,
+  type PartnerClientEntry,
+} from "@/lib/api/partnersClients";
 
 type PartnersClientsPageProps = {
-  entries: Array<{
-    _id: string;
-    name: string;
-    category: "client" | "partner" | "sponsor";
-    logoUrl: string;
-    logoAlt: string;
-    website?: string;
-  }>;
+  entries: PartnerClientEntry[];
 };
 
 
@@ -90,14 +84,7 @@ const LogoGridSection = ({
   title: string;
   eyebrow: string;
   description: string;
-  items: Array<{
-    _id: string;
-    name?: string;
-    category?: "client" | "partner" | "sponsor";
-    logoUrl?: string;
-    logoAlt?: string;
-    website?: string;
-  }>;
+  items: PartnerClientEntry[];
   emptyState: string;
 }) => {
   return (
@@ -140,14 +127,7 @@ const LogoGridSection = ({
 const LogoCard = ({
   item,
 }: {
-  item: {
-    _id: string;
-    name?: string;
-    category?: "client" | "partner" | "sponsor";
-    logoUrl?: string;
-    logoAlt?: string;
-    website?: string;
-  };
+  item: PartnerClientEntry;
 }) => {
   const logoUrl = item.logoUrl;
   const isPartner = item.category === "partner";
@@ -198,69 +178,8 @@ const LogoCard = ({
 };
 
 export const getStaticProps: GetStaticProps<PartnersClientsPageProps> = async () => {
-  const entries: Array<{
-    _id: string;
-    name: string;
-    category: "client" | "partner" | "sponsor";
-    logoUrl: string;
-    logoAlt: string;
-  }> = [];
-
-  const publicDir = path.join(process.cwd(), "public");
-
-  // Helper to safely find directory ignoring exact spacing issues if possible
-  const findDir = (base: string, search: string) => {
-    try {
-      const files = fs.readdirSync(base);
-      const match = files.find(f => f.includes(search) && fs.statSync(path.join(base, f)).isDirectory());
-      return match ? path.join(base, match) : null;
-    } catch {
-      return null;
-    }
-  };
-
-  const rootDirName = "partner & clients";
-  const partnerClientsPath = findDir(publicDir, rootDirName);
-
-  if (partnerClientsPath) {
-    const clientsPath = findDir(partnerClientsPath, "clients");
-    const partnersPath = findDir(partnerClientsPath, "partener");
-
-    const processDir = (dirPath: string, category: "client" | "partner") => {
-      if (!dirPath) return;
-      try {
-        const files = fs.readdirSync(dirPath);
-        files.forEach((file) => {
-          if (file.startsWith(".") || file === ".DS_Store") return;
-
-          const relativeDir = path.relative(publicDir, dirPath);
-          // Ensure we use the raw path components for the URL to preserving spaces/encoding as needed for the browser, 
-          // but we must be careful. Next.js typically serves files from public as-is.
-          // If folder is "foo bar", url is "/foo%20bar/file.png".
-          const pathParts = relativeDir.split(path.sep);
-          const encodedPath = pathParts.map(part => encodeURIComponent(part)).join("/");
-          const encodedFile = encodeURIComponent(file);
-          const urlPath = `/${encodedPath}/${encodedFile}`;
-
-          // Use a decoded version closer to raw string if Next JS image component handles it, 
-          // but standard web practice is encoded.
-
-          entries.push({
-            _id: `${category}-${file}`,
-            name: file,
-            category,
-            logoUrl: urlPath.replace(/%20/g, " "), // Try simpler space handling first if Next handles it.
-            logoAlt: file.replace(/\.[^/.]+$/, ""),
-          });
-        });
-      } catch (e) {
-        console.error(`Error reading ${category} directory:`, e);
-      }
-    };
-
-    if (clientsPath) processDir(clientsPath, "client");
-    if (partnersPath) processDir(partnersPath, "partner");
-  }
+  // Fetch partners and clients from API
+  const entries = await getPartnersAndClients();
 
   return {
     props: {
@@ -269,3 +188,4 @@ export const getStaticProps: GetStaticProps<PartnersClientsPageProps> = async ()
     revalidate: 60,
   };
 };
+
