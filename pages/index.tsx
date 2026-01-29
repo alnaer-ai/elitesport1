@@ -23,7 +23,6 @@ import {
   type PromotionCardContent,
 } from "@/components/promotions";
 import { cn } from "@/lib/cn";
-import { type HeroPayload } from "@/lib/hero";
 import {
   collectMembershipTiers,
   getMemberships,
@@ -37,6 +36,7 @@ import {
 } from "@/lib/promotionContent";
 import {
   getPageHero,
+  type HeroPayload,
 } from "@/lib/mockData";
 import { getPromotions } from "@/lib/api/promotions";
 import { fetchPlaces } from "@/lib/api/places";
@@ -263,35 +263,26 @@ const Section = ({
 
 
 export const getStaticProps: GetStaticProps<HomePageProps> = async () => {
-  // Fetch promotions from API (sorted by date, newest first)
   const apiPromotions = await getPromotions();
-
-  // Fetch places from API
   const allPlaces = await fetchPlaces();
 
-  // Display up to 6 places in the "Most Popular Places" section
-  // Prioritize hotels first, then others
   const popularPlaces = allPlaces
     .sort((a, b) => {
-      // Prioritize hotels
       if (a.category === "hotel" && b.category !== "hotel") return -1;
       if (b.category === "hotel" && a.category !== "hotel") return 1;
       return 0;
     })
     .slice(0, 6);
 
-  // Fetch static mock data for other sections
   const hero = getPageHero("home");
   const aboutHero = getPageHero("about");
 
-  // Try to fetch membership plans from API, fallback to mock data
   let tiers: MembershipTier[] = [];
   try {
     const apiMemberships = await fetchMembershipPlans();
     if (apiMemberships.length > 0) {
       tiers = collectMembershipTiers(apiMemberships);
     } else {
-      // Fallback to mock data if API returns empty
       const memberships = getMemberships();
       tiers = collectMembershipTiers(memberships);
     }
@@ -304,7 +295,6 @@ export const getStaticProps: GetStaticProps<HomePageProps> = async () => {
   return {
     props: {
       popularPlaces,
-      // API promotions are already sorted by date (newest first)
       promotions: apiPromotions,
       tiers,
       hero: hero ?? null,

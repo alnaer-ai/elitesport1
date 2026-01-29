@@ -10,13 +10,12 @@ import {
   type PromotionCardContent,
 } from "@/components/promotions";
 import { cn } from "@/lib/cn";
-import { type HeroPayload } from "@/lib/hero";
 import {
   isPromotionActive,
   mapPromotionRecordToCardContent,
   type PromotionRecord,
 } from "@/lib/promotionContent";
-import { getPageHero } from "@/lib/mockData";
+import { getPageHero, type HeroPayload } from "@/lib/mockData";
 import { getPromotions } from "@/lib/api/promotions";
 
 type PromotionsPageProps = {

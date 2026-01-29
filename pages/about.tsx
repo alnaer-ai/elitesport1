@@ -6,8 +6,7 @@ import { motion } from "framer-motion";
 
 import { Container } from "@/components/Container";
 import { SpecialFeaturesSection } from "@/components/SpecialFeatures";
-import { type HeroPayload } from "@/lib/hero";
-import { getPageHero, getAboutInfo, type AboutInfo } from "@/lib/mockData";
+import { getPageHero, getAboutInfo, type AboutInfo, type HeroPayload } from "@/lib/mockData";
 
 type AboutPageProps = {
   about: AboutInfo | null;
@@ -41,7 +40,6 @@ const primaryButtonClass =
 const secondaryButtonClass =
   "inline-flex items-center justify-center gap-2 rounded-full border border-brand-ivory/50 px-8 py-4 text-xs font-semibold uppercase tracking-[0.28em] text-brand-ivory transition duration-300 hover:border-brand-gold hover:text-brand-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-lightBlue focus-visible:ring-offset-2 focus-visible:ring-offset-brand-black";
 
-// Premium luxury lifestyle images - pools, spas, resorts, beaches
 const luxuryEscapes = [
   {
     title: "Infinity Pool Retreats",

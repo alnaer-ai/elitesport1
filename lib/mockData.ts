@@ -1,14 +1,4 @@
-/**
- * Static mock data to replace Sanity CMS content.
- * These data shapes match exactly what was previously returned from Sanity.
- * Ready for future API integration.
- */
-
 import type { PortableTextBlock } from "@portabletext/types";
-
-// =============================================================================
-// HERO DATA
-// =============================================================================
 
 export type HeroMediaType = "image" | "video";
 export type HeroLayoutVariant = "centered" | "split" | "overlay";
@@ -68,7 +58,7 @@ export const MOCK_HEROES: Record<string, HeroPayload> = {
     subtitle:
       "We blend resort-level hospitality, private beach access, and restorative rituals with optional performance when you want it.",
     mediaType: "image",
-    // Luxury hotel lobby with elegant interior design
+
     imageUrl:
       "/goldenh.png",
     layoutVariant: "overlay",
@@ -84,7 +74,7 @@ export const MOCK_HEROES: Record<string, HeroPayload> = {
     subtitle:
       "Curated residences and retreats where hospitality, wellness, and elevated living are seamlessly woven together.",
     mediaType: "image",
-    // Stunning luxury resort pool with palm trees and ocean view
+
     imageUrl:
       "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=2400&q=80",
     layoutVariant: "overlay",
@@ -100,7 +90,7 @@ export const MOCK_HEROES: Record<string, HeroPayload> = {
     subtitle:
       "Discover curated offers and benefits available only to EliteSport members.",
     mediaType: "image",
-    // Luxurious spa and wellness setting with candles and relaxation
+
     imageUrl:
       "https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=2400&q=80",
     layoutVariant: "overlay",
@@ -116,7 +106,7 @@ export const MOCK_HEROES: Record<string, HeroPayload> = {
     subtitle:
       "Choose the membership level that complements your lifestyle and wellness journey.",
     mediaType: "image",
-    // Local brand illustration for growth theme
+
     imageUrl: "/growth.png",
     layoutVariant: "overlay",
     overlayOpacity: 60,
@@ -131,7 +121,7 @@ export const MOCK_HEROES: Record<string, HeroPayload> = {
     subtitle:
       "Our concierge team is ready to assist with membership inquiries, partnerships, and more.",
     mediaType: "image",
-    // Sophisticated hotel concierge/reception area
+
     imageUrl:
       "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?auto=format&fit=crop&w=2400&q=80",
     layoutVariant: "overlay",
@@ -147,7 +137,7 @@ export const MOCK_HEROES: Record<string, HeroPayload> = {
     subtitle:
       "World-renowned brands and tastemakers rely on EliteSport to curate elevated lifestyle experiences.",
     mediaType: "image",
-    // Elegant rooftop lounge or upscale hospitality setting
+
     imageUrl:
       "https://images.unsplash.com/photo-1445019980597-93fa8acb246c?auto=format&fit=crop&w=2400&q=80",
     layoutVariant: "overlay",
@@ -162,9 +152,7 @@ export const getPageHero = (slug: string): HeroPayload | null => {
   return MOCK_HEROES[slug] ?? null;
 };
 
-// =============================================================================
-// PLACES DATA (Now fetched from API - see lib/api/places.ts)
-// =============================================================================
+
 
 export type PlaceCategory =
   | "hotel"
@@ -174,7 +162,7 @@ export type PlaceCategory =
   | "tennisSquash"
   | "wellness";
 
-// Note: Place data is now fetched from API. Type definition kept for reference.
+
 export type Place = {
   _id: string;
   name?: string | null;
@@ -191,15 +179,9 @@ export type Place = {
   tags?: string[];
 };
 
-// =============================================================================
-// PROMOTIONS DATA (Now fetched from API - see lib/api/promotions.ts)
-// Type definitions are in lib/promotionContent.ts
-// =============================================================================
 
 
-// =============================================================================
-// ABOUT PAGE DATA
-// =============================================================================
+
 
 export type Differentiator = {
   title?: string;
@@ -274,9 +256,7 @@ export const getAboutInfo = (): AboutInfo => {
   return MOCK_ABOUT;
 };
 
-// =============================================================================
-// CONTACT PAGE DATA
-// =============================================================================
+
 
 export type ContactHours = {
   label?: string;

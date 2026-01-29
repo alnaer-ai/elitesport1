@@ -47,12 +47,10 @@ export default function MembershipTierPage({
   const membershipTitle = membership.title ?? "Memberships";
   const tierSlug = getTierSlug(tier.name) ?? "";
   const benefits = (tier.benefits ?? []).filter((benefit): benefit is string => Boolean(benefit));
-  // Filter out "family member" benefits unless explicitly provided
   const familyBenefits = (tier.familyBenefits ?? [])
     .filter((benefit): benefit is string => Boolean(benefit))
     .filter((benefit) => {
       const lowerBenefit = benefit.toLowerCase();
-      // Remove benefits that mention "family member" unless explicitly provided
       return !lowerBenefit.includes("family member");
     });
   const hotelsGyms = (tier.hotelsGyms ?? []).filter((venue): venue is string => Boolean(venue));
@@ -77,7 +75,6 @@ export default function MembershipTierPage({
   const tierIndex = tierOrderMap.get(tierSlug);
   const currentTierColor = getTierColor(tier, tierIndex);
 
-  // Check if this is a gym-related tier (hide benefits section)
   const normalizedTierName = tierName.toLowerCase().trim();
   const normalizedCategoryName = tier.categoryName?.toLowerCase().trim() ?? "";
   const normalizedSlug = tierSlug.toLowerCase().trim();
@@ -90,7 +87,6 @@ export default function MembershipTierPage({
     normalizedSlug.includes("gym") ||
     normalizedSlug === "gym";
 
-  // Check if this is a "She" tier (hide benefits section)
   const isSheTier =
     normalizedTierName === "she" ||
     normalizedTierName.includes("she") ||
@@ -100,7 +96,6 @@ export default function MembershipTierPage({
     normalizedSlug === "she" ||
     normalizedSlug.includes("she");
 
-  // Hide benefits section for gym and she tiers
   const shouldHideBenefits = isGymTier || isSheTier;
 
   return (
@@ -416,7 +411,6 @@ export default function MembershipTierPage({
 }
 
 export const getStaticPaths: GetStaticPaths = async () => {
-  // Try to fetch memberships from API, fallback to mock data
   let memberships;
   try {
     memberships = await fetchMembershipPlans();
@@ -462,7 +456,6 @@ export const getStaticProps: GetStaticProps<MembershipTierPageProps> = async ({
     };
   }
 
-  // Try to fetch memberships from API, fallback to mock data
   let memberships;
   try {
     memberships = await fetchMembershipPlans();

@@ -3,7 +3,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 
 import { cn } from "@/lib/cn";
-import { HeroPayload } from "@/lib/hero";
+import type { HeroPayload } from "@/lib/mockData";
 
 import { Container } from "./Container";
 
